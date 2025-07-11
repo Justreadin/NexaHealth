@@ -1,7 +1,8 @@
 # app/routers/nearby.py
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Depends
 from typing import List, Optional
+from app.dependencies.auth import guest_or_auth
 from pydantic import BaseModel
 import requests
 
@@ -62,9 +63,10 @@ def extract_address(tags: dict) -> str:
 
 @router.get("/get-nearby", response_model=List[NearbyPlace])
 def get_nearby(
-    lat: float = Query(..., description="Latitude of the user's location"),
-    lng: float = Query(..., description="Longitude of the user's location"),
-    radius: int = Query(3000, description="Search radius in meters"),
+    lat: float = Query(...),
+    lng: float = Query(...),
+    radius: int = Query(3000),
+    auth_state: tuple = Depends(guest_or_auth(max_uses=15, feature_name="nearby_search"))
 ):
     """
     Get nearby pharmacies and hospitals around the specified coordinates within the radius.

@@ -1,165 +1,281 @@
 import pandas as pd
-import os
+import spacy
 import re
 import json
+import os
+from typing import Dict, List, Optional, Any, Tuple, Set, DefaultDict
 from difflib import get_close_matches
+from functools import lru_cache
+from negspacy.negation import Negex
+from transformers import pipeline
 from pathlib import Path
+from collections import defaultdict
+from rapidfuzz import fuzz, process
 
-import nltk
-from nltk.stem import PorterStemmer
+# Initialize NLP models
+nlp = spacy.load("en_core_web_sm")
+nlp.add_pipe("negex")  # Add negation detection
 
-#nltk.download('punkt')  # Only once, to ensure word tokenization works
-stemmer = PorterStemmer()
+# Lazy-loaded zero-shot model
+_zero_shot_model: Optional[Any] = None
 
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RISK_DATA_PATH = os.path.join(BASE_DIR, "data", "keyword_risk_map.csv")
-VERIFIED_DRUGS_PATH = os.path.join(BASE_DIR, "data", "verified_drugs.json")
+# --- Data Loading with Caching ---
+@lru_cache(maxsize=1)
+def load_risk_data() -> Dict[str, Dict[str, Any]]:
+    BASE_DIR = Path(__file__).parent.parent
+    risk_df = pd.read_csv(BASE_DIR / "data" / "keyword_risk_map.csv")
+    risk_df["symptom_keyword"] = risk_df["symptom_keyword"].str.lower().str.strip()
 
-# === Load and Normalize Risk Data ===
-risk_df = pd.read_csv(RISK_DATA_PATH)
-risk_df["symptom_keyword"] = risk_df["symptom_keyword"].str.lower().str.strip()
+    # Merge with MeSH terms
+    mesh_df = pd.read_csv(BASE_DIR / "data" / "MeSH.csv")
+    mesh_terms = mesh_df['standard_term'].unique()
 
-risk_map = {
-    row["symptom_keyword"]: {
-        "risk_weight": row["risk_weight"],
-        "common_drugs": [drug.strip() for drug in row["common_drugs"].split(",")] if pd.notna(row["common_drugs"]) else []
+    # Ensure all MeSH terms are in risk_map
+    for term in mesh_terms:
+        if term not in risk_df['symptom_keyword'].values:
+            risk_df = pd.concat([risk_df, pd.DataFrame([{
+                'symptom_keyword': term,
+                'risk_weight': 30,  # Default weight
+                'common_drugs': ''
+            }])], ignore_index=True)
+
+    risk_df['common_drugs'] = risk_df['common_drugs'].apply(
+        lambda x: [drug.strip() for drug in x.split(",")] if pd.notna(x) and isinstance(x, str) else []
+    )
+
+    return {
+        row["symptom_keyword"]: {
+            "risk_weight": row["risk_weight"],
+            "common_drugs": row["common_drugs"]
+        }
+        for _, row in risk_df.iterrows()
     }
-    for _, row in risk_df.iterrows()
-}
 
-# === Load Verified Drugs Data ===
-with open(VERIFIED_DRUGS_PATH, "r", encoding="utf-8") as file:
-    verified_drugs = json.load(file)
 
-# Flatten a set of all verified ingredient names (normalized for comparison)
-verified_ingredients = set()
-for drug in verified_drugs:
-    ingredients = drug.get("ingredients") or drug.get("i ngredients")  # fallback for typo
-    if ingredients:
-        verified_ingredients.update(ing.strip().lower() for ing in ingredients)
+@lru_cache(maxsize=1)
+def load_verified_drugs() -> List[Dict[str, Any]]:
+    BASE_DIR = Path(__file__).parent.parent
+    with open(BASE_DIR / "data" / "verified_drugs.json", "r", encoding="utf-8") as f:
+        return json.load(f)
 
-# === Core Functions ===
 
-def extract_keywords(user_input: str, cutoff=0.7):
-    """Extract symptom keywords using exact, fuzzy, and stemmed matches."""
-    user_input_lower = user_input.lower()
-    matched = set()
+risk_map = load_risk_data()
+verified_drugs = load_verified_drugs()
 
-    # Stemmed keyword map for better matching
-    stemmed_risk_map = {stemmer.stem(k): k for k in risk_map.keys()}
 
-    # Step 1: Exact substring match
-    for symptom in risk_map.keys():
-        if symptom in user_input_lower:
-            matched.add(symptom)
+# --- Cached NLP Functions ---
+@lru_cache(maxsize=1000)
+def get_doc(text: str) -> Any:
+    return nlp(text.lower())
 
-    # Step 2: Fuzzy match full input
-    if not matched:
-        close_matches = get_close_matches(user_input_lower, risk_map.keys(), n=3, cutoff=0.6)
-        matched.update(close_matches)
 
-    # Step 3: Word-by-word fuzzy + stem match
-    if not matched:
-        words = re.findall(r'\b\w+\b', user_input_lower)
-        for word in words:
-            stemmed_word = stemmer.stem(word)
-
-            # Fuzzy match against original keywords
-            close = get_close_matches(word, risk_map.keys(), n=1, cutoff=cutoff)
-            if close:
-                matched.add(close[0])
+@lru_cache(maxsize=1)
+def load_mesh_synonyms() -> Dict[str, List[str]]:
+    BASE_DIR = Path(__file__).parent.parent
+    try:
+        df = pd.read_csv(BASE_DIR / "data" / "MeSH.csv")
+        synonym_map = defaultdict(list)
+        for _, row in df.iterrows():
+            # Handle NaN/float values safely
+            if pd.isna(row['local_synonyms']):
                 continue
+            synonyms = [s.strip() for s in str(row['local_synonyms']).split(",")]
+            synonym_map[row['standard_term']].extend(synonyms)
+        return dict(synonym_map)
+    except FileNotFoundError:
+        return {}
 
-            # Match against stemmed keys
-            if stemmed_word in stemmed_risk_map:
-                matched.add(stemmed_risk_map[stemmed_word])
+
+@lru_cache(maxsize=1)
+def load_reverse_synonyms() -> Dict[str, str]:
+    mesh = load_mesh_synonyms()
+    reverse_map = {}
+    for term, synonyms in mesh.items():
+        for syn in synonyms:
+            if syn:  # Only add non-empty strings
+                reverse_map[syn] = term
+    return reverse_map
+
+
+@lru_cache(maxsize=1000)
+def preprocess_nigerian_english(text: str) -> str:
+    """Convert common Nigerian English phrases to standard medical terms"""
+    replacements = {
+        "dey pain me": "pain",
+        "wahala": "problem",
+        "belle": "stomach",
+        "catarrh": "cough",
+        "running stomach": "diarrhea"
+    }
+    text = text.lower()
+    for local, standard in replacements.items():
+        text = text.replace(local, standard)
+    return text
+
+
+@lru_cache(maxsize=1000)
+def extract_context(text: str) -> Dict[str, Optional[str]]:
+    """Extract duration and severity with caching"""
+    doc = get_doc(text)
+    context = {"duration": None, "severity": None}
+
+    # Duration detection
+    for token in doc:
+        if token.text in ["for", "since"] and token.i + 2 < len(doc):
+            phrase = f"{token.text} {doc[token.i + 1].text} {doc[token.i + 2].text}"
+            if any(unit in phrase for unit in ["day", "week", "month", "year"]):
+                context["duration"] = phrase
+
+    # Severity detection
+    severity_terms = ["severe", "acute", "chronic", "intense", "mild", "moderate"]
+    for term in severity_terms:
+        if term in text.lower():
+            context["severity"] = term
+            break
+
+    return context
+
+
+@lru_cache(maxsize=1000)
+def extract_keywords(user_input: str) -> List[str]:
+    user_input = preprocess_nigerian_english(user_input)
+    doc = get_doc(user_input)
+    matched: Set[str] = set()
+    reverse_synonyms = load_reverse_synonyms()
+    input_lower = user_input.lower()
+    mesh_synonyms = load_mesh_synonyms()
+
+    # 1. First check for complete phrase matches from MeSH
+    for term, synonyms in mesh_synonyms.items():
+        # Check if any complete synonym phrase exists in input
+        for syn in synonyms:
+            if ' ' in syn and syn in input_lower:  # Only multi-word phrases
+                matched.add(term)
+                break  # No need to check other synonyms for this term
+
+    # 2. Check standard terms and single-word synonyms
+    for term, synonyms in mesh_synonyms.items():
+        if term in input_lower and term not in matched:
+            matched.add(term)
+
+        for syn in synonyms:
+            if syn in input_lower and ' ' not in syn:  # Single word synonyms
+                matched.add(term)
+
+    # 3. Check noun chunks against reverse synonyms
+    for chunk in doc.noun_chunks:
+        chunk_text = chunk.text.lower()
+        if chunk_text in reverse_synonyms:
+            matched.add(reverse_synonyms[chunk_text])
+        elif chunk_text in risk_map:
+            matched.add(chunk_text)
+
+    # 4. Fuzzy matching fallback with adjusted scoring
+    if not matched:
+        # First try fuzzy matching with complete input
+        def phrase_scorer(s1: str, s2: str, **kwargs: Any) -> float:
+            return fuzz.token_set_ratio(s1, s2, **kwargs)
+
+        # Check against all MeSH terms and synonyms
+        all_phrases = []
+        for term, synonyms in mesh_synonyms.items():
+            all_phrases.append(term)
+            all_phrases.extend(synonyms)
+
+        phrase_matches = process.extract(
+            user_input,
+            all_phrases,
+            scorer=phrase_scorer,
+            score_cutoff=70.0  # Higher threshold for phrases
+        )
+
+        for match, score, _ in phrase_matches:
+            if score >= 70:
+                # Find which standard term this synonym belongs to
+                for term, synonyms in mesh_synonyms.items():
+                    if match == term or match in synonyms:
+                        matched.add(term)
+                        break
+
+        # If still no matches, try individual tokens
+        if not matched:
+            def word_scorer(s1: str, s2: str, **kwargs: Any) -> float:
+                return fuzz.token_set_ratio(s1, s2, **kwargs)
+
+            for token in doc:
+                if token.is_alpha and not token.is_stop:
+                    token_text = token.text.lower()
+                    results = process.extract(
+                        token_text,
+                        list(risk_map.keys()),
+                        scorer=word_scorer,
+                        score_cutoff=50.0
+                    )
+                    for match, score, _ in results:
+                        if score >= 50:
+                            matched.add(match)
 
     return list(matched)
 
 
+def calculate_risk(user_input: str) -> Dict[str, Any]:
+    """Enhanced risk calculation with all features"""
+    keywords = extract_keywords(user_input)
+    context = extract_context(user_input)
 
-def verify_drug_suggestions(drug_names):
-    """Cross-reference recommended drugs with verified product names or ingredients."""
-    verified_suggestions = []
-    product_names = {drug["product_name"].lower(): drug for drug in verified_drugs}
+    # Negation handling
+    doc = get_doc(user_input)
+    negated = [e.text for e in doc.ents if e._.negex]
+    valid_keywords = [k for k in keywords if not any(n in k for n in negated)]
 
-    for drug_name in drug_names:
-        normalized = drug_name.lower().strip()
+    # Zero-shot fallback if no matches
+    if not valid_keywords and len(user_input.split()) > 2:
+        global _zero_shot_model
+        if _zero_shot_model is None:
+            _zero_shot_model = pipeline(
+                "zero-shot-classification",
+                model="distilbert-base-uncased"
+            )
+        result = _zero_shot_model(user_input, list(risk_map.keys())[:50])
+        if result['scores'][0] > 0.7:
+            valid_keywords.append(result['labels'][0])
 
-        # Check if drug_name matches a product name exactly
-        if normalized in product_names:
-            verified_suggestions.append(product_names[normalized]["product_name"])
+    # Calculate risk scores
+    max_risk = 0
+    suggested_drugs: Set[str] = set()
+
+    for keyword in valid_keywords:
+        if keyword not in risk_map:
             continue
 
-        # Else check if it matches any ingredient substring
-        if any(normalized in ing for ing in verified_ingredients):
-            verified_suggestions.append(drug_name)
+        weight = int(risk_map[keyword]["risk_weight"])
 
-    return verified_suggestions
+        # Apply context multipliers
+        if context["duration"] and ("week" in context["duration"] or "month" in context["duration"]):
+            weight = int(weight * 1.5)
+        if context["severity"] in ["severe", "acute"]:
+            weight = int(weight * 1.8)
 
+        weight = min(weight, 100)
+        max_risk = max(max_risk, weight)
+        suggested_drugs.update(risk_map[keyword].get("common_drugs", []))
 
-def calculate_risk(user_input: str):
-    """Compute hybrid risk score (out of 100) and suggest drugs based on matched symptoms."""
-    matched_keywords = extract_keywords(user_input)
-
-    if not matched_keywords:
-        return {
-            "risk_score": 0,
-            "risk_level": "Low",
-            "matched_keywords": [],
-            "recommended_drugs": [],
-            "verified_recommendations": []
-        }
-
-    # Get risk weights for matched keywords
-    weights = [risk_map[key].get("risk_weight", 0) for key in matched_keywords if key in risk_map]
-
-    if not weights:
-        return {
-            "risk_score": 0,
-            "risk_level": "Low",
-            "matched_keywords": matched_keywords,
-            "recommended_drugs": [],
-            "verified_recommendations": []
-        }
-
-    # === Hybrid Risk Calculation ===
-    max_weight = max(weights)
-    avg_weight = sum(weights) / len(weights)
-    hybrid_score = round((0.7 * max_weight) + (0.3 * avg_weight))
-    capped_risk = min(hybrid_score, 100)
-
-    # Determine risk level
-    if capped_risk >= 75:
-        risk_level = "High"
-    elif capped_risk >= 40:
-        risk_level = "Moderate"
-    else:
-        risk_level = "Low"
-
-    # === Suggest Drugs ===
-    suggested_drugs = set()
-
-    # Add common drugs from matched keywords
-    for key in matched_keywords:
-        if key in risk_map:
-            suggested_drugs.update(risk_map[key].get("common_drugs", []))
-
-    # Match ingredients from verified drugs
-    for drug in verified_drugs:
-        ingredients = drug.get("ingredients", [])
-        for ing in ingredients:
-            if any(word in ing.lower() for word in matched_keywords):
-                suggested_drugs.add(drug["product_name"])
-
-    # Final verification of drug suggestions
-    verified_recommendations = verify_drug_suggestions(suggested_drugs)
+    # Prepare output
+    risk_level = "High" if max_risk >= 80 else "Moderate" if max_risk >= 50 else "Low"
 
     return {
-        "risk_score": capped_risk,
+        "risk_score": max_risk,
         "risk_level": risk_level,
-        "matched_keywords": matched_keywords,
-        "recommended_drugs": sorted(suggested_drugs),
-        "verified_recommendations": sorted(verified_recommendations)
+        "matched_keywords": valid_keywords,
+        "negated_symptoms": negated,
+        "suggested_drugs": [
+            {
+                "name": drug["product_name"],
+                "dosage_form": drug.get("dosage_form", "N/A"),
+                "use_case": f"Treats {keyword}"
+            }
+            for drug in verified_drugs
+            if drug["product_name"] in suggested_drugs
+        ]
     }

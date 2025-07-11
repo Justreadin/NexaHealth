@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- PWA Configuration -->
+    <!-- PWA Configuration probably later-->
     <meta name="theme-color" content="#2563eb">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+    <link rel="stylesheet" href="main.css">
     <title>NexaHealth | Your Complete Health Companion</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -32,11 +29,12 @@
                 },
                 extend: {
                     colors: {
-                        primary: '#2563eb',
+                        primary: '#3b82f6',
                         secondary: '#1e40af',
-                        accent: '#3b82f6',
-                        dark: '#1e293b',
-                        light: '#f8fafc',
+                        accent: '#10b981',
+                        dark: '#0f172a',
+                        darker: '#020617',
+                        light: '#f8fafc'
                     },
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif'],
@@ -62,9 +60,11 @@
         }
     </script>
     <style type="text/css">
-        .hero-gradient {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+       .hero-gradient {
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.9), rgba(30, 64, 175, 0.9));
         }
+
+
         .card-hover:hover {
             transform: translateY(-8px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -116,7 +116,6 @@
     </style>
 </head>
 <body class="font-sans text-dark bg-light">
-    <!-- Navigation -->
     <nav class="fixed w-full bg-white shadow-md z-50 transition-all duration-300">
         <div class="container mx-auto px-4 xs:px-6 py-3">
             <div class="flex justify-between items-center">
@@ -126,25 +125,28 @@
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
-                    <a href="#home" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="#home" class="nav-link text-primary font-medium transition text-sm lg:text-base">Home</a>
                     <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
                     <a href="report.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
                     <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Flagged</a>
                     <a href="symptoms.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Symptom Check</a>
                 </div>
 
-                <div class="hidden md:block">
-                    <a href="ai_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-5 lg:py-2 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg text-sm lg:text-base btn-hover">
-                        AI Health Companion
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="ai_companion.html" class="btn-primary">
+                        AI Companion
                     </a>
+
+                    <!-- Auth Dropdown (will be populated by JS) -->
+                    <div class="auth-dropdown"></div>
                 </div>
 
                 <!-- Mobile Hamburger -->
                 <div class="md:hidden">
                     <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors">
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark transition-all"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
                     </button>
                 </div>
             </div>
@@ -153,17 +155,19 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
             <div class="flex flex-col space-y-4">
-                <a href="index.html" class="text-primary font-medium transition">Home</a>
-                <a href="verify.html" class="text-dark hover:text-primary font-medium transition">Verify</a>
-                <a href="report.html" class="text-dark hover:text-primary font-medium transition">Report</a>
-                <a href="flagged.html" class="text-dark hover:text-primary font-medium transition">Flagged</a>
-                <a href="symptoms.html" class="text-dark hover:text-primary font-medium transition">Symptoms Check</a>
-                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+                <a href="index.html" class="mobile-link text-primary transition">Home</a>
+                <a href="verify.html" class="mobile-link">Verify</a>
+                <a href="report.html" class="mobile-link">Report</a>
+                <a href="flagged.html" class="mobile-link">Flagged</a>
+                <a href="symptoms.html" class="mobile-link">Symptoms Check</a>
+                <a href="ai_companion.html" class="btn-primary text-center">AI Companion</a>
+
+                <!-- Mobile Auth Buttons (will be populated by JS) -->
+                <div class="mobile-auth-section"></div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section id="home" class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="flex flex-col lg:flex-row items-center">
@@ -308,299 +312,343 @@
         </div>
     </section>
 
-    <!-- Verification Showcase Section -->
-    <section id="verify" class="py-12 sm:py-16 bg-white">
-        <div class="container mx-auto px-4 xs:px-6">
-            <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-3 sm:mb-4">Drug Verification</h2>
-                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Check if your medication is verified by NAFDAC or has been reported as suspicious</p>
-            </div>
-
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 mb-8 lg:mb-0" data-aos="fade-right">
-                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 mx-auto max-w-md transition-transform duration-500 hover:scale-[1.02]">
-                        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80"
-                             alt="Drug verification interface"
-                             class="rounded-lg w-full h-auto transition-transform duration-300 hover:scale-105">
-                    </div>
-                </div>
-                <div class="lg:w-1/2 lg:pl-8 xl:pl-12 mt-8 lg:mt-0" data-aos="fade-left" data-aos-delay="200">
-                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-4 sm:mb-6">Quick and Reliable Drug Verification</h3>
-                    <p class="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
-                        Our verification tool helps you confirm the authenticity of medications with just a few clicks.
-                        Simply enter the drug name or NAFDAC number to get instant results.
-                    </p>
-                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                        <li class="flex items-start transition-transform duration-300 hover:translate-x-1">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Check against NAFDAC's official database</span>
-                        </li>
-                        <li class="flex items-start transition-transform duration-300 hover:translate-x-1" style="transition-delay: 50ms">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Community-reported safety information</span>
-                        </li>
-                        <li class="flex items-start transition-transform duration-300 hover:translate-x-1" style="transition-delay: 100ms">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Detailed drug information and side effects</span>
-                        </li>
-                    </ul>
-                    <a href="verify.html" class="inline-block bg-primary hover:bg-secondary text-white px-6 py-3 sm:px-8 sm:py-3 rounded-full font-semibold transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base btn-hover" data-aos="zoom-in" data-aos-delay="400">
-                        Try Verification Tool <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Report Section -->
-    <section id="report" class="py-12 sm:py-16 bg-gray-50">
+    <!-- ╔═══════════════╗
+        ║ VERIFICATION ║
+        ╚═══════════════╝ -->
+    <section id="verify" class="py-14 sm:py-20 bg-white">
         <div class="container mx-auto px-4 sm:px-6">
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 mb-8 lg:mb-0">
-                    <div class="relative floating">
-                        <img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
-                             alt="Reporting suspicious drugs"
-                             class="rounded-lg shadow-xl w-full h-auto max-w-md mx-auto">
-                    </div>
-                </div>
-                <div class="lg:w-1/2 lg:pl-8 xl:pl-12 mt-8 lg:mt-0">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Report Suspicious Drugs</h2>
-                    <p class="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8">
-                        Help protect others by reporting medications that seem fake, ineffective, or dangerous. Your report could save lives.
-                    </p>
-                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Anonymous reporting available</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Contributes to community safety</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-blue-500 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="text-gray-700 text-sm sm:text-base">Helps authorities track counterfeit drugs</span>
-                        </li>
-                    </ul>
-                    <a href="report.html" class="inline-block bg-primary hover:bg-secondary text-white px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
-                        Report Now <i class="fas fa-flag ml-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Flagged Section -->
-    <section id="flagged" class="py-12 sm:py-16 bg-white">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-3 sm:mb-4">Flagged Pharmacies Map</h2>
-                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">See locations with multiple reports of suspicious drugs in your area</p>
-            </div>
-
-            <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-4 sm:p-6">
-                <!-- Flagged Placeholder - In a real implementation, you would use Leaflet.js or Google maps API -->
-                <div class="h-64 sm:h-80 md:h-96 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <div class="text-center p-4 sm:p-6">
-                        <i class="fas fa-map-marked-alt text-3xl sm:text-4xl text-primary mb-3 sm:mb-4"></i>
-                        <h3 class="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Interactive Map Coming Soon</h3>
-                        <p class="text-gray-600 text-sm sm:text-base">This will display flagged pharmacies based on community reports</p>
-                    </div>
-                </div>
-
-                <div class="mt-6 sm:mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    <div class="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition">
-                        <div class="flex items-center mb-2 sm:mb-3">
-                            <div class="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full mr-2"></div>
-                            <h4 class="font-bold text-sm sm:text-base">Lekki Pharmacy</h4>
-                        </div>
-                        <p class="text-gray-600 text-xs sm:text-sm">8 reports of fake Coartem in the last month</p>
-                    </div>
-                    <div class="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition">
-                        <div class="flex items-center mb-2 sm:mb-3">
-                            <div class="w-2 h-2 sm:w-3 sm:h-3 bg-yellow-500 rounded-full mr-2"></div>
-                            <h4 class="font-bold text-sm sm:text-base">Ikeja Medical Store</h4>
-                        </div>
-                        <p class="text-gray-600 text-xs sm:text-sm">3 reports of ineffective Paracetamol</p>
-                    </div>
-                    <div class="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition">
-                        <div class="flex items-center mb-2 sm:mb-3">
-                            <div class="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full mr-2"></div>
-                            <h4 class="font-bold text-sm sm:text-base">Victoria Island Drugmart</h4>
-                        </div>
-                        <p class="text-gray-600 text-xs sm:text-sm">5 reports of suspicious Amoxicillin</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Symptom Checker Section -->
-    <section id="symptoms" class="py-12 sm:py-16 symptom-gradient text-white">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 mb-8 lg:mb-0">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Symptom Checker & Drug Advisor</h2>
-                    <p class="text-base sm:text-lg opacity-90 mb-6 sm:mb-8">
-                        Describe your symptoms to get risk assessment and personalized medication recommendations from our AI-powered system.
-                    </p>
-                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">Get instant risk assessment for your symptoms</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">Receive appropriate medication suggestions</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">Detailed usage information and safety tips</span>
-                        </li>
-                    </ul>
-                    <a href="symptoms.html" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
-                        Try Symptom Checker <i class="fas fa-stethoscope ml-2"></i>
-                    </a>
-                </div>
-                <div class="lg:w-1/2 mt-8 lg:mt-0">
-                    <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
-                        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                             alt="Symptom checker interface"
-                             class="rounded-lg w-full h-auto">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- AI Companion Section -->
-    <section id="ai-companion" class="py-12 sm:py-16 ai-gradient text-white">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 lg:pl-8 xl:pl-12 mt-8 lg:mt-0 order-1 lg:order-2">
-                    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">AI Health Companion</h2>
-                    <p class="text-base sm:text-lg opacity-90 mb-6 sm:mb-8">
-                        Get personalized health advice in English, Pidgin, Yoruba, or Hausa from our friendly AI assistant.
-                    </p>
-                    <ul class="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">24/7 access to health information</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">Multilingual support for better understanding</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-white opacity-90 mt-1 mr-2 sm:mr-3 text-sm sm:text-base"></i>
-                            <span class="opacity-90 text-sm sm:text-base">General health advice and mental health support</span>
-                        </li>
-                    </ul>
-                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-                        <a href="ai_companion.html" class="w-full sm:w-auto bg-white text-indigo-600 hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
-                            Chat with AI <i class="fas fa-robot ml-2"></i>
-                        </a>
-                    </div>
-                    <div class="lg:w-1/2 mt-8 lg:mt-0">
-                    <div class="bg-white rounded-xl shadow-2xl p-4 sm:p-6">
-                        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                             alt="AI companion interface"
-                             class="rounded-lg w-full h-auto">
-                    </div>
-                </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section class="py-12 sm:py-16 bg-white">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="text-center mb-12 sm:mb-16">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-3 sm:mb-4">What Our Users Say</h2>
-                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Trusted by thousands of Nigerians for their health needs</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-                <div class="bg-gray-50 p-6 sm:p-8 rounded-xl border border-gray-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                            <span class="text-blue-600 font-bold">AO</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Adebayo O.</h4>
-                            <div class="flex text-yellow-400 text-sm">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic">"The drug verification feature saved me from buying fake antibiotics. I check every medication now before purchase."</p>
-                </div>
-                <div class="bg-gray-50 p-6 sm:p-8 rounded-xl border border-gray-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mr-4">
-                            <span class="text-green-600 font-bold">CE</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Chioma E.</h4>
-                            <div class="flex text-yellow-400 text-sm">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic">"The AI companion is amazing! It understands Pidgin and gives me health advice in my local language."</p>
-                </div>
-                <div class="bg-gray-50 p-6 sm:px-8 rounded-xl border border-gray-200">
-                    <div class="flex items-center mb-4">
-                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
-                            <span class="text-purple-600 font-bold">IM</span>
-                        </div>
-                        <div>
-                            <h4 class="font-bold">Ibrahim M.</h4>
-                            <div class="flex text-yellow-400 text-sm">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="text-gray-600 italic">"The symptom checker helped me identify when my child needed urgent medical attention. Very accurate!"</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final CTA Section -->
-    <section class="py-16 sm:py-20 hero-gradient text-white">
-        <div class="container mx-auto px-4 sm:px-6 text-center">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Ready to Take Control of Your Health?</h2>
-            <p class="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 opacity-90">
-                Join thousands of Nigerians using NexaHealth to make informed health decisions every day.
+            <!-- Heading -->
+            <header class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold font-serif mb-4">
+                Drug Verification
+            </h2>
+            <p class="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+                Check if your medication is verified by NAFDAC or has been reported as suspicious.
             </p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
-                <a href="verify.html" class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
-                    Verify a Drug <i class="fas fa-pills ml-2"></i>
+            </header>
+
+            <!-- Content -->
+            <div class="flex flex-col-reverse lg:flex-row items-center gap-12">
+
+            <!-- Text -->
+            <div class="w-full lg:w-1/2" data-aos="fade-left" data-aos-delay="150">
+                <h3 class="text-2xl sm:text-3xl font-serif font-bold mb-4 sm:mb-6">
+                Quick &amp; Reliable Verification
+                </h3>
+                <p class="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8 max-w-prose">
+                Enter the drug name or NAFDAC number and get instant authenticity results.
+                </p>
+
+                <ul class="space-y-4 mb-8 sm:mb-10 text-gray-700 text-sm sm:text-base">
+                <li class="flex items-start gap-3 transition-transform hover:translate-x-1 delay-75">
+                    <i class="fas fa-check-circle text-primary mt-1"></i>
+                    <span>Real-time check against NAFDAC’s database</span>
+                </li>
+                <li class="flex items-start gap-3 transition-transform hover:translate-x-1 delay-100">
+                    <i class="fas fa-check-circle text-primary mt-1"></i>
+                    <span>Community-reported safety information</span>
+                </li>
+                <li class="flex items-start gap-3 transition-transform hover:translate-x-1 delay-150">
+                    <i class="fas fa-check-circle text-primary mt-1"></i>
+                    <span>Detailed drug info &amp; side-effects</span>
+                </li>
+                </ul>
+
+                <a
+                href="verify.html"
+                class="inline-block bg-primary hover:bg-secondary text-white font-semibold text-sm sm:text-base px-6 sm:px-8 py-2.5 sm:py-3 rounded-full shadow-md hover:shadow-xl transition-all duration-300"
+                >
+                Try Verification Tool <i class="fas fa-arrow-right ml-2"></i>
                 </a>
-                <a href="symptoms.html" class="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-primary px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all text-sm sm:text-base">
-                    Check Symptoms <i class="fas fa-stethoscope ml-2"></i>
-                </a>
-                <a href="ai_companion.html" class="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-primary px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all text-sm sm:text-base">
-                    AI Companion <i class="fas fa-robot ml-2"></i>
-                </a>
+            </div>
+
+            <!-- Image -->
+            <div class="w-full lg:w-1/2" data-aos="fade-right">
+                <div
+                class="relative mx-auto max-w-md bg-white rounded-2xl shadow-xl p-4 sm:p-6
+                        transition-transform duration-300 hover:scale-[1.03]"
+                >
+                <img
+                    src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=800&q=80"
+                    alt="Drug verification interface"
+                    class="rounded-lg w-full h-auto object-cover"
+                />
+                </div>
+            </div>
+
             </div>
         </div>
     </section>
+
+
+        <!-- ╔═══════════╗
+        ║ REPORTING ║
+        ╚═══════════╝ -->
+    <section id="report" class="py-14 sm:py-20 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="flex flex-col-reverse lg:flex-row items-center gap-12">
+
+        <!-- Text Content -->
+        <div data-aos="fade-left" class="w-full lg:w-1/2">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">
+            Report Suspicious Drugs
+            </h2>
+            <p class="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8 max-w-prose">
+            Protect others by reporting medications that seem fake, ineffective, or dangerous.
+            </p>
+
+            <ul class="space-y-4 mb-8 sm:mb-10 text-gray-700 text-sm sm:text-base">
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-primary mt-1"></i>
+                <span>Anonymous reporting available</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-primary mt-1"></i>
+                <span>Contributes to community safety</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle text-primary mt-1"></i>
+                <span>Helps authorities track counterfeit drugs</span>
+            </li>
+            </ul>
+
+            <a
+            href="report.html"
+            class="inline-block rounded-full bg-primary px-6 sm:px-8 py-2.5 sm:py-3 text-white font-semibold shadow-md hover:bg-secondary transition-all duration-300 text-sm sm:text-base"
+            >
+            Report Now <i class="fas fa-flag ml-2"></i>
+            </a>
+        </div>
+
+        <!-- Image -->
+        <div data-aos="fade-right" class="w-full lg:w-1/2">
+            <img
+            src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=880&q=80"
+            alt="Reporting suspicious drugs"
+            class="w-full max-w-md mx-auto rounded-xl shadow-xl floating object-cover"
+            />
+        </div>
+
+        </div>
+    </div>
+    </section>
+
+
+    <!-- ╔═════════════╗
+        ║ FLAGGED MAP ║
+        ╚═════════════╝ -->
+    <section id="flagged" class="py-14 sm:py-20 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <header class="text-center mb-14">
+        <h2 class="text-3xl sm:text-4xl font-bold font-serif mb-4">
+            Flagged Pharmacies Map
+        </h2>
+        <p class="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+            See locations with multiple reports of suspicious drugs in your area.
+        </p>
+        </header>
+
+        <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+        <!-- Map placeholder -->
+        <div class="h-72 sm:h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+            <div class="text-center">
+            <i class="fas fa-map-marked-alt text-4xl text-primary mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">Interactive Map Coming Soon</h3>
+            <p class="text-gray-600">Flagged pharmacies based on community reports.</p>
+            </div>
+        </div>
+
+        <!-- Mini-cards -->
+        <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div class="rounded-lg border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center mb-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                <h4 class="font-bold">Lekki Pharmacy</h4>
+            </div>
+            <p class="text-gray-600 text-sm">
+                8 reports of fake Coartem in the last month
+            </p>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center mb-2">
+                <span class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+                <h4 class="font-bold">Ikeja Medical Store</h4>
+            </div>
+            <p class="text-gray-600 text-sm">
+                3 reports of ineffective Paracetamol
+            </p>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center mb-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full mr-2"></span>
+                <h4 class="font-bold">VI Drugmart</h4>
+            </div>
+            <p class="text-gray-600 text-sm">
+                5 reports of suspicious Amoxicillin
+            </p>
+            </div>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <!-- ╔══════════════════════╗
+        ║ SYMPTOM CHECKER + AI ║
+        ╚══════════════════════╝ -->
+    <section id="symptoms" class="py-14 sm:py-20 symptom-gradient text-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+
+        <!-- Text -->
+        <div>
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif mb-6">
+            Symptom Checker &amp; Drug Advisor
+            </h2>
+            <p class="opacity-90 text-base sm:text-lg mb-8">
+            Describe your symptoms to get risk assessment and personalized medication advice.
+            </p>
+
+            <ul class="space-y-4 mb-10">
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>Instant risk assessment</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>Medication suggestions</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>Usage info &amp; safety tips</span>
+            </li>
+            </ul>
+
+            <a
+            href="symptoms.html"
+            class="inline-block bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition"
+            >
+            Try Symptom Checker
+            <i class="fas fa-stethoscope ml-2"></i>
+            </a>
+        </div>
+
+        <!-- Image -->
+        <div data-aos="zoom-in" data-aos-delay="150">
+            <div class="bg-white rounded-2xl shadow-2xl p-6">
+            <img
+                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1470&q=80"
+                alt="Symptom checker interface"
+                class="rounded-lg w-full h-auto"
+            />
+            </div>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <section id="ai-companion" class="py-14 sm:py-20 ai-gradient text-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+
+        <!-- Image -->
+        <div data-aos="zoom-in">
+            <div class="bg-white rounded-2xl shadow-2xl p-6">
+            <img
+                src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1470&q=80"
+                alt="AI companion interface"
+                class="rounded-lg w-full h-auto"
+            />
+            </div>
+        </div>
+
+        <!-- Text -->
+        <div data-aos="fade-left" data-aos-delay="150">
+            <h2 class="text-3xl sm:text-4xl font-bold font-serif mb-6">
+            AI Health Companion
+            </h2>
+            <p class="opacity-90 text-base sm:text-lg mb-8">
+            Get personalised advice in English, Pidgin, Yoruba, or Hausa from our friendly AI assistant.
+            </p>
+
+            <ul class="space-y-4 mb-10">
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>24/7 access to health info</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>Multilingual support</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fas fa-check-circle opacity-90 mt-1"></i>
+                <span>General &amp; mental-health advice</span>
+            </li>
+            </ul>
+
+            <a
+            href="ai_companion.html"
+            class="inline-block bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition"
+            >
+            Chat with AI
+            <i class="fas fa-robot ml-2"></i>
+            </a>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <!-- ╔══════════╗
+        ║ FINAL CTA ║
+        ╚══════════╝ -->
+    <section class="py-16 sm:py-20 bg-white text-dark">
+    <div class="container mx-auto px-4 sm:px-6 text-center">
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold font-serif mb-6">
+        Ready to Take Control of Your Health?
+        </h2>
+        <p class="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 opacity-90">
+        Join thousands of Nigerians using NexaHealth to make informed health decisions every day.
+        </p>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+        <a href="verify.html"
+            class="rounded-full bg-primary text-white px-8 py-3 font-semibold shadow-lg
+                    hover:bg-secondary transition">
+            Verify a Drug <i class="fas fa-pills ml-2"></i>
+        </a>
+        <a href="symptoms.html"
+            class="rounded-full border-2 border-primary text-primary px-8 py-3 font-semibold
+                    hover:bg-primary hover:text-white transition">
+            Check Symptoms <i class="fas fa-stethoscope ml-2"></i>
+        </a>
+        <a href="ai_companion.html"
+            class="rounded-full border-2 border-primary text-primary px-8 py-3 font-semibold
+                    hover:bg-primary hover:text-white transition">
+            AI Companion <i class="fas fa-robot ml-2"></i>
+        </a>
+        </div>
+    </div>
+    </section>
+
+    <!-- Guest Mode Banner -->
+    <div id="guest_banner" class="bg-blue-50 border-t border-b border-blue-100 py-3">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-user-circle text-blue-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        You're browsing in <span class="font-medium">Guest Mode</span>.
+                        <a href="signup.html" class="text-primary font-medium hover:underline ml-1">Sign up</a> to save your symptom history and preferences.
+                    </p>
+                </div>
+                <a href="signup.html" class="hidden sm:block text-sm bg-gradient-to-r from-primary to-secondary text-white px-4 py-1 rounded-full font-medium hover:shadow-md transition-all">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-dark text-white py-8 sm:py-12">
@@ -658,74 +706,9 @@
             </div>
         </div>
     </footer>
-
     <!-- JavaScript -->
-    <script>
-        // Mobile Menu Toggle
-        const hamburger = document.getElementById('hamburger');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('hamburger-active');
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburger.classList.remove('hamburger-active');
-                mobileMenu.classList.add('hidden');
-            });
-        });
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // Animation on scroll
-        const animateOnScroll = () => {
-            const elements = document.querySelectorAll('.animation-fade-in, .animation-slide-up');
-
-            elements.forEach(element => {
-                const elementPosition = element.getBoundingClientRect().top;
-                const screenPosition = window.innerHeight / 1.2;
-
-                if (elementPosition < screenPosition) {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }
-            });
-        };
-
-        // Set initial state for animated elements
-        document.querySelectorAll('.animation-fade-in').forEach(el => {
-            el.style.opacity = '0';
-        });
-
-        document.querySelectorAll('.animation-slide-up').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-        });
-
-        // Run once on load
-        animateOnScroll();
-
-        // Then on scroll
-        window.addEventListener('scroll', animateOnScroll);
-    </script>
+    <script src="index.js"></script>
+    <script src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </body>
 </html>

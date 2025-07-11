@@ -176,8 +176,40 @@
                     <a href="symptoms.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Symptoms Check</a>
                 </div>
 
-                <div class="hidden md:block">
-                    <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium transition-all shadow-lg hover:shadow-xl text-sm lg:text-base">AI Health Companion</a>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="ai_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-5 lg:py-2 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg text-sm lg:text-base btn-hover">
+                        AI Companion
+                    </a>
+
+                    <!-- Auth Dropdown -->
+                    <div class="relative group" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-1 focus:outline-none">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white">
+                                <i class="fas fa-user text-sm"></i>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs text-gray-500 transition-transform duration-200" :class="{ 'transform rotate-180': open }"></i>
+                        </button>
+
+                        <div x-show="open" @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95">
+                            <a href="login.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors">
+                                <i class="fas fa-sign-in-alt mr-2"></i> Log In
+                            </a>
+                            <a href="signup.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors">
+                                <i class="fas fa-user-plus mr-2"></i> Sign Up
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-primary transition-colors">
+                                <i class="fas fa-question-circle mr-2"></i> Help Center
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Mobile Hamburger -->
@@ -200,6 +232,15 @@
                 <a href="flagged.html" class="text-primary font-medium transition">Flagged</a>
                 <a href="symptoms.html" class="text-dark hover:text-primary font-medium transition">Symptoms Check</a>
                 <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+
+                <div class="pt-2 space-y-3">
+                    <a href="login.html" class="block text-center border border-primary text-primary hover:bg-blue-50 px-6 py-2 rounded-full font-medium transition-all">
+                        Log In
+                    </a>
+                    <a href="signup.html" class="block text-center bg-gradient-to-r from-primary to-secondary text-white px-6 py-2 rounded-full font-medium transition-all hover:shadow-lg">
+                        Sign Up
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
@@ -693,6 +734,7 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     <!-- JavaScript -->
     <script src="flagged.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="feedback.js"></script>
 </body>
 </html>

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    document.getElementById('closeD-feedback').addEventListener('click', function() {
+    document.getElementById('close-feedback').addEventListener('click', function() {
         document.getElementById('feedback-modal').classList.add('hidden');
     });
 
@@ -133,4 +133,68 @@ document.addEventListener('DOMContentLoaded', function() {
             type.classList.remove('bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-red-50', 'border-primary');
         });
     }
+function showFeedbackTooltip() {
+        // Remove any existing tooltip first
+        const existingTooltip = document.querySelector('.feedback-tooltip');
+        if (existingTooltip) existingTooltip.remove();
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'feedback-tooltip absolute -top-12 left-1/2 transform -translate-x-1/2 px-3 py-2 bg-white text-gray-800 text-sm rounded-lg shadow-lg whitespace-nowrap z-50';
+        tooltip.innerHTML = `
+            <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white rotate-45"></div>
+            <span class="relative z-10">Your feedback helps us improve!</span>
+        `;
+        
+        // Position relative on feedback button
+        feedbackButton.classList.add('relative');
+        
+        // Append tooltip
+        feedbackButton.appendChild(tooltip);
+        
+        // Add animation class after a small delay
+        setTimeout(() => {
+            tooltip.classList.add('animate-feedback-tooltip');
+        }, 10);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+            tooltip.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+            setTimeout(() => tooltip.remove(), 300);
+        }, 5000);
+    }
+
+    // Show tooltip periodically
+    function initTooltipInterval() {
+        // Show first tooltip after 10 seconds
+        setTimeout(() => {
+            if (!localStorage.getItem('feedbackShown')) {
+                showFeedbackTooltip();
+                localStorage.setItem('feedbackShown', 'true');
+                setTimeout(() => localStorage.removeItem('feedbackShown'), 300000); // 5 minutes
+            }
+        }, 10000);
+
+        // Then every 3 minutes
+        setInterval(() => {
+            if (!localStorage.getItem('feedbackShown')) {
+                showFeedbackTooltip();
+                localStorage.setItem('feedbackShown', 'true');
+                setTimeout(() => localStorage.removeItem('feedbackShown'), 300000); // 5 minutes
+            }
+        }, 180000);
+    }
+
+    // Initialize the tooltip system
+    initTooltipInterval();
+
+    // Feedback button hover effect
+    feedbackButton.addEventListener('mouseenter', function() {
+        this.classList.remove('animate-pulse-slow');
+        this.classList.add('animate-heartbeat');
+    });
+
+    feedbackButton.addEventListener('mouseleave', function() {
+        this.classList.remove('animate-heartbeat');
+        this.classList.add('animate-pulse-slow');
+    });
 });

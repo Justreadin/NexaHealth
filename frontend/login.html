@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Log In</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .btn-hover {
+            transition: all 0.3s ease;
+            background-size: 200% auto;
+            background-image: linear-gradient(to right, #2563eb 0%, #1e40af 51%, #2563eb 100%);
+        }
+        .btn-hover:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+        .google-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px 0 rgba(66, 133, 244, 0.2);
+        }
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px 0 rgba(66, 133, 244, 0.3);
+        }
+        .form-input {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .form-input:hover {
+            border-color: #93c5fd;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+        }
+        .password-toggle {
+            transition: all 0.3s ease;
+        }
+        .password-toggle:hover {
+            color: #3b82f6;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #64748b;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .divider::before {
+            margin-right: 1rem;
+        }
+        .divider::after {
+            margin-left: 1rem;
+        }
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        .remember-checkbox:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .remember-checkbox:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+        .forgot-link {
+            transition: all 0.2s ease;
+        }
+        .forgot-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm z-50">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+                <div class="hidden md:block">
+                    <a href="signup.html" class="text-primary hover:text-secondary font-medium transition-colors">Don't have an account? <span class="font-semibold">Sign up</span></a>
+                </div>
+                <div class="md:hidden">
+                    <a href="signup.html" class="text-sm bg-primary hover:bg-secondary text-white px-4 py-2 rounded-full font-medium transition-all">Sign up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-8 sm:py-12 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Column - Illustration -->
+                <div class="hidden lg:block relative">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -z-10"></div>
+                    <div class="absolute bottom-0 right-0 w-40 h-40 bg-blue-100 rounded-full opacity-20 -z-10"></div>
+                    <div class="relative animation-float">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
+                             alt="Health illustration"
+                             class="rounded-2xl shadow-xl w-full max-w-lg mx-auto">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-3">
+                                    <i class="fas fa-user-shield text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Secure Login</div>
+                                    <div class="text-xs text-gray-500">End-to-End Encrypted</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-heartbeat text-red-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Health Tracking</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-bell text-yellow-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Medication Alerts</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-chart-line text-green-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Health Insights</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Form -->
+                <div class="bg-white rounded-2xl shadow-sm p-8 sm:p-10 max-w-lg mx-auto w-full card-hover">
+                    <div class="text-center mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2">Welcome Back</h1>
+                        <p class="text-gray-600">Log in to access your health dashboard</p>
+                    </div>
+
+                    <!-- Google Login Button -->
+                    <button id="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 ripple">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5">
+                        <span>Continue with Google</span>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="divider text-sm mb-6">OR</div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="space-y-5">
+                        <!-- Email Field -->
+                        <div>
+                            <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <div class="relative">
+                                <input type="email" id="loginEmail" name="email" required
+                                       class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
+                                       placeholder="your@email.com">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-envelope text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="loginPassword" name="password" required
+                                       class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus pr-10"
+                                       placeholder="••••••••">
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle"
+                                        onclick="togglePassword('loginPassword')">
+                                    <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="rememberMe" name="rememberMe" type="checkbox"
+                                       class="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded remember-checkbox">
+                                <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                            </div>
+                            <div>
+                                <a href="forgot-password.html" class="text-sm text-primary forgot-link">Forgot password?</a>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all ripple">
+                            Log In
+                        </button>
+                    </form>
+
+                    <!-- Signup Link -->
+                    <div class="mt-6 text-center text-sm">
+                        <span class="text-gray-600">Don't have an account?</span>
+                        <a href="signup.html" class="font-medium text-primary hover:text-secondary ml-1">Sign up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="login.js">
+    </script>
+</body>
+</html>

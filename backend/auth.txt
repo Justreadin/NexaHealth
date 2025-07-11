@@ -1,0 +1,19 @@
+Frontend Integration
+Your frontend can now call these endpoints:
+
+POST /auth/signup - User registration
+
+POST /auth/login - Email/password login
+
+POST /auth/google-login - Google OAuth login
+
+POST /auth/request-password-reset - Initiate password reset
+
+POST /auth/reset-password - Complete password reset
+
+GET /auth/me - Get current user info
+
+The frontend should store the JWT token returned from login/signup and include it in the Authorization header for protected routes:
+
+
+look at this for my app, i don't want it compulsory for people to signup or login to use the app, they can just enter the app use the features but they can only access features like user history and other related stuffs that can only be accessible if they signup and login of which after creating an account all activities during the sessions are saved.

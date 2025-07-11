@@ -17,6 +17,7 @@
     <!-- Custom Tailwind Config -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="report.css" />
+    <link rel="stylesheet" href="main.css" />
     <script>
         tailwind.config = {
             theme: {
@@ -168,33 +169,37 @@
     </style>
 </head>
 <body class="font-sans text-dark bg-light">
-    <!-- Navigation -->
-    <nav class="fixed w-full bg-white shadow-md z-50">
-        <div class="container mx-auto px-4 sm:px-6 py-3">
+    <nav class="fixed w-full bg-white shadow-md z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
-                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif transition-colors hover:text-secondary">Nexa<span class="text-secondary">Health</span></a>
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex space-x-6 lg:space-x-8">
-                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Home</a>
-                    <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Verify</a>
-                    <a href="report.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Report</a>
-                    <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Flagged</a>
-                    <a href="symptoms.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Symptoms Check</a>
+                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
+                    <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Flagged</a>
+                    <a href="symptoms.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Symptom Check</a>
                 </div>
 
-                <div class="hidden md:block">
-                    <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium transition-all shadow-lg hover:shadow-xl text-sm lg:text-base">AI Health Companion</a>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="ai_companion.html" class="btn-primary">
+                        AI Companion
+                    </a>
+
+                    <!-- Auth Dropdown (will be populated by JS) -->
+                    <div class="auth-dropdown"></div>
                 </div>
 
                 <!-- Mobile Hamburger -->
                 <div class="md:hidden">
-                    <button id="hamburger" class="text-dark focus:outline-none">
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark"></div>
+                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
                     </button>
                 </div>
             </div>
@@ -203,16 +208,18 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
             <div class="flex flex-col space-y-4">
-                <a href="index.html" class="text-dark hover:text-primary font-medium transition">Home</a>
-                <a href="verify.html" class="text-dark hover:text-primary font-medium transition">Verify</a>
-                <a href="report.html" class="text-primary font-medium transition">Report</a>
-                <a href="flagged.html" class="text-dark hover:text-primary font-medium transition">Flagged</a>
-                <a href="symptoms.html" class="text-dark hover:text-primary font-medium transition">Symptoms Check</a>
-                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+                <a href="index.html" class="mobile-link">Home</a>
+                <a href="verify.html" class="mobile-link">Verify</a>
+                <a href="report.html" class="mobile-link">Report</a>
+                <a href="flagged.html" class="mobile-link">Flagged</a>
+                <a href="symptoms.html" class="mobile-link text-primary transition">Symptoms Check</a>
+                <a href="ai_companion.html" class="btn-primary text-center">AI Companion</a>
+
+                <!-- Mobile Auth Buttons (will be populated by JS) -->
+                <div class="mobile-auth-section"></div>
             </div>
         </div>
     </nav>
-
     <!-- Hero Section -->
     <section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
         <div class="container mx-auto px-4 sm:px-6">
@@ -654,7 +661,9 @@
     <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
     <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script src="report.js"></script>
     <script src="feedback.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

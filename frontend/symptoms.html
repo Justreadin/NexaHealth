@@ -6,9 +6,12 @@
     <title>Symptom Checker | NexaHealth</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="main.js"></script>
     <!-- Google Fonts -->
+     <link rel="stylesheet" href="main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="symptoms.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -140,50 +143,58 @@
     </style>
 </head>
 <body class="font-sans text-dark bg-light">
-<!-- Navigation -->
-<nav class="fixed w-full bg-white shadow-md z-50">
-    <div class="container mx-auto px-4 sm:px-6 py-3">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center">
-                <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
-            </div>
+    <nav class="fixed w-full bg-white shadow-md z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif transition-colors hover:text-secondary">Nexa<span class="text-secondary">Health</span></a>
+                </div>
 
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex space-x-6 lg:space-x-8">
-                <a href="index.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Home</a>
-                <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Verify</a>
-                <a href="report.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Report</a>
-                <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Flagged</a>
-                <a href="symptoms.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Symptoms Check</a>
-            </div>
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
+                    <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Flagged</a>
+                    <a href="symptoms.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Symptom Check</a>
+                </div>
 
-            <div class="hidden md:block">
-                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium transition-all shadow-lg hover:shadow-xl text-sm lg:text-base">AI Health Companion</a>
-            </div>
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="ai_companion.html" class="btn-primary">
+                        AI Companion
+                    </a>
 
-            <!-- Mobile Hamburger -->
-            <div class="md:hidden">
-                <button id="hamburger" class="text-dark focus:outline-none">
-                    <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
-                    <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
-                    <div class="hamburger-line w-6 h-0.5 bg-dark"></div>
-                </button>
+                    <!-- Auth Dropdown (will be populated by JS) -->
+                    <div class="auth-dropdown"></div>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
             <div class="flex flex-col space-y-4">
-                <a href="index.html" class="text-dark hover:text-primary font-medium transition">Home</a>
-                <a href="verify.html" class="text-dark hover:text-primary font-medium transition">Verify</a>
-                <a href="report.html" class="text-dark hover:text-primary font-medium transition">Report</a>
-                <a href="flagged.html" class="text-dark hover:text-primary font-medium transition">Flagged</a>
-                <a href="symptoms.html" class="text-primary font-medium transition">Symptoms Check</a>
-                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+                <a href="index.html" class="mobile-link">Home</a>
+                <a href="verify.html" class="mobile-link">Verify</a>
+                <a href="report.html" class="mobile-link">Report</a>
+                <a href="flagged.html" class="mobile-link">Flagged</a>
+                <a href="symptoms.html" class="mobile-link text-primary transition">Symptoms Check</a>
+                <a href="ai_companion.html" class="btn-primary text-center">AI Companion</a>
+
+                <!-- Mobile Auth Buttons (will be populated by JS) -->
+                <div class="mobile-auth-section"></div>
             </div>
         </div>
-</nav>
+    </nav>
+
 
 <!-- Hero Section -->
 <section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
@@ -336,6 +347,23 @@
     </div>
 </section>
 
+<!-- Guest Limit Modal -->
+<div id="guest-limit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <h3 class="text-xl font-bold mb-4">Continue Your Health Journey</h3>
+    <p class="mb-6">You've reached the limit for guest usage. Sign up or log in to continue using our symptom checker and save your history.</p>
+    
+    <div class="flex flex-col space-y-3">
+      <button id="signup-btn" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg transition-colors">
+        Sign Up
+      </button>
+      <button id="login-btn" class="border border-primary text-primary hover:bg-blue-50 py-2 px-4 rounded-lg transition-colors">
+        Log In
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Common Symptoms Section -->
 <section id="common-symptoms" class="py-12 sm:py-16 bg-gray-50">
     <div class="container mx-auto px-4 sm:px-6">
@@ -414,6 +442,27 @@
     </div>
 </section>
 
+
+        <!-- Guest Mode Banner -->
+    <div class="bg-blue-50 border-t border-b border-blue-100 py-3">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-user-circle text-blue-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        You're browsing in <span class="font-medium">Guest Mode</span>.
+                        <a href="signup.html" class="text-primary font-medium hover:underline ml-1">Sign up</a> to save your symptom history and preferences.
+                    </p>
+                </div>
+                <a href="signup.html" class="hidden sm:block text-sm bg-gradient-to-r from-primary to-secondary text-white px-4 py-1 rounded-full font-medium hover:shadow-md transition-all">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+
 <footer class="bg-dark text-white py-8 sm:py-12">
     <div class="container mx-auto px-4 sm:px-6">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
@@ -470,9 +519,9 @@
     <!-- Add this just before the closing </body> tag -->
     <div id="feedback-system">
       <!-- Floating Feedback Button -->
-      <button id="feedback-button" class="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-pulse-slow">
+    <button id="feedback-button" class="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-pulse-slow">
         <i class="fas fa-comment-medical text-white text-xl"></i>
-      </button>
+    </button>
 
       <!-- Feedback Modal -->
       <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
@@ -577,7 +626,9 @@
       </div>
     </div>
 </footer>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script src="symptoms.js"></script>
 <script src="feedback.js"></script>
+<script src="main.js"></script>
 </body>
 </html>

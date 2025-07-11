@@ -136,7 +136,7 @@ def get_ai_response(message: str, history: Optional[List[Dict]] = None) -> str:
             json={
                 "model": MODEL,
                 "messages": messages,
-                "temperature": 0.7,
+                "temperature": 0.8,
                 "max_tokens": 300  # Limit response length
             },
             timeout=10
