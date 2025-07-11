@@ -1,0 +1,105 @@
+:root {
+    --primary: #1d3557;
+    --accent: #2a9d8f;
+    --alert-high: #e63946;
+    --alert-medium: #f4a261;
+    --alert-low: #2ecc71;
+    --background: #f1faee;
+    --text: #333333;
+  }
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--text);
+  }
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: "Poppins", sans-serif;
+  }
+  .main {
+    position: relative;
+    display: flex;
+    height: 100vh;
+  }
+  aside {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 20px;
+    width: 20vw;
+    height: 100%;
+    background-color: var(--primary);
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+  }
+  aside header{
+    font-weight: 500;
+  }
+  aside a, aside button{
+    width: 100%;
+  }
+  aside button{
+    text-align: left;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px auto;
+    color: var(--accent);
+    background-color: var(--primary);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  #menu, #close {
+    font-size: 25px;
+    position: absolute;
+    top: 5px;
+    cursor: pointer;
+  }
+  #menu {
+    color: var(--primary);
+    left: 5px;
+  }
+  #close {
+    display: none;
+    color: white;
+    right: 5px;
+  }
+  .active{
+    display: block;
+  }
+  aside button:focus, .focus{
+    font-size: 25px;
+  }
+  aside button:hover{
+    background-color: var(--background);
+  }
+  @media screen and (max-width: 500px) {
+    .section div {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .section div button {
+      width: 100%;
+      margin: 5px;
+    }
+    aside{
+      display: none;
+      width: 100%;
+    }
+    #menu, #close{
+      display: block;
+    }
+  }

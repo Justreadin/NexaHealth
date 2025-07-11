@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NexaHealth - Report Drug</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter&family=Poppins:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      
+      .nav-title {
+        font-weight: 700;
+      }
+      .section {
+        margin: auto;
+        width: 100%;
+        max-width: 700px;
+        margin-top: 2rem;
+      }
+      .input-field,
+      .textarea-field {
+        width: 100%;
+        padding: 0.75rem;
+        margin: 1rem 0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .btn-primary {
+        width: 100%;
+        background-color: var(--primary);
+        color: white;
+      }
+      .progress {
+        height: 10px;
+        background: #ccc;
+        border-radius: 4px;
+        margin: 1rem 0;
+        overflow: hidden;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 50%;
+        background: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="nav-title">NexaHealth</div>
+      <nav>
+        <span>Menu</span>
+      </nav>
+    </header>
+
+    <div class="main">
+      <div id="menu" onclick="toggleSidebar()">&#8801</div>
+      <aside class="sidebar">
+        <header>Hello User,</header>
+        <div id="close" onclick="toggleSidebar()">✖</div>
+        <a href="Index.html"><button>Home</button></a>
+        <a href="drugverification.html"><button>Verify Drug</button></a>
+        <a href="reportform.html" ><button autofocus class="focus">Report Form</button></a>
+        <a href="map.html"><button>Map</button></a>
+        <a href="nearbyhelp.html"><button>Get help</button></a>
+      </aside>
+      <section class="section" id="report">
+      <h2>Report Suspicious Drug</h2>
+      <div class="progress"><div class="progress-bar"></div></div>
+
+      <input class="input-field" type="text" placeholder="Drug Name" />
+      <input class="input-field" type="text" placeholder="Batch Number" />
+      <textarea
+        class="textarea-field"
+        placeholder="Describe the issue..."
+      ></textarea>
+      <input class="input-field" type="file" />
+      <input class="input-field" type="text" placeholder="Location" />
+
+      <button class="btn btn-primary">Submit Report</button>
+      </section>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

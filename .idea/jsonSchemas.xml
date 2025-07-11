@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JsonSchemaMappingsProjectConfiguration">
+    <state>
+      <map>
+        <entry key="Dev Containers">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="Dev Containers" />
+              <option name="relativePathToSchema" value="jar://$APPLICATION_HOME_DIR$/plugins/clouds-docker-gateway/lib/clouds-docker-gateway.jar!/schemas/devcontainer.json" />
+              <option name="applicationDefined" value="true" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="backend/app/data/verified_drugs.json" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+      </map>
+    </state>
+  </component>
+</project>

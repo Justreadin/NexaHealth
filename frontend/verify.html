@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Drugs | NexaHealth</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        verified: '#10b981',
+                        flagged: '#ef4444',
+                        partial: '#f59e0b',
+                        conflict: '#f97316',
+                        unknown: '#64748b'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'bounce-slow': 'bounce 2s infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hamburger-line {
+            transition: all 0.3s;
+        }
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .status-badge {
+            transition: all 0.3s;
+        }
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+        .drug-image {
+            transition: transform 0.5s ease;
+        }
+        .drug-image:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .info-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="font-sans text-dark bg-light">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white shadow-md z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-6 lg:space-x-8">
+                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Report</a>
+                    <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Flagged</a>
+                    <a href="symptoms.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Symptoms Check</a>
+                </div>
+
+                <div class="hidden md:block">
+                    <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium transition-all shadow-lg hover:shadow-xl text-sm lg:text-base">AI Health Companion</a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none">
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-dark hover:text-primary font-medium transition">Home</a>
+                <a href="verify.html" class="text-primary font-medium transition">Verify</a>
+                <a href="report.html" class="text-dark hover:text-primary font-medium transition">Report</a>
+                <a href="flagged.html" class="text-dark hover:text-primary font-medium transition">Flagged</a>
+                <a href="symptoms.html" class="text-dark hover:text-primary font-medium transition">Symptoms Check</a>
+                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-6 lg:mb-0 animate__animated animate__fadeInLeft">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold font-serif mb-4 sm:mb-6 leading-tight">
+                        Verify Your <br>
+                        <span class="text-white">Medications</span> Instantly
+                    </h1>
+                    <p class="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
+                        Check if your drugs are NAFDAC-approved and safe to use. Protect yourself from counterfeit medications with our verification system.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="#verify-form" class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                            Verify Now <i class="fas fa-search ml-2"></i>
+                        </a>
+                        <a href="#drugdemo" class="w-full sm:w-auto text-white hover:text-gray-200 border border-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-medium transition-all flex items-center justify-center">
+                            <i class="fas fa-play-circle mr-2"></i> How It Works
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 mt-8 lg:mt-0 animate__animated animate__fadeInRight">
+                    <div class="relative floating">
+                        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80"
+                             alt="Medication verification"
+                             class="rounded-xl shadow-2xl w-full h-auto max-w-md mx-auto drug-image">
+                        <div class="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-xl shadow-lg hidden sm:block animate__animated animate__pulse animate__infinite">
+                            <div class="text-center">
+                                <div class="text-2xl sm:text-3xl font-bold text-primary">400+</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Drugs Verified</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verification Form Section -->
+    <section id="verify-form" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 md:p-10">
+                <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-2 text-center">Drug Verification Form</h2>
+                <p class="text-gray-600 text-center mb-6 sm:mb-8">Enter either the drug name or NAFDAC number to verify</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 info-card">
+                        <div class="flex items-center mb-3 sm:mb-4">
+                            <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                <i class="fas fa-pills text-primary text-lg sm:text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">By Drug Name</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm sm:text-base">Enter the full or partial name of the medication as it appears on the packaging.</p>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 info-card">
+                        <div class="flex items-center mb-3 sm:mb-4">
+                            <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                <i class="fas fa-barcode text-primary text-lg sm:text-xl"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">By NAFDAC Number</h3>
+                        </div>
+                        <p class="text-gray-600 text-sm sm:text-base">Enter the official NAFDAC registration number found on the drug packaging.</p>
+                    </div>
+                </div>
+
+                <form id="verificationForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <div>
+                            <label for="product-name" class="block text-sm font-medium text-gray-700 mb-1">Drug Name</label>
+                            <div class="relative">
+                                <input type="text" id="product-name" placeholder="e.g. Agazit Tablets"
+                                       class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs sm:text-sm text-gray-500">Enter the commercial name of the drug</p>
+                        </div>
+                        <div>
+                            <label for="nafdac-number" class="block text-sm font-medium text-gray-700 mb-1">NAFDAC Number</label>
+                            <div class="relative">
+                                <input type="text" id="nafdac-number" placeholder="e.g. A4-100147"
+                                       class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-barcode"></i>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs sm:text-sm text-gray-500">Format: Letters and numbers (case insensitive)</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit" id="verify-button" class="w-full bg-primary hover:bg-secondary text-white px-6 py-3 sm:py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center text-sm sm:text-base">
+                            <span id="button-text">Verify Drug</span>
+                            <span id="button-spinner" class="ml-2 hidden">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section (Initially Hidden) -->
+    <section id="results-section" class="py-12 sm:py-16 bg-gray-50 hidden">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif">Verification Results</h2>
+                    <button id="new-search" class="text-primary hover:text-secondary font-medium flex items-center text-sm sm:text-base">
+                        <i class="fas fa-redo mr-2"></i> New Search
+                    </button>
+                </div>
+
+                <!-- Status Card -->
+                <div id="status-card" class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden mb-6 sm:mb-8 transition-all duration-500">
+                    <div class="p-4 sm:p-6 md:p-8">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="mb-4 sm:mb-6 md:mb-0 md:mr-6 lg:mr-8">
+                                <div class="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto">
+                                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                                        <!-- Background circle -->
+                                        <circle class="text-gray-200" stroke-width="8" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                                        <!-- Progress circle -->
+                                        <circle id="progress-circle" class="text-primary progress-ring__circle" stroke-width="8" stroke-linecap="round" stroke="currentColor" fill="transparent" r="40" cx="50" cy="50" />
+                                    </svg>
+                                    <div id="status-icon" class="absolute inset-0 flex items-center justify-center text-3xl sm:text-4xl">
+                                        <i class="fas fa-question-circle text-gray-400"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center md:text-left flex-1">
+                                <div id="status-badge" class="inline-block px-3 py-1 sm:px-4 sm:py-2 rounded-full text-white font-medium mb-3 sm:mb-4 status-badge bg-unknown text-xs sm:text-sm">
+                                    Unknown
+                                </div>
+                                <h3 id="status-title" class="text-xl sm:text-2xl font-bold font-serif mb-1 sm:mb-2">Verification Complete</h3>
+                                <p id="status-message" class="text-gray-600 text-sm sm:text-base">We've checked our records for this medication.</p>
+                                <div id="match-score-container" class="mt-3 sm:mt-4 hidden">
+                                    <div class="flex items-center">
+                                        <span class="text-xs sm:text-sm font-medium text-gray-600 mr-2">Match Confidence:</span>
+                                        <div class="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
+                                            <div id="match-score-bar" class="bg-primary h-2 sm:h-2.5 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                        <span id="match-score-text" class="text-xs sm:text-sm font-bold text-primary ml-2">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="status-footer" class="px-4 sm:px-6 py-3 sm:py-4 bg-gray-50 border-t border-gray-200 hidden">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-primary mr-2 text-sm sm:text-base"></i>
+                            <span id="status-footer-text" class="text-xs sm:text-sm text-gray-600">Additional information about this status</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Drug Details -->
+                <div id="drug-details" class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden mb-6 sm:mb-8 hidden">
+                    <div class="p-4 sm:p-6 md:p-8">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif mb-4 sm:mb-6 border-b pb-2">Drug Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-tag text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1 text-sm sm:text-base">Product Name</h4>
+                                    <p id="detail-name" class="text-gray-600 text-sm sm:text-base">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-barcode text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1 text-sm sm:text-base">NAFDAC Number</h4>
+                                    <p id="detail-reg-no" class="text-gray-600 text-sm sm:text-base">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-capsules text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1 text-sm sm:text-base">Dosage Form</h4>
+                                    <p id="detail-dosage" class="text-gray-600 text-sm sm:text-base">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-bolt text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1 text-sm sm:text-base">Strengths</h4>
+                                    <p id="detail-strengths" class="text-gray-600 text-sm sm:text-base">-</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start md:col-span-2">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4 flex-shrink-0">
+                                    <i class="fas fa-flask text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-700 mb-1 text-sm sm:text-base">Active Ingredients</h4>
+                                    <p id="detail-ingredients" class="text-gray-600 text-sm sm:text-base">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <a href="report.html" id="report-button" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all shadow hover:shadow-md flex items-center justify-center text-sm sm:text-base hidden">
+                        <i class="fas fa-flag mr-2 sm:mr-3"></i> Report This Drug
+                    </a>
+                    <button id="save-result" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 sm:px-6 py-3 rounded-xl font-semibold transition-all shadow hover:shadow-md flex items-center justify-center text-sm sm:text-base">
+                        <i class="fas fa-save mr-2 sm:mr-3"></i> Save Result
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-12 sm:py-16 bg-white" id="drugdemo">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4">How Drug Verification Works</h2>
+                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Our three-step process helps you ensure medication safety</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <div class="bg-gray-50 p-4 sm:p-6 rounded-xl transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">1</div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">Enter Details</h3>
+                    <p class="text-gray-600 hover:text-white text-sm sm:text-base">Provide either the drug name or NAFDAC registration number from the medication packaging.</p>
+                </div>
+                <div class="bg-gray-50 p-4 sm:p-6 rounded-xl transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">2</div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">Instant Verification</h3>
+                    <p class="text-gray-600 hover:text-white text-sm sm:text-base">Our system checks against NAFDAC records and community reports to assess authenticity.</p>
+                </div>
+                <div class="bg-gray-50 p-4 sm:p-6 rounded-xl transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">3</div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">Get Results</h3>
+                    <p class="text-gray-600 hover:text-white text-sm sm:text-base">Receive detailed verification status, safety information, and next steps.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-12 sm:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4">Frequently Asked Questions</h2>
+                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Common questions about drug verification</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-3 sm:space-y-4">
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+                        <button class="flex justify-between items-center w-full text-left focus:outline-none faq-toggle">
+                            <h3 class="font-bold text-base sm:text-lg">What does "Verified" status mean?</h3>
+                            <i class="fas fa-chevron-down text-primary transition-transform duration-300 text-sm sm:text-base"></i>
+                        </button>
+                        <div class="faq-content mt-3 sm:mt-4 hidden">
+                            <p class="text-gray-600 text-sm sm:text-base">A "Verified" status means the drug matches an approved NAFDAC registration with high confidence. Both the product name and registration number correspond to official records.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+                        <button class="flex justify-between items-center w-full text-left focus:outline-none faq-toggle">
+                            <h3 class="font-bold text-base sm:text-lg">What should I do if I get a "Flagged" result?</h3>
+                            <i class="fas fa-chevron-down text-primary transition-transform duration-300 text-sm sm:text-base"></i>
+                        </button>
+                        <div class="faq-content mt-3 sm:mt-4 hidden">
+                            <p class="text-gray-600 text-sm sm:text-base">If you receive a "Flagged" result, it means this drug has been reported multiple times as suspicious or potentially counterfeit. Do not consume it. Report it to NAFDAC and seek medical advice.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+                        <button class="flex justify-between items-center w-full text-left focus:outline-none faq-toggle">
+                            <h3 class="font-bold text-base sm:text-lg">Why does my drug show "Partial Match"?</h3>
+                            <i class="fas fa-chevron-down text-primary transition-transform duration-300 text-sm sm:text-base"></i>
+                        </button>
+                        <div class="faq-content mt-3 sm:mt-4 hidden">
+                            <p class="text-gray-600 text-sm sm:text-base">A "Partial Match" occurs when the product name matches a NAFDAC-approved drug but the registration number doesn't match. This could indicate a counterfeit or mislabeled product. Double-check the NAFDAC number on the packaging.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200">
+                        <button class="flex justify-between items-center w-full text-left focus:outline-none faq-toggle">
+                            <h3 class="font-bold text-base sm:text-lg">How accurate are the verification results?</h3>
+                            <i class="fas fa-chevron-down text-primary transition-transform duration-300 text-sm sm:text-base"></i>
+                        </button>
+                        <div class="faq-content mt-3 sm:mt-4 hidden">
+                            <p class="text-gray-600 text-sm sm:text-base">Our verification system has a 97% accuracy rate based on NAFDAC's official records. The match confidence score helps you assess the reliability of each result. Always cross-check with physical packaging details.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 sm:py-20 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Protect Yourself and Your Family</h2>
+            <p class="text-lg sm:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 opacity-90">
+                Verify your medications today and contribute to safer healthcare in Nigeria.
+            </p>
+            <a href="#verify-form" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
+                Verify a Drug Now <i class="fas fa-pills ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-8 sm:py-12">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-3 sm:mb-4">Nexa<span class="text-primary">Health</span></h3>
+                    <p class="text-gray-400 text-xs sm:text-sm">Verify, report, and protect against fake medications in Nigeria.</p>
+                    <div class="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Quick Links</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Home</a></li>
+                        <li><a href="verify.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Verify Drugs</a></li>
+                        <li><a href="report.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Report Drugs</a></li>
+                        <li><a href="flagged.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Flagged Pharmacies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Resources</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">NAFDAC Guidelines</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Drug Safety Tips</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-xs sm:text-sm"></i>
+                            <span class="text-xs sm:text-sm">Team NexaHealth</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3 text-xs sm:text-sm"></i>
+                            <span class="text-xs sm:text-sm">+2349041385402</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3 text-xs sm:text-sm"></i>
+                            <span class="text-xs sm:text-sm">dave.400g@gmail.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Feedback Modal -->
+      <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl overflow-hidden w-full max-w-md mx-4 animate__animated animate__fadeInUp">
+          <!-- Header with African-inspired pattern -->
+          <div class="bg-gradient-to-r from-primary to-secondary p-4 relative">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJhZnJpY2FuLXBhdHRlcm4iIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMEg0MFY0MEgweiIgZmlsbD0iIzI1NjNlYiIvPjxwYXRoIGQ9Ik0wIDBMNDAgNDBNNDAgMEwwIDQwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNhZnJpY2FuLXBhdHRlcm4pIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+')"></div>
+            <h3 class="text-xl font-bold text-white relative z-10 font-serif">Share Your Feedback</h3>
+            <p class="text-white text-opacity-90 text-sm mt-1 relative z-10">We value your African perspective</p>
+            <button id="close-feedback" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Feedback Form -->
+          <div class="p-6">
+            <!-- Rating -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">How would you rate your experience?</label>
+              <div class="flex justify-center space-x-2">
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="1">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="2">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="3">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="4">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="5">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback Type -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">What type of feedback is this?</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="feedback-type bg-gray-100 hover:bg-blue-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="suggestion">
+                  <i class="fas fa-lightbulb text-blue-500 mr-2"></i>
+                  <span>Suggestion</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-green-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="bug">
+                  <i class="fas fa-bug text-green-500 mr-2"></i>
+                  <span>Bug Report</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-purple-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="praise">
+                  <i class="fas fa-hands-clapping text-purple-500 mr-2"></i>
+                  <span>Praise</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-red-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="question">
+                  <i class="fas fa-question-circle text-red-500 mr-2"></i>
+                  <span>Question</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-6">
+              <label for="feedback-message" class="block text-gray-700 mb-2">Your feedback (optional)</label>
+              <textarea id="feedback-message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Tell us what's on your mind..."></textarea>
+            </div>
+
+            <!-- Language Selection -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-2">Preferred response language</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <option>English</option>
+                <option>Pidgin</option>
+                <option>Yoruba</option>
+                <option>Hausa</option>
+                <option>French</option>
+                <option>Swahili</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submit-feedback" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2"></i>
+              Send Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div id="feedback-success" class="fixed bottom-6 left-6 z-50 hidden">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-start animate__animated animate__fadeInUp">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <div>
+            <p class="font-medium">Thank you!</p>
+            <p class="text-sm">Your feedback has been received.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="verify.js">
+    </script>
+    <script src="feedback.js"></script>
+</body>
+</html>

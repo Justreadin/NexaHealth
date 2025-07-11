@@ -1,0 +1,56 @@
+/* Add to your existing CSS */
+.ai-response {
+    font-family: 'Poppins', sans-serif;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.response-header {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.response-content {
+    padding-left: 0.5rem;
+    border-left: 3px solid #3498db;
+    margin-left: 0.5rem;
+}
+
+.response-content strong {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.response-content p {
+    margin-bottom: 0.5rem;
+}
+
+/* Language option styling */
+.language-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    outline: none;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.language-option input[type="radio"]:checked {
+    border-color: #2563eb;
+}
+
+.language-option input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 8px;
+    height: 8px;
+    background: #2563eb;
+    border-radius: 50%;
+}

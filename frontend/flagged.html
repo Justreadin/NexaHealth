@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flagged Pharmacies | NexaHealth</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        lowRisk: '#10b981',
+                        mediumRisk: '#f59e0b',
+                        highRisk: '#ef4444'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'bounce-slow': 'bounce 2s infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hamburger-line {
+            transition: all 0.3s;
+        }
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .flagged-container {
+            height: 500px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        .risk-badge {
+            transition: all 0.3s;
+        }
+        .risk-badge:hover {
+            transform: scale(1.05);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 0.5rem !important;
+        }
+        .leaflet-popup-content {
+            margin: 0.75rem !important;
+        }
+        .leaflet-popup-content h3 {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        .leaflet-popup-content p {
+            margin-bottom: 0.25rem;
+        }
+        .leaflet-popup-content .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Responsive map container */
+        .map-container {
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            .map-container {
+                height: 400px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .map-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans text-dark bg-light">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white shadow-md z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-6 lg:space-x-8">
+                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Report</a>
+                    <a href="flagged.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Flagged</a>
+                    <a href="symptoms.html" class="nav-link text-dark hover:text-primary font-medium transition text-sm lg:text-base">Symptoms Check</a>
+                </div>
+
+                <div class="hidden md:block">
+                    <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-4 py-2 lg:px-6 lg:py-2 rounded-full font-medium transition-all shadow-lg hover:shadow-xl text-sm lg:text-base">AI Health Companion</a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none">
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+       <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="text-dark hover:text-primary font-medium transition">Home</a>
+                <a href="verify.html" class="text-dark hover:text-primary font-medium transition">Verify</a>
+                <a href="report.html" class="text-dark hover:text-primary font-medium transition">Report</a>
+                <a href="flagged.html" class="text-primary font-medium transition">Flagged</a>
+                <a href="symptoms.html" class="text-dark hover:text-primary font-medium transition">Symptoms Check</a>
+                <a href="AI_companion.html" class="bg-primary hover:bg-secondary text-white px-6 py-2 rounded-full font-medium transition-all text-center">AI Health Companion</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-6 lg:mb-0 animate__animated animate__fadeInLeft">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold font-serif mb-4 sm:mb-6 leading-tight">
+                        Flagged Pharmacies <br>
+                        <span class="text-white">& Nearby Drugs</span>
+                    </h1>
+                    <p class="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
+                        View pharmacies with reported issues and find safe alternatives nearby. Protect yourself from counterfeit medications.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="#search-section" class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                            Search Pharmacies <i class="fas fa-search-location ml-2"></i>
+                        </a>
+                        <a href="#nearby-pharmacies" class="w-full sm:w-auto text-white hover:text-gray-200 border border-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-medium transition-all flex items-center justify-center">
+                            <i class="fas fa-stethoscope mr-2"></i>Nearby Pharmacies
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 mt-8 lg:mt-0 animate__animated animate__fadeInRight">
+                    <div class="relative floating">
+                        <img src="images/NexaHealth.flagged.jpg"
+                             alt="Pharmacy inspection"
+                             class="rounded-xl shadow-2xl w-full h-auto max-w-md mx-auto">
+                        <div class="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-xl shadow-lg hidden sm:block animate__animated animate__pulse animate__infinite">
+                            <div class="text-center">
+                                <div class="text-2xl sm:text-3xl font-bold text-primary">50+</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Pharmacies Flagged</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section id="search-section" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-gray-50 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 mb-8 sm:mb-12">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-4 sm:mb-6 text-center">Search Reports</h2>
+
+                    <!-- Search Form -->
+                    <form id="searchForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <!-- Pharmacy Search -->
+                        <div>
+                            <label for="pharmacy-search" class="block text-sm font-medium text-gray-700 mb-1">Pharmacy Name</label>
+                            <div class="relative">
+                                <input type="text" id="pharmacy-search" placeholder="Search pharmacies..."
+                                       class="w-full px-4 py-2 sm:py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- State Filter -->
+                        <div>
+                            <label for="state-filter" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                            <div class="relative">
+                                <select id="state-filter" class="w-full px-4 py-2 sm:py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition appearance-none text-sm sm:text-base">
+                                    <option value="">All States</option>
+                                    <option value="Abia">Abia</option>
+                                    <option value="Adamawa">Adamawa</option>
+                                    <option value="Akwa Ibom">Akwa Ibom</option>
+                                    <option value="Anambra">Anambra</option>
+                                    <option value="Bauchi">Bauchi</option>
+                                    <option value="Bayelsa">Bayelsa</option>
+                                    <option value="Benue">Benue</option>
+                                    <option value="Borno">Borno</option>
+                                    <option value="Cross River">Cross River</option>
+                                    <option value="Delta">Delta</option>
+                                    <option value="Ebonyi">Ebonyi</option>
+                                    <option value="Edo">Edo</option>
+                                    <option value="Ekiti">Ekiti</option>
+                                    <option value="Enugu">Enugu</option>
+                                    <option value="FCT">Federal Capital Territory</option>
+                                    <option value="Gombe">Gombe</option>
+                                    <option value="Imo">Imo</option>
+                                    <option value="Jigawa">Jigawa</option>
+                                    <option value="Kaduna">Kaduna</option>
+                                    <option value="Kano">Kano</option>
+                                    <option value="Katsina">Katsina</option>
+                                    <option value="Kebbi">Kebbi</option>
+                                    <option value="Kogi">Kogi</option>
+                                    <option value="Kwara">Kwara</option>
+                                    <option value="Lagos">Lagos</option>
+                                    <option value="Nasarawa">Nasarawa</option>
+                                    <option value="Niger">Niger</option>
+                                    <option value="Ogun">Ogun</option>
+                                    <option value="Ondo">Ondo</option>
+                                    <option value="Osun">Osun</option>
+                                    <option value="Oyo">Oyo</option>
+                                    <option value="Plateau">Plateau</option>
+                                    <option value="Rivers">Rivers</option>
+                                    <option value="Sokoto">Sokoto</option>
+                                    <option value="Taraba">Taraba</option>
+                                    <option value="Yobe">Yobe</option>
+                                    <option value="Zamfara">Zamfara</option>
+                                </select>
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LGA Filter -->
+                        <div>
+                            <label for="lga-filter" class="block text-sm font-medium text-gray-700 mb-1">LGA</label>
+                            <div class="relative">
+                                <input type="text" id="lga-filter" placeholder="Enter LGA"
+                                       class="w-full px-4 py-2 sm:py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-map-pin"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Drug Filter -->
+                        <div>
+                            <label for="drug-filter" class="block text-sm font-medium text-gray-700 mb-1">Drug Name</label>
+                            <div class="relative">
+                                <input type="text" id="drug-filter" placeholder="Filter by drug..."
+                                       class="w-full px-4 py-2 sm:py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Controls Section -->
+                    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+                            <label for="sort-by" class="text-sm font-medium text-gray-700 whitespace-nowrap">Sort by:</label>
+                            <select id="sort-by" class="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition text-sm">
+                                <option value="report_count">Report Count</option>
+                                <option value="pharmacy">Pharmacy Name</option>
+                                <option value="timestamp">Date Reported</option>
+                            </select>
+                            <select id="sort-order" class="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition text-sm">
+                                <option value="desc">Descending</option>
+                                <option value="asc">Ascending</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+                            <label for="per-page" class="text-sm font-medium text-gray-700 whitespace-nowrap">Items per page:</label>
+                            <select id="per-page" class="w-full sm:w-auto border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition text-sm">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- View Tabs -->
+                    <div class="flex border-b border-gray-200 mb-6 overflow-x-auto">
+                        <button id="flagged-tab" class="py-2 px-4 font-medium text-primary border-b-2 border-primary whitespace-nowrap">Flagged Pharmacies</button>
+                        <button id="all-reports-tab" class="py-2 px-4 font-medium text-gray-500 hover:text-primary whitespace-nowrap">All Reports</button>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- Results will be displayed here -->
+                        <div id="pharmacy-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+                            <!-- Loading state -->
+                            <div class="col-span-full animate-pulse">
+                                <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+                            </div>
+                        </div>
+
+                        <!-- Search Button -->
+                        <div class="flex justify-center p-4">
+                            <button id="search-button" type="button" class="bg-primary hover:bg-secondary text-white px-6 py-2 sm:px-8 sm:py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-xl flex items-center text-sm sm:text-base">
+                                <i class="fas fa-search mr-2"></i> Search Reports
+                            </button>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="bg-white px-4 sm:px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <button id="prev-page-mobile" class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Previous
+                                </button>
+                                <button id="next-page-mobile" class="ml-3 relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    Next
+                                </button>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p id="pagination-info" class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">20</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <button id="prev-page" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </button>
+                                        <div id="page-numbers" class="flex">
+                                            <!-- Page numbers will be inserted here -->
+                                        </div>
+                                        <button id="next-page" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-12">
+                    <div class="bg-primary bg-opacity-10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-primary border-opacity-20">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-4 text-primary">Total Flagged Pharmacies</h3>
+                        <div class="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2" id="total-pharmacies">0</div>
+                        <p class="text-sm sm:text-base text-gray-600">Pharmacies with reported issues across Nigeria</p>
+                    </div>
+                    <div class="bg-yellow-500 bg-opacity-10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-yellow-500 border-opacity-20">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-4 text-yellow-600">Total Reports</h3>
+                        <div class="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2" id="total-reports">0</div>
+                        <p class="text-sm sm:text-base text-gray-600">Community reports of suspicious drugs</p>
+                    </div>
+                    <div class="bg-red-500 bg-opacity-10 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-red-500 border-opacity-20">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-4 text-red-600">Most Reported Drug</h3>
+                        <div class="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2" id="top-drug">-</div>
+                        <p class="text-sm sm:text-base text-gray-600">Frequently reported in flagged pharmacies</p>
+                    </div>
+                </div>
+
+                <!-- Map Section -->
+                <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl overflow-hidden mb-8 sm:mb-12">
+                    <div class="p-4 sm:p-6 border-b border-gray-200">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif">Flagged Pharmacies Map</h3>
+                    </div>
+                    <div class="map-container w-full" id="pharmacy-map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nearby Pharmacies Section -->
+    <section id="nearby-pharmacies" class="py-12 sm:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-8 sm:mb-12">
+                    <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-2 sm:mb-4">Find Safe Pharmacies Nearby</h2>
+                    <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+                        Get a list of verified pharmacies and hospitals near your current location to ensure you're getting safe medications.
+                    </p>
+                </div>
+
+                <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <h3 class="text-lg sm:text-xl font-bold font-serif">Nearby Pharmacies & Hospitals</h3>
+                        <button id="get-location-btn" class="w-full md:w-auto bg-primary hover:bg-secondary text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-medium transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                            <i class="fas fa-location-arrow mr-2"></i> Get Nearby Locations
+                        </button>
+                    </div>
+
+                    <div id="location-permission" class="hidden bg-blue-50 border border-blue-200 text-blue-800 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-lg sm:text-xl mr-2 sm:mr-3 mt-0.5 sm:mt-1"></i>
+                            <div>
+                                <p class="font-medium">Location Permission Required</p>
+                                <p class="text-xs sm:text-sm">Please allow location access to find pharmacies near you. We only use your location for this search and don't store it.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="location-error" class="hidden bg-red-50 border border-red-200 text-red-800 p-3 sm:p-4 rounded-lg mb-4 sm:mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-circle text-lg sm:text-xl mr-2 sm:mr-3 mt-0.5 sm:mt-1"></i>
+                            <div>
+                                <p class="font-medium" id="error-title">Location Error</p>
+                                <p class="text-xs sm:text-sm" id="error-message">Unable to get your current location.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="loading-spinner" class="hidden flex justify-center items-center py-8 sm:py-12">
+                        <div class="animate-spin rounded-full h-10 sm:h-12 w-10 sm:w-12 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+
+                    <div id="nearby-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                        <!-- Nearby places will be inserted here -->
+                        <div class="text-center py-8 sm:py-12 text-gray-500">
+                            <i class="fas fa-map-marker-alt text-3xl sm:text-4xl mb-3 sm:mb-4"></i>
+                            <p class="text-sm sm:text-base">Click "Get Nearby Locations" to find pharmacies and hospitals near you.</p>
+                        </div>
+                    </div>
+
+                    <div id="map-container" class="mt-6 sm:mt-8 rounded-xl overflow-hidden hidden">
+                        <div id="nearby-map" class="map-container w-full"></div>
+                    </div>
+
+                    <div class="mt-4 sm:mt-6 text-center">
+                        <button id="show-map-btn" class="text-primary hover:text-secondary font-medium hidden text-sm sm:text-base">
+                            <i class="fas fa-map mr-2"></i> Show on Map
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 sm:py-20 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Stay Safe From Counterfeit Drugs</h2>
+            <p class="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 opacity-90">
+                Verify medications before use and report suspicious drugs to protect others.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                <a href="verify.html" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
+                    Verify a Drug <i class="fas fa-pills ml-2"></i>
+                </a>
+                <a href="report.html" class="inline-block border-2 border-white text-white hover:bg-white hover:text-primary px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all text-sm sm:text-base">
+                    Report Suspicious <i class="fas fa-flag ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-8 sm:py-12">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-3 sm:mb-4">Nexa<span class="text-primary">Health</span></h3>
+                    <p class="text-xs sm:text-sm text-gray-400">Verify, report, and protect against fake medications in Nigeria.</p>
+                    <div class="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Quick Links</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li><a href="index.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Home</a></li>
+                        <li><a href="verify.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Verify Drugs</a></li>
+                        <li><a href="report.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Report Drugs</a></li>
+                        <li><a href="flagged.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Flagged Pharmacies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Resources</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">NAFDAC Guidelines</a></li>
+                        <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Drug Safety Tips</a></li>
+                        <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                            <span>Team NexaHealth</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3"></i>
+                            <span>+2349041385402</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3"></i>
+                            <span>dave.400g@gmail.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Feedback Modal -->
+      <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl overflow-hidden w-full max-w-md mx-4 animate__animated animate__fadeInUp">
+          <!-- Header with African-inspired pattern -->
+          <div class="bg-gradient-to-r from-primary to-secondary p-4 relative">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJhZnJpY2FuLXBhdHRlcm4iIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMEg0MFY0MEgweiIgZmlsbD0iIzI1NjNlYiIvPjxwYXRoIGQ9Ik0wIDBMNDAgNDBNNDAgMEwwIDQwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNhZnJpY2FuLXBhdHRlcm4pIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+')"></div>
+            <h3 class="text-xl font-bold text-white relative z-10 font-serif">Share Your Feedback</h3>
+            <p class="text-white text-opacity-90 text-sm mt-1 relative z-10">We value your African perspective</p>
+            <button id="close-feedback" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Feedback Form -->
+          <div class="p-6">
+            <!-- Rating -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">How would you rate your experience?</label>
+              <div class="flex justify-center space-x-2">
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="1">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="2">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="3">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="4">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="5">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback Type -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">What type of feedback is this?</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="feedback-type bg-gray-100 hover:bg-blue-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="suggestion">
+                  <i class="fas fa-lightbulb text-blue-500 mr-2"></i>
+                  <span>Suggestion</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-green-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="bug">
+                  <i class="fas fa-bug text-green-500 mr-2"></i>
+                  <span>Bug Report</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-purple-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="praise">
+                  <i class="fas fa-hands-clapping text-purple-500 mr-2"></i>
+                  <span>Praise</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-red-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="question">
+                  <i class="fas fa-question-circle text-red-500 mr-2"></i>
+                  <span>Question</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-6">
+              <label for="feedback-message" class="block text-gray-700 mb-2">Your feedback (optional)</label>
+              <textarea id="feedback-message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Tell us what's on your mind..."></textarea>
+            </div>
+
+            <!-- Language Selection -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-2">Preferred response language</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <option>English</option>
+                <option>Pidgin</option>
+                <option>Yoruba</option>
+                <option>Hausa</option>
+                <option>French</option>
+                <option>Swahili</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submit-feedback" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2"></i>
+              Send Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div id="feedback-success" class="fixed bottom-6 left-6 z-50 hidden">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-start animate__animated animate__fadeInUp">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <div>
+            <p class="font-medium">Thank you!</p>
+            <p class="text-sm">Your feedback has been received.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <!-- JavaScript Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Marker Cluster JS -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <!-- JavaScript -->
+    <script src="flagged.js"></script>
+    <script src="feedback.js"></script>
+</body>
+</html>
