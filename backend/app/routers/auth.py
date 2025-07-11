@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta, datetime
@@ -616,43 +617,3 @@ async def get_user_by_email(email: str) -> Optional[UserInDB]:
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         detail="Authentication service unavailable after multiple attempts"
     )
-
-@router.post("/logout")
-async def logout(
-    request: Request,
-    response: Response,
-    token: str = Depends(OAuth2PasswordBearer(tokenUrl="auth/login"))
-):
-    try:
-        # Invalidate token (add to blacklist if using one)
-        # In a production environment, you would:
-        # 1. Add token to a blacklist (Redis recommended)
-        # 2. Set token expiry to now
-        # 3. Clear any session data
-        
-        # Clear the auth cookie
-        response.delete_cookie("access_token")
-        
-        # Create a new guest session
-        guest_session_id = str(uuid.uuid4())
-        response.set_cookie(
-            key="guest_session_id",
-            value=guest_session_id,
-            httponly=True,
-            secure=True,
-            samesite="lax",
-            max_age=60 * 60 * 24 * 7  # 7 days
-        )
-        
-        # Return success response
-        return {
-            "message": "Logout successful",
-            "guest_session_created": True,
-            "guest_session_id": guest_session_id
-        }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
