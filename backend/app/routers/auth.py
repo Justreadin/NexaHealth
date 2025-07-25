@@ -87,9 +87,13 @@ async def signup(
             existing = pending_confirmations[user.email]
             if datetime.now() < existing["expires_at"]:
                 confirmation_code = existing["confirmation_code"]
-                return RedirectResponse(
-                    url=f"/confirm-email.html?email={user.email}&code={confirmation_code}",
-                    status_code=status.HTTP_307_TEMPORARY_REDIRECT
+                # Return HTTP 307 with Location header to redirect on the frontend
+                raise HTTPException(
+                    status_code=307,
+                    detail="Confirmation already sent",
+                    headers={
+                        "Location": f"/confirm-email.html?email={user.email}&code={confirmation_code}"
+                    }
                 )
             else:
                 del pending_confirmations[user.email]

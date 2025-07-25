@@ -94,13 +94,17 @@ signupForm?.addEventListener('submit', async function(e) {
             throw new Error(data.detail || 'Failed to create account');
         }
 
-        // Show success message
-        showAlert('Confirmation email sent! Redirecting...', 'success');
-
-        // Redirect to confirmation page
+                // Check if confirmation already sent or newly created
+        const confirmationUrl = data.confirmation_url || `confirm-email.html?email=${encodeURIComponent(email)}`;
+        if (data.pending) {
+            showAlert('You already requested a confirmation email. Redirecting...', 'info');
+        } else {
+            showAlert('Confirmation email sent! Redirecting...', 'success');
+        }
         setTimeout(() => {
-            window.location.href = `confirm-email.html?email=${encodeURIComponent(email)}`;
+            window.location.href = confirmationUrl;
         }, 1500);
+
 
     } catch (error) {
         console.error('Signup error:', error);
