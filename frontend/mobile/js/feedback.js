@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://lyre-4m8l.onrender.com';
 const FEEDBACK_ENDPOINT = '/feedback';
 
 // DOM Elements
