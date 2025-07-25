@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Search leaflets API call
     async function searchLeaflets(searchTerm) {
-        const response = await fetch(`https://lyre-4m8l.onrender.com/api/test_pil?search=${encodeURIComponent(searchTerm)}`);
+        const response = await fetch(`https://lyre-4m8l.onrender.com/api/test_pil/?search=${encodeURIComponent(searchTerm)}`);
         
         if (!response.ok) {
             const error = await response.json();
