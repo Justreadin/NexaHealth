@@ -43,6 +43,21 @@ class DrugVerificationResponse(BaseModel):
     confidence: Literal["high", "medium", "low"] = "low"
 
 
+class DrugVerificationResponse(BaseModel):
+    status: VerificationStatus
+    message: str
+    product_name: Optional[str] = None
+    dosage_form: Optional[str] = None
+    strength: Optional[str] = None
+    nafdac_reg_no: Optional[str] = None
+    manufacturer: Optional[str] = None
+    match_score: int
+    pil_id: Optional[int] = None
+    match_details: List[DrugMatchDetail] = []  # Detailed matching info
+    possible_matches: Optional[List[Dict]] = None
+    confidence: Literal["high", "medium", "low"] = "low"
+
+
 class SimpleDrugVerificationRequest(BaseModel):
     product_name: str
     nafdac_reg_no: Optional[str] = None

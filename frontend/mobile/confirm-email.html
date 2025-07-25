@@ -19,7 +19,7 @@
             theme: {
                 screens: {
                     'xs': '375px',
-                    'sm': '640px',
+                    'sm': '480px',
                     'md': '768px',
                     'lg': '1024px',
                     'xl': '1280px',
@@ -74,12 +74,24 @@
             border-color: #10b981;
             background-color: #f0fdf4;
         }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .code-input {
+                width: 2.5rem !important;
+                height: 3rem !important;
+                font-size: 1.25rem !important;
+            }
+            .code-container {
+                gap: 0.5rem !important;
+            }
+        }
     </style>
 </head>
 <body class="font-sans bg-gray-50 min-h-screen flex flex-col">
     <!-- Navigation -->
     <nav class="w-full bg-white shadow-sm z-50">
-        <div class="container mx-auto px-4 xs:px-6 py-3">
+        <div class="container mx-auto px-4 sm:px-6 py-3">
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
                     <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
@@ -90,41 +102,41 @@
 
     <!-- Main Content -->
     <main class="flex-grow flex items-center justify-center py-8 sm:py-12 px-4">
-        <div class="container mx-auto max-w-md">
-            <div class="bg-white rounded-2xl shadow-sm p-8 sm:p-10 w-full card-hover animation-fade-in">
-                <div class="text-center mb-8">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-pulse-slow">
-                        <i class="fas fa-envelope text-green-600 text-2xl"></i>
+        <div class="container mx-auto max-w-md w-full">
+            <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 md:p-10 w-full card-hover animation-fade-in">
+                <div class="text-center mb-6 sm:mb-8">
+                    <div class="mx-auto flex items-center justify-center h-14 sm:h-16 w-14 sm:w-16 rounded-full bg-green-100 mb-3 sm:mb-4 animate-pulse-slow">
+                        <i class="fas fa-envelope text-green-600 text-xl sm:text-2xl"></i>
                     </div>
-                    <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2">Verify Your Email</h1>
-                    <p class="text-gray-600">Enter the 6-digit code sent to your email</p>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold font-serif mb-2">Verify Your Email</h1>
+                    <p class="text-sm sm:text-base text-gray-600">Enter the 6-digit code sent to your email</p>
                 </div>
 
                 <!-- Confirmation Form -->
-                <form id="confirmationForm" class="space-y-6">
+                <form id="confirmationForm" class="space-y-4 sm:space-y-6">
                     <div>
-                        <label for="codeInputs" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="codeInputs" class="block text-sm sm:text-base font-medium text-gray-700 mb-2">
                             6-digit Verification Code
                         </label>
-                        <div class="flex justify-center space-x-3" id="codeInputs">
+                        <div class="flex justify-center code-container space-x-2 sm:space-x-3" id="codeInputs">
                             <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
                                    autocomplete="off">
                             <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
                                    autocomplete="off">
                             <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
                                    autocomplete="off">
-                            <span class="flex items-center justify-center text-gray-400 text-xl">-</span>
+                            <span class="flex items-center justify-center text-gray-400 text-lg sm:text-xl">-</span>
                             <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
-                                   autocomplete="off">
-                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
                                    autocomplete="off">
                             <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
-                                   class="code-input w-12 h-12 text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
                                    autocomplete="off">
                         </div>
                         <input type="hidden" id="confirmationCode" name="confirmationCode">
@@ -134,13 +146,13 @@
                     <input type="hidden" id="userEmail" name="userEmail">
 
                     <!-- Submit Button -->
-                    <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg">
+                    <button type="submit" class="w-full btn-hover text-white py-2 sm:py-3 px-4 rounded-lg font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg">
                         Verify Email
                     </button>
                 </form>
 
                 <!-- Resend Code Link -->
-                <div class="mt-6 text-center text-sm">
+                <div class="mt-4 sm:mt-6 text-center text-xs sm:text-sm">
                     <span class="text-gray-600">Didn't receive a code?</span>
                     <button id="resendCode" class="font-medium text-primary hover:text-secondary ml-1">Resend code</button>
                     <div id="countdown" class="text-xs text-gray-500 mt-1 hidden">
@@ -152,8 +164,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 py-6">
-        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+    <footer class="bg-white border-t border-gray-200 py-4 sm:py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-xs sm:text-sm">
             <p>&copy; 2025 NexaHealth. All rights reserved.</p>
         </div>
     </footer>

@@ -56,7 +56,6 @@ class PILManager:
                 'dosage_form': self._normalize_text(pil.dosage_form)
             })
 
-
             if pil.product_name:
                 self._add_to_suggestion_index(pil.product_name, pil)
             if pil.generic_name:

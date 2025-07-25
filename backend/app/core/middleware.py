@@ -34,8 +34,7 @@ class AuthMiddleware:
     "/uploads",
     "/api/test_verify/drug",
     "/submit-report",
-    "/api/test_pil",  # <— this will now match /api/test_pil, /api/test_pil/featured, etc.
-]
+    "/api/test_pil",  
 
 
     @classmethod
