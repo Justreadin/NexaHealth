@@ -180,7 +180,7 @@ confirmationForm.addEventListener('submit', async function(e) {
         
         // Redirect to dashboard or home page
         setTimeout(() => {
-            window.location.href = 'index.html?new_user=true&token=' + encodeURIComponent(data.access_token);
+            window.location.href = 'login.html?new_user=true&token=' + encodeURIComponent(data.access_token);
         }, 2000);
 
     } catch (error) {
