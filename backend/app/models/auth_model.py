@@ -3,12 +3,14 @@ from typing import Optional
 import re
 from datetime import datetime
 from firebase_admin import firestore
+import uuid
 
 
 class UserBase(BaseModel):
-    email: EmailStr
-    first_name: str = Field(..., min_length=1, max_length=50)
-    last_name: str = Field(..., min_length=1, max_length=50)
+    email: str
+    first_name: str = ""
+    last_name: str = ""
+    email_verified: bool = False
 
 
 class UserCreate(UserBase):
@@ -28,15 +30,15 @@ class UserCreate(UserBase):
             raise ValueError("Password must contain at least one special character")
         return v
 
-
 class UserInDB(UserBase):
-    id: str
-    hashed_password: str
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))  # Default UUID if missing
+    hashed_password: str = ""
     disabled: bool = False
     email_verified: bool = False
-    created_at: str
+    created_at: Optional[str] = None
     last_login: Optional[str] = None
-
+    role: str = "user"
+    
     @validator('created_at', 'last_login', pre=True)
     def convert_timestamp(cls, v):
         if v is None:
@@ -44,32 +46,20 @@ class UserInDB(UserBase):
         if isinstance(v, str):
             return v
         # Handle Firestore timestamp
-        if isinstance(v, datetime):
-            return v.isoformat()
-        if hasattr(v, 'isoformat'):  # For Firestore's DatetimeWithNanoseconds
-            return v.isoformat()
-        return str(v)
-
-
-class UserPublic(UserBase):
-    id: str
-    email_verified: bool
-    created_at: str
-
-    @validator('created_at', pre=True)
-    def convert_timestamp_public(cls, v):
-        if v is None:
-            return None
-        if isinstance(v, str):
-            return v
-        # Handle Firestore timestamp
-        if isinstance(v, datetime):
-            return v.isoformat()
         if hasattr(v, 'isoformat'):
             return v.isoformat()
         return str(v)
+    
+class UserPublic(UserBase):
+    id: str
+    created_at: Optional[datetime] = None
+    last_login: Optional[datetime] = None
 
-
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat() if v else None
+        }
+        
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -90,3 +80,6 @@ class PasswordResetRequest(BaseModel):
 class PasswordReset(BaseModel):
     token: str
     new_password: str
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

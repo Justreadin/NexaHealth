@@ -8,6 +8,7 @@ from google.auth.transport import requests
 from google.oauth2 import service_account
 import logging
 from datetime import datetime, timedelta
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,113 +19,145 @@ load_dotenv()
 class FirebaseManager:
     _instance = None
     _initialized = False
-    
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(FirebaseManager, cls).__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
         if not self._initialized:
             self._initialize_firebase()
             self._initialized = True
-    
+
     def _initialize_firebase(self, retry_count=0):
-        """Initialize Firebase Admin SDK with error handling and retry logic"""
+        """Initialize Firebase Admin SDK with retry logic"""
         max_retries = 3
         try:
-            # Load the base64-encoded key from environment variable
             firebase_key_b64 = os.getenv("FIREBASE_KEY")
-            
             if not firebase_key_b64:
-                raise ValueError("FIREBASE_KEY is not set in environment variables.")
+                raise ValueError("FIREBASE_KEY is not set in env.")
 
-            # Decode from base64 to JSON string
-            try:
-                firebase_key_json_str = base64.b64decode(firebase_key_b64).decode('utf-8')
-            except Exception as e:
-                raise ValueError(f"Failed to decode FIREBASE_KEY from base64: {e}")
-
-            # Parse JSON string into dictionary
-            try:
-                firebase_key_json = json.loads(firebase_key_json_str)
-            except json.JSONDecodeError:
-                raise ValueError("Decoded FIREBASE_KEY is not valid JSON.")
+            firebase_key_json_str = base64.b64decode(firebase_key_b64).decode('utf-8')
+            firebase_key_json = json.loads(firebase_key_json_str)
 
             if not firebase_admin._apps:
                 cred = credentials.Certificate(firebase_key_json)
                 firebase_admin.initialize_app(cred)
-                logger.info("Firebase Admin SDK initialized successfully")
-                
-            # Verify the credentials work
+                logger.info("Firebase initialized")
+
             self._verify_firebase_connection()
-            
+
         except Exception as e:
-            logger.error(f"Firebase initialization error (attempt {retry_count + 1}): {str(e)}")
+            logger.error(f"Firebase init error (try {retry_count + 1}): {str(e)}")
             if retry_count < max_retries - 1:
-                logger.info(f"Retrying Firebase initialization... ({retry_count + 1}/{max_retries})")
                 self._initialize_firebase(retry_count + 1)
             else:
-                logger.error("Max retries reached for Firebase initialization")
                 raise
-    
+
     def _verify_firebase_connection(self):
-        """Verify that Firebase connection is working by making a test request"""
         try:
-            # Try to list users (just the first page) as a test
             auth.list_users(max_results=1)
-            logger.debug("Firebase connection verified successfully")
+            logger.debug("Firebase connection OK")
         except Exception as e:
-            logger.error(f"Firebase connection verification failed: {str(e)}")
-            raise
-    
+            raise RuntimeError(f"Firebase connection failed: {e}")
+
     def refresh_firebase_token(self):
-        """Refresh the Firebase authentication token"""
         try:
             firebase_key_b64 = os.getenv("FIREBASE_KEY")
             firebase_key_json_str = base64.b64decode(firebase_key_b64).decode('utf-8')
             firebase_key_json = json.loads(firebase_key_json_str)
-            
+
             creds = service_account.Credentials.from_service_account_info(
                 firebase_key_json,
                 scopes=["https://www.googleapis.com/auth/cloud-platform"]
             )
-            request = requests.Request()
-            creds.refresh(request)
-            logger.info("Firebase token refreshed successfully")
+            creds.refresh(requests.Request())
+            logger.info("Firebase token refreshed")
             return creds.token
         except Exception as e:
-            logger.error(f"Failed to refresh Firebase token: {str(e)}")
+            logger.error(f"Token refresh failed: {str(e)}")
             raise
-    
+
     def get_firestore_client(self):
-        """Get Firestore client with connection verification"""
         try:
-            # Verify connection first
             self._verify_firebase_connection()
             return firestore.client()
-        except Exception as e:
-            logger.error(f"Firestore connection error: {str(e)}")
-            # Try to refresh token and reconnect
-            try:
-                self.refresh_firebase_token()
-                return firestore.client()
-            except Exception as refresh_error:
-                logger.error(f"Failed to recover Firestore connection: {str(refresh_error)}")
-                raise
+        except Exception:
+            self.refresh_firebase_token()
+            return firestore.client()
 
-# Initialize Firebase manager
+# Initialize Firebase Manager
 firebase_manager = FirebaseManager()
-
-# Create Firestore client with proper imports
 db = firebase_manager.get_firestore_client()
 
+# Utility: Firestore Server Timestamp
 def get_server_timestamp():
-    """Returns Firestore server timestamp"""
     return firestore.SERVER_TIMESTAMP
 
-# Collections
+# Firestore Collections
 users_collection = db.collection("users")
 reports_collection = db.collection("reports")
+stats_collection = db.collection("stats")
 
-__all__ = ['db', 'get_server_timestamp', 'users_collection', 'reports_collection', 'firebase_manager']
+# -------------------------------
+# 🔒 ROLE-BASED UTILITY FUNCTIONS
+# -------------------------------
+
+def get_user_role(user_id: str) -> Optional[str]:
+    """Fetch the role of a user from Firestore 'users' collection"""
+    doc = users_collection.document(user_id).get()
+    if doc.exists:
+        return doc.to_dict().get("role", "user")
+    return None
+
+def is_admin(user: dict) -> bool:
+    return user and user.get("role") == "admin"
+
+def is_pharmacist(user: dict) -> bool:
+    return user and user.get("role") == "pharmacist"
+
+def is_user(user: dict) -> bool:
+    return user and user.get("role") == "user"
+
+# Optional: Attach role to user (on sign-up or auth)
+def set_user_role(user_id: str, role: str):
+    """Set or update the role for a user"""
+    users_collection.document(user_id).set({"role": role}, merge=True)
+
+# Optional: Fetch full user data
+def get_user_profile(user_id: str) -> Optional[dict]:
+    doc = users_collection.document(user_id).get()
+    if doc.exists:
+        return doc.to_dict()
+    return None
+
+def initialize_stats_collection():
+    """Ensure required stats documents exist"""
+    required_stats = [
+        "verifications",
+        "reports"
+    ]
+    
+    for stat in required_stats:
+        doc_ref = stats_collection.document(stat)
+        if not doc_ref.get().exists:
+            doc_ref.set({
+                "count": 0,
+                "created_at": get_server_timestamp(),
+                "updated_at": get_server_timestamp()
+            })
+
+# Initialize stats collection on import
+initialize_stats_collection()
+
+# Exported
+__all__ = [
+    'db', 'get_server_timestamp',
+    'users_collection', 'reports_collection',
+    'stats_collection',
+    'firebase_manager',
+    'get_user_role', 'set_user_role',
+    'get_user_profile',
+    'is_admin', 'is_pharmacist', 'is_user'
+]

@@ -1,0 +1,190 @@
+[
+  {
+    "product_name": "AG Spironolactone",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Spironolactone"
+    ],
+    "strengths": [
+      "25 mg"
+    ],
+    "nafdac_reg_no": "A4-100160",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Artheget EZ",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Artemether",
+      "Lumefantrine"
+    ],
+    "strengths": [
+      "80 mg",
+      "480 mg"
+    ],
+    "nafdac_reg_no": "A4-6238",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Crushmal",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Artemether",
+      "Lumefantrine"
+    ],
+    "strengths": [
+      "80 mg",
+      "480 mg"
+    ],
+    "nafdac_reg_no": "A4-100161",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Dolburg 50",
+    "dosage_form": "Capsule",
+    "ingredients": [
+      "Tramadol Hydrochloride"
+    ],
+    "strengths": [
+      "50 mg"
+    ],
+    "nafdac_reg_no": "A4-9351",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Hanmal",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Artemether",
+      "Lumefantrine"
+    ],
+    "strengths": [
+      "20 mg",
+      "120 mg"
+    ],
+    "nafdac_reg_no": "B4-4875",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Metformin Hydrochloride",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Metformin Hydrochloride"
+    ],
+    "strengths": [
+      "1000 mg"
+    ],
+    "nafdac_reg_no": "04-6234",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Torvedol 12.5",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Carvedilol"
+    ],
+    "strengths": [
+      "12.5 mg"
+    ],
+    "nafdac_reg_no": "B4-3210",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Torvedol 6.25",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Carvedilol"
+    ],
+    "strengths": [
+      "6.25 mg"
+    ],
+    "nafdac_reg_no": "B4-3209",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "Telmisartan & Hydrochlorothiazide Tablets USP",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Telmisartan",
+      "Hydrochlorothiazide"
+    ],
+    "strengths": [
+      "40 mg",
+      "12.5 mg"
+    ],
+    "nafdac_reg_no": "A4-100167",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  },
+  {
+    "product_name": "S-Flox",
+    "dosage_form": "Tablet",
+    "ingredients": [
+      "Levofloxacin (Levofloxacin Hemihydrate)"
+    ],
+    "strengths": [
+      "500 mg"
+    ],
+    "nafdac_reg_no": "A4-3454",
+    "status": "verified",
+    "description": "",
+    "manufacturers": [],
+    "sources": [],
+    "barcode": null,
+    "gln": null,
+    "product_image": null
+  }
+]

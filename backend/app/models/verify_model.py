@@ -1,17 +1,48 @@
-from typing import Optional,Literal ,List
+from typing import Optional, List, Dict, Literal, Union
 from pydantic import BaseModel
+from datetime import datetime
+from enum import Enum
+
+class VerificationStatus(str, Enum):
+    VERIFIED = "verified"
+    FLAGGED = "flagged"
+    UNKNOWN = "unknown"
+    PARTIAL_MATCH = "partial_match"
+    CONFLICT_WARNING = "conflict_warning"
+    COMMON_NAME_MATCH = "common_name_match"
+    HIGH_SIMILARITY = "high_similarity"
 
 class DrugVerificationRequest(BaseModel):
-    product_name: str | None = None
-    nafdac_reg_no: str | None = None
+    product_name: str  # Now mandatory
+    nafdac_reg_no: Optional[str] = None
+    manufacturer: Optional[str] = None
+    batch_number: Optional[str] = None
+    dosage_form: Optional[str] = None  # New field for better matching
+
+class DrugMatchDetail(BaseModel):
+    field: str
+    matched_value: str
+    input_value: str
+    score: int
+    algorithm: str
 
 class DrugVerificationResponse(BaseModel):
-    status: Literal["verified", "flagged", "unknown", "partial_match"]
+    status: VerificationStatus
     message: str
     product_name: Optional[str] = None
     dosage_form: Optional[str] = None
-    strengths: Optional[List[str]] = None
-    ingredients: Optional[List[str]] = None
+    strength: Optional[str] = None
     nafdac_reg_no: Optional[str] = None
-    match_score: Optional[int] = None  # out of 100
+    manufacturer: Optional[str] = None
+    match_score: int
+    report_count: int = 0
+    pil_id: Optional[int] = None
+    last_verified: Optional[datetime] = None
+    match_details: List[DrugMatchDetail] = []  # Detailed matching info
+    possible_matches: Optional[List[Dict]] = None
+    confidence: Literal["high", "medium", "low"] = "low"
 
+
+class SimpleDrugVerificationRequest(BaseModel):
+    product_name: str
+    nafdac_reg_no: Optional[str] = None

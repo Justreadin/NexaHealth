@@ -1,0 +1,49 @@
+.nav-link::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: #3b82f6;
+    transition: width 0.3s;
+}
+.nav-link:hover::after {
+    width: 100%;
+}
+.report-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+.report-card.active {
+    border-left-color: #3b82f6;
+    background-color: #f8fafc;
+}
+.tab-button {
+    transition: all 0.3s ease;
+}
+.tab-button.active {
+    background-color: #3b82f6;
+    color: white;
+}
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.image-preview {
+    transition: all 0.3s ease;
+}
+.image-preview:hover {
+    transform: scale(1.02);
+}
+.location-btn {
+    transition: all 0.2s ease;
+}
+.location-btn:hover {
+    transform: translateY(-1px);
+}

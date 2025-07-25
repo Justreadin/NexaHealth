@@ -1,27 +1,32 @@
 import uuid
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from datetime import timedelta, datetime
 from uuid import UUID
 from typing import Dict, Optional
+from fastapi.responses import JSONResponse
 import firebase_admin
-from firebase_admin import auth
+from firebase_admin import auth, firestore
 from firebase_admin.exceptions import FirebaseError
 import logging
 import random
 import string
+import jwt
 from passlib.context import CryptContext
+from requests import request
 from app.models.auth_model import (
-    UserCreate, UserPublic, Token, GoogleToken,
+    RefreshTokenRequest, UserCreate, UserPublic, Token, GoogleToken,
     PasswordResetRequest, PasswordReset, UserInDB
 )
 from app.models.email_model import (
     ResendConfirmationRequest, EmailConfirmation
 )
 from app.core.auth import (
-    get_password_hash, create_access_token,
+    ALGORITHM, REFRESH_TOKEN_EXPIRE_DAYS, SECRET_KEY, authenticate_user, get_password_hash, create_access_token,
     get_current_user, get_current_active_user,
-    verify_google_token, ACCESS_TOKEN_EXPIRE_MINUTES
+    verify_google_token, ACCESS_TOKEN_EXPIRE_MINUTES, verify_token
 )
 from app.core.guest import migrate_guest_data
 from app.dependencies.auth import get_auth_state
@@ -33,6 +38,8 @@ import os
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 load_dotenv()
+
+security_scheme = HTTPBearer() 
 
 router = APIRouter(
     prefix="/auth",
@@ -323,47 +330,126 @@ async def resend_confirmation(request_data: ResendConfirmationRequest):
             detail=f"Error resending confirmation: {str(e)}"
         )
     
+from fastapi.responses import JSONResponse
+
 @router.post("/login", response_model=Token)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    guest_session_id: UUID = Cookie(None)
+    guest_session_id: UUID = Cookie(None),
+    request: Request = None
 ):
+    """Authenticate user and return JWT tokens with enhanced security"""
     try:
         logger.info(f"Login attempt for email: {form_data.username}")
-        user = await authenticate_user(form_data.username, form_data.password)
         
+        # 1. Authenticate User with enhanced validation
+        user = await authenticate_user(form_data.username, form_data.password)
         if not user:
-            logger.warning("Login failed: Invalid credentials")
+            logger.warning(f"Failed login attempt for: {form_data.username}")
+            await asyncio.sleep(random.uniform(0.5, 1.5))  # Basic anti-brute force
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Incorrect credentials",
+                detail="Incorrect email or password",
                 headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        # 2. Check if account is disabled
+        if user.disabled:
+            logger.warning(f"Disabled account login attempt: {user.email}")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Account disabled"
             )
 
         logger.info(f"User authenticated: {user.email}")
         
-        # Update last login time
-        update_time =  get_server_timestamp()
-        db.collection("users").document(user.id).update({
-            "last_login": update_time
-        })
-        logger.info("Last login time updated")
-
-        # Migrate guest data if exists
-        if guest_session_id:
-            logger.info(f"Migrating guest data for session: {guest_session_id}")
-            await migrate_guest_data(user.id, guest_session_id)
-
-        # Create access token
-        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        access_token = create_access_token(
-            data={"sub": user.email, "user_id": user.id},
-            expires_delta=access_token_expires
-        )
+        # 3. Update User Record with enhanced metadata
+        update_time = get_server_timestamp()
+        update_data = {
+            "last_login": update_time,
+            "login_ip": request.client.host if request and request.client else None,
+            "user_agent": request.headers.get("user-agent", ""),
+            "login_count": firestore.Increment(1)
+        }
         
-        logger.info("Login successful, returning token")
-        return {"access_token": access_token, "token_type": "bearer"}
+        try:
+            user_ref = db.collection("users").document(user.id)
+            user_ref.update(update_data)
+            logger.info("User login record updated")
+        except Exception as update_error:
+            logger.error(f"Failed to update login record: {str(update_error)}")
+            # Non-critical error, continue
 
+        # 4. Migrate Guest Data (if applicable) with transaction
+        if guest_session_id:
+            try:
+                logger.info(f"Migrating guest data for session: {guest_session_id}")
+                async with await db.transaction() as transaction:
+                    await migrate_guest_data(user.id, guest_session_id, transaction)
+                logger.info("Guest data migration successful")
+            except Exception as migration_error:
+                logger.error(f"Guest data migration failed: {str(migration_error)}")
+                # Non-critical error, continue
+
+        # 5. Generate Tokens with enhanced security claims
+        token_payload = {
+            "sub": user.email,
+            "user_id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "role": user.role,
+            "iss": os.getenv("JWT_ISSUER", "nexa-health"),
+            "aud": os.getenv("JWT_AUDIENCE", "nexa-health-app"),
+            "iat": datetime.utcnow(),
+            "jti": str(uuid.uuid4()),  # Unique token identifier
+            "auth_time": int(datetime.utcnow().timestamp())
+        }
+
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        
+        access_token = jwt.encode({
+            **token_payload,
+            "exp": datetime.utcnow() + access_token_expires,
+            "token_type": "access",
+            "scope": "read write"
+        }, SECRET_KEY, algorithm=ALGORITHM)
+
+        refresh_token = jwt.encode({
+            **token_payload,
+            "exp": datetime.utcnow() + refresh_token_expires,
+            "token_type": "refresh",
+            "scope": "refresh"
+        }, SECRET_KEY, algorithm=ALGORITHM)
+
+        # Ensure tokens are strings
+        if isinstance(access_token, bytes):
+            access_token = access_token.decode('utf-8')
+        if isinstance(refresh_token, bytes):
+            refresh_token = refresh_token.decode('utf-8')
+
+        # ✅ Set refresh token as secure HttpOnly cookie
+        response = JSONResponse(content={
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": int(access_token_expires.total_seconds())
+        })
+
+        response.set_cookie(
+            key="nexahealth_refresh_token",
+            value=refresh_token,
+            httponly=True,
+            secure=False,  # Set to True in production (with HTTPS)
+            samesite="Lax",
+            max_age=int(refresh_token_expires.total_seconds()),
+            path="/auth/refresh"
+        )
+
+        return response
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Login error: {str(e)}", exc_info=True)
         raise HTTPException(
@@ -425,7 +511,28 @@ async def google_login(google_token: GoogleToken):
             detail=f"Error during Google login: {str(e)}"
         )
 
+@router.post("/auth/firebase-login")
+async def firebase_login(request: Request):
+    data = await request.json()
+    id_token = data.get("token")
 
+    if not id_token:
+        raise HTTPException(status_code=400, detail="Missing Firebase ID token")
+
+    try:
+        payload = await verify_token(id_token)  # This uses firebase_admin.auth.verify_id_token
+        user_id = payload["user_id"]
+
+        # Look up or create the user in your DB
+        # ...
+        access_token = create_access_token(user_id)
+
+        return { "access_token": access_token }
+
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Firebase token: {str(e)}")
+    
+    
 @router.post("/request-password-reset")
 async def request_password_reset(reset_request: PasswordResetRequest):
     try:
@@ -491,42 +598,72 @@ async def reset_password(reset_data: PasswordReset):
 
 
 @router.get("/me", response_model=UserPublic)
-async def read_users_me(current_user: UserInDB = Depends(get_current_active_user)):
+async def read_users_me(
+    current_user: UserInDB = Depends(get_current_active_user)
+):
     return UserPublic(
         id=current_user.id,
         email=current_user.email,
         first_name=current_user.first_name,
         last_name=current_user.last_name,
         email_verified=current_user.email_verified,
-        created_at=current_user.created_at
+        created_at=current_user.created_at,
+        last_login=current_user.last_login
     )
-
-
-async def authenticate_user(email: str, password: str) -> Optional[UserInDB]:
+    
+@router.post("/refresh", response_model=Token)
+async def refresh_token(
+    request: Request,
+    nexahealth_refresh_token: Optional[str] = Cookie(None)
+):
     try:
-        logger.debug(f"Authenticating user: {email}")
-        user = await get_user_by_email(email)
-        
-        if not user:
-            logger.warning(f"No user found with email: {email}")
-            return None
-            
-        # Skip password check for OAuth users (empty hashed_password)
-        if not user.hashed_password:
-            logger.warning(f"OAuth user attempted password login: {email}")
-            return None
-            
-        # Verify password against the stored hash
-        if not pwd_context.verify(password, user.hashed_password):
-            logger.warning(f"Password verification failed for user: {email}")
-            return None
-            
-        logger.debug(f"User authenticated successfully: {email}")
-        return user
-        
+        if not nexahealth_refresh_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token missing"
+            )
+
+        payload = await verify_token(nexahealth_refresh_token)
+        if payload.get("token_type") != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type"
+            )
+
+        # Generate new tokens
+        new_tokens = create_access_token({
+            "id": payload["user_id"],
+            "email": payload["sub"],
+            "role": payload.get("role", "user")
+        })
+
+        response = JSONResponse({
+            "access_token": new_tokens["access_token"],
+            "token_type": "bearer",
+            "expires_in": ACCESS_TOKEN_EXPIRE_MINUTES * 60
+        })
+
+        # Set new refresh token cookie
+        response.set_cookie(
+            key="nexahealth_refresh_token",
+            value=new_tokens["refresh_token"],
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="Lax",
+            max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+            path="/auth/refresh"
+        )
+
+        return response
+
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Authentication error for {email}: {str(e)}", exc_info=True)
-        return None
+        logger.error(f"Refresh failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token"
+        )
 
 async def get_user_by_email(email: str) -> Optional[UserInDB]:
     """
@@ -617,3 +754,22 @@ async def get_user_by_email(email: str) -> Optional[UserInDB]:
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         detail="Authentication service unavailable after multiple attempts"
     )
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    current_user: UserInDB = Depends(get_current_active_user)
+):
+    try:
+        # Clear server-side session if needed
+        response = JSONResponse({"message": "Logged out successfully"})
+        
+        # Clear cookies
+        response.delete_cookie("nexahealth_refresh_token")
+        response.delete_cookie("nexahealth_access_token")
+        
+        return response
+    except Exception as e:
+        logger.error(f"Logout error: {str(e)}")
+        raise HTTPException(500, "Logout failed")

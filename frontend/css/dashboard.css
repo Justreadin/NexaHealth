@@ -1,0 +1,204 @@
+/* Base Styles */
+body {
+    line-height: 1.6;
+}
+
+/* Typography */
+.font-display {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Custom Components */
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.quick-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px;
+    border-radius: 10px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+    color: #002366;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-color: #3A7BD5;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.activity-item:hover {
+    background-color: #f8fafc;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 16px;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-action {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.activity-action:hover {
+    background-color: #f1f5f9;
+    color: #002366;
+}
+
+.score-metric {
+    padding: 8px;
+    border-radius: 6px;
+    background-color: #f8fafc;
+}
+
+.alert-card {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-warning {
+    background-color: rgba(252, 211, 77, 0.1);
+    border-left-color: #f59e0b;
+}
+
+.alert-info {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left-color: #3b82f6;
+}
+
+.alert-success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left-color: #10b981;
+}
+
+.alert-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+.scan-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.scan-item:hover {
+    background-color: #f8fafc;
+}
+
+.scan-drug-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+.scan-details {
+    flex: 1;
+}
+
+.scan-trust-score {
+    font-size: 14px;
+}
+
+.pharmacy-card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.pharmacy-card:hover {
+    background-color: #f8fafc;
+}
+
+.pharmacy-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 14px;
+}
+
+/* Mobile Navigation */
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    color: #64748b;
+    text-decoration: none;
+    flex: 1;
+}
+
+.mobile-nav-item.active {
+    color: #3A7BD5;
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .quick-action-card {
+        font-size: 14px;
+    }
+}

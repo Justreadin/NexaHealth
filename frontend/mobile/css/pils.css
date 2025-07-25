@@ -1,0 +1,200 @@
+:root {
+    --primary: #2563eb;
+    --secondary: #1e40af;
+    --accent: #3b82f6;
+    --dark: #1e293b;
+    --light: #f8fafc;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light);
+}
+
+.health-gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+}
+
+.pil-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(30, 41, 59, 0.1);
+    cursor: pointer;
+}
+
+.pil-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(30, 41, 59, 0.1);
+}
+
+.search-pill {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.search-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+}
+
+.tab-active {
+    border-bottom: 3px solid var(--primary);
+    color: var(--primary);
+    font-weight: 500;
+}
+
+.pill-tag {
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.pill-tag:hover {
+    background-color: var(--accent);
+    color: white;
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Active category filter */
+.active-category {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Loading state */
+.loading-state {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Search suggestion pills */
+.suggestion-pill {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: #f0f9ff;
+    color: var(--primary);
+}
+
+.suggestion-pill:hover {
+    background-color: var(--primary);
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .pil-card {
+        padding: 1rem;
+    }
+    
+    .health-gradient {
+        font-size: 0.875rem;
+        padding: 0.5rem;
+    }
+    
+    #advanced-filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animation for search results */
+.search-results-enter {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.search-results-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+/* Result counter badge */
+.results-badge {
+    background-color: var(--primary);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+}
+/* Add to your CSS file */
+#main-content {
+    transition: opacity 0.3s ease;
+}
+
+#search-results-section {
+    transition: opacity 0.3s ease;
+}
+
+.pil-modal-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.pil-modal-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+.pil-modal-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pil-modal-exit-active {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+/* Add these styles to your existing pils.css */
+.pill-tag {
+    display: inline-block;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

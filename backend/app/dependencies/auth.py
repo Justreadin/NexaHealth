@@ -1,3 +1,4 @@
+# app/dependencies/auth.py
 from fastapi import Depends, Request, HTTPException
 from typing import Optional, Tuple, Union
 from app.models.guest_model import GuestSession
@@ -12,13 +13,17 @@ async def get_auth_state(
     token: str = Depends(oauth2_scheme)
 ) -> Tuple[Optional[UserPublic], Optional[GuestSession]]:
     """Returns (user, guest_session) - one will be None"""
-    user = None
-    if token:
+    # First check for authenticated user from middleware
+    user = getattr(request.state, 'user', None)
+    
+    # If no user from middleware, try to get via token
+    if not user and token:
         try:
             user = await get_current_user(token)
         except HTTPException:
             pass
     
+    # Check for guest session if no authenticated user
     guest_session = None
     if not user:
         guest_id = request.cookies.get("guest_session_id") or request.headers.get("x-guest-session")
@@ -30,7 +35,7 @@ async def get_auth_state(
     
     return user, guest_session
 
-def guest_or_auth(max_uses: int = 5,feature_name: Optional[str] = None):
+def guest_or_auth(max_uses: int = 5, feature_name: Optional[str] = None):
     """Flexible auth/guest dependency with usage limits"""
     async def dependency(auth_state: Tuple = Depends(get_auth_state)) -> Tuple[bool, Union[UserPublic, GuestSession]]:
         user, guest = auth_state

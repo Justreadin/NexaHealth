@@ -1,32 +1,28 @@
 import os
-import json
-import base64
+import uuid
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union
 import firebase_admin
-from firebase_admin import auth
+from firebase_admin import auth, exceptions as firebase_exceptions
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException, status, Depends, Request
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from app.models.auth_model import TokenData, UserInDB
-from app.core.db import db  # Import the centralized db instance
+from app.core.db import db, users_collection
 import logging
 
-# Initialize logging
+
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-# Remove Firebase initialization since it's now in core/db.py
-# Just import the initialized db instance from core/db.py
 
 # Password context configuration
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto",
     bcrypt__rounds=12,
-    bcrypt__ident="2b"
 )
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -43,54 +39,135 @@ except AttributeError:
     pass  # Already in bytes format
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 10080
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+security_scheme = HTTPBearer()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a plain password against the hashed version"""
-    try:
-        return pwd_context.verify(plain_password, hashed_password)
-    except Exception as e:
-        logger.error(f"Password verification error: {str(e)}")
-        return False
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """Generate a password hash"""
     return pwd_context.hash(password)
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    """Create a JWT access token"""
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
+def create_access_token(user_data: dict) -> dict:
+    """Centralized token creation function used by both login and refresh"""
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     
-    try:
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return encoded_jwt
-    except Exception as e:
-        logger.error(f"Token creation error: {str(e)}")
-        raise ValueError(f"Could not create access token: {str(e)}")
+    token_payload = {
+        "sub": user_data["email"],
+        "user_id": user_data["id"],
+        "email": user_data["email"],
+        "first_name": user_data.get("first_name", ""),
+        "last_name": user_data.get("last_name", ""),
+        "role": user_data.get("role", "user"),
+        "iss": os.getenv("JWT_ISSUER", "nexa-health"),
+        "aud": os.getenv("JWT_AUDIENCE", "nexa-health-app"),
+        "iat": datetime.utcnow(),
+        "jti": str(uuid.uuid4()),
+        "auth_time": int(datetime.utcnow().timestamp())
+    }
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    """Get the current user from the JWT token"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    access_token = jwt.encode({
+        **token_payload,
+        "exp": datetime.utcnow() + access_token_expires,
+        "token_type": "access",
+        "scope": "read write"
+    }, SECRET_KEY, algorithm=ALGORITHM)
+
+    refresh_token = jwt.encode({
+        **token_payload,
+        "exp": datetime.utcnow() + refresh_token_expires,
+        "token_type": "refresh",
+        "scope": "refresh"
+    }, SECRET_KEY, algorithm=ALGORITHM)
+
+    # Ensure tokens are strings
+    if isinstance(access_token, bytes):
+        access_token = access_token.decode('utf-8')
+    if isinstance(refresh_token, bytes):
+        refresh_token = refresh_token.decode('utf-8')
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+        "expires_in": int(access_token_expires.total_seconds())
+    }
+
+async def verify_token(token: str) -> dict:
+    """Verify JWT token with comprehensive validation"""
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if not email:
-            raise credentials_exception
-        token_data = TokenData(email=email)
+        # First check token format
+        if not token or len(token.split('.')) != 3:            
+            raise JWTError("Invalid token format") 
+
+        # Then decode and verify
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+            audience=os.getenv("JWT_AUDIENCE", "nexa-health-app"),
+            issuer=os.getenv("JWT_ISSUER", "nexa-health")
+        )
+
+        # Validate required claims
+        required_claims = {
+            "sub", "user_id", "exp", "iat", 
+            "iss", "aud", "token_type"
+        }
+        if not all(claim in payload for claim in required_claims):
+            raise jwt.MissingRequiredClaimError("Missing required claims")
+
+        if payload["token_type"] not in ["access", "refresh"]:
+            raise JWTError("Invalid token format")
+
+        return payload
+
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token expired"
+        )
     except JWTError as e:
-        logger.error(f"JWT decode error: {str(e)}")
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid token: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Token verification error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
+    
+async def get_current_user(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
+) -> UserInDB:
+    """Get current user from either JWT or Firebase token"""
+    token = credentials.credentials
+    try:
+        payload = await verify_token(token)
+        user_id = payload["user_id"]
+        
+        user_doc = users_collection.document(user_id).get()
+        if not user_doc.exists:
+            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
-    user = await get_user_by_email(token_data.email)
-    if not user:
-        raise credentials_exception
-    return user
+            
+        user_data = user_doc.to_dict()
+        return UserInDB(**user_data)
+        
+    except Exception as e:
+        logger.error(f"User retrieval failed: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials"
+        )
+
 
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
     """Get the current active user"""

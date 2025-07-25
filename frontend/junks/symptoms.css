@@ -1,0 +1,57 @@
+/* Add to your existing CSS */
+[data-guest] {
+  display: none;
+}
+
+[data-user] {
+  display: none;
+}
+
+.guest .guest-only {
+  display: block;
+}
+
+.guest .user-only {
+  display: none !important;
+}
+
+.user .user-only {
+  display: block;
+}
+
+.user .guest-only {
+  display: none !important;
+}
+@keyframes feedback-tooltip-enter {
+        0% {
+            opacity: 0;
+            transform: translate(-50%, 10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+    }
+
+    .animate-feedback-tooltip {
+        animation: feedback-tooltip-enter 0.3s ease-out forwards;
+    }
+
+    .feedback-tooltip {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        min-width: 180px;
+        text-align: center;
+        opacity: 0; /* Start hidden for animation */
+    }
+
+    .feedback-tooltip::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 8px;
+        height: 8px;
+        background: white;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }

@@ -1,0 +1,8 @@
+Merging and incorporating your verified_drugs.json, keyword_risk_map.json, and other data into instruction tuning format
+
+Translating prompts and responses into Yoruba, Hausa, Igbo, etc., aligned with your multilingual goals
+
+Writing data loaders or custom fine-tuning scripts for your model of choice (e.g. HuggingFace Transformers, Llama, etc.)
+
+Suggesting best fine-tuning strategies for powerful multilingual health assistant LLMs
+

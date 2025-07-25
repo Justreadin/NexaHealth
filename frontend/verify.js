@@ -1,292 +1,361 @@
-// verify.js - Drug Verification Page Specific JavaScript
+// verify.js - Updated to show modal after results
 
-class DrugVerifier {
-  constructor() {
-    this.auth = window.App.Auth;
-    this.guestSession = window.App.GuestSession;
-  }
-
-  async verifyDrug(productName, nafdacNumber) {
-    const isLoggedIn = this.auth.checkAuthStatus();
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM Elements
+    const verificationForm = document.getElementById('verificationForm');
+    const resultsSection = document.getElementById('results-section');
+    const newSearchBtn = document.getElementById('new-search');
+    const possibleMatchesContainer = document.getElementById('possible-matches-container');
     
-    // Skip guest checks if logged in
-    if (!isLoggedIn && this.guestSession.checkGuestLimit()) {
-      return null;
+    // Create possible matches container if it doesn't exist
+    if (!possibleMatchesContainer) {
+        const container = document.createElement('div');
+        container.id = 'possible-matches-container';
+        container.className = 'mt-8 hidden';
+        resultsSection.querySelector('.max-w-3xl').appendChild(container);
     }
 
-    try {
-      const headers = {
-        'Content-Type': 'application/json'
-      };
+    // Create modal if it doesn't exist
+    if (!document.getElementById('better-results-modal')) {
+        const modalHTML = `
+        <div id="better-results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl max-w-md w-full mx-4 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold font-serif">Get Better Verification Results</h3>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-6">
+                    <div class="bg-blue-100 p-3 rounded-full inline-block mb-4">
+                        <i class="fas fa-crown text-blue-600 text-xl"></i>
+                    </div>
+                    <p class="text-gray-700 mb-4">Sign up for free to unlock:</p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>AI-powered scanning with higher accuracy</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Full verification history</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Advanced safety features</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="mobile/signup.html" class="health-gradient hover:opacity-90 text-white px-6 py-3 rounded-lg font-medium text-center shadow-lg hover:shadow-xl transition-all">
+                        Sign Up Free
+                    </a>
+                    <button id="skip-modal" class="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-all">
+                        Continue as Guest
+                    </button>
+                </div>
+            </div>
+        </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
 
-      if (isLoggedIn) {
-        const token = localStorage.getItem('nexahealth_access_token') || 
-                     sessionStorage.getItem('nexahealth_access_token');
-        headers['Authorization'] = `Bearer ${token}`;
-      } else {
-        // Ensure guest session exists
-        if (!this.guestSession.sessionId) {
-          await this.guestSession.createNewSession();
+    // Check if we're on the verify page
+    if (!verificationForm) return;
+
+    // Form submission handler
+    verificationForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Get form values
+        const productName = document.getElementById('drug-name').value.trim();
+        const nafdacNumber = document.getElementById('nafdac-number').value.trim();
+
+        // Validate at least one field is filled
+        if (!productName && !nafdacNumber) {
+            showToast('Please enter either a drug name or NAFDAC number', 'error');
+            return;
         }
-        headers['X-Guest-Session'] = this.guestSession.sessionId || '';
-      }
 
-      const requestData = {
-        product_name: productName || null,
-        nafdac_reg_no: nafdacNumber || null
-      };
+        // Show loading state
+        showLoading(true);
 
-      const response = await fetch('http://127.0.0.1:800/verify-drug', {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(requestData),
-        credentials: 'include'
-      });
+        try {
+            const response = await verifyDrug(productName, nafdacNumber);
+            displayVerificationResults(response);
+            resultsSection.classList.remove('hidden');
+            
+            // Scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }, 300);
 
-      if (response.status === 403) {
-        this.guestSession.showGuestLimitModal();
-        return null;
-      }
+            // Show modal if partial matches or low confidence
+            if (response.status === 'HIGH_SIMILARITY' || 
+                response.status === 'UNKNOWN' || 
+                (response.match_score && response.match_score < 80)) {
+                setTimeout(() => {
+                    showBetterResultsModal();
+                }, 1000);
+            }
+            
+        } catch (error) {
+            console.error('Verification error:', error);
+            showToast('An error occurred while verifying. Please try again.', 'error');
+        } finally {
+            showLoading(false);
+        }
+    });
 
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      
-      return await response.json();
-    } catch (error) {
-      console.error("Verification Error:", error);
-      throw error;
+    // New search button handler
+    newSearchBtn.addEventListener('click', function() {
+        // Hide results section
+        resultsSection.classList.add('hidden');
+
+        // Reset form
+        verificationForm.reset();
+
+        // Scroll to form
+        setTimeout(() => {
+            document.getElementById('verify-section').scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+    });
+
+    // Function to show better results modal
+    function showBetterResultsModal() {
+        const modal = document.getElementById('better-results-modal');
+        const closeBtn = document.getElementById('close-modal');
+        const skipBtn = document.getElementById('skip-modal');
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // Close modal handlers
+        closeBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        });
+
+        skipBtn.addEventListener('click', function() {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        });
+
+        // Close when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
     }
-  }
-}
 
-// Initialize Drug Verifier Page
-document.addEventListener('DOMContentLoaded', () => {
-  // Only initialize if we're on the verify page
-  if (!document.getElementById('verificationForm')) return;
+    // Function to verify drug with backend
+    async function verifyDrug(productName, nafdacNumber) {
+        const requestData = {
+            product_name: productName || null,
+            nafdac_reg_no: nafdacNumber || null
+        };
 
-  const verifier = new DrugVerifier();
-  const verificationForm = document.getElementById('verificationForm');
-  const verifyButton = document.getElementById('verify-button');
-  const buttonText = document.getElementById('button-text');
-  const buttonSpinner = document.getElementById('button-spinner');
-  const resultsSection = document.getElementById('results-section');
-  const newSearchBtn = document.getElementById('new-search');
-  const saveResultButton = document.getElementById('save-result');
+        const response = await fetch('http://127.0.0.1:8000/api/test_verify/drug', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestData)
+        });
 
-  // Check for drug parameter in URL and pre-fill form
-  const urlParams = new URLSearchParams(window.location.search);
-  const drugName = urlParams.get('drug');
-  if (drugName) {
-    document.getElementById('product-name').value = decodeURIComponent(drugName);
-    
-    // Highlight the drug name field
-    const drugNameField = document.getElementById('product-name');
-    drugNameField.focus();
-    drugNameField.select();
-    
-    // Show a brief notification
-    const notification = document.createElement('div');
-    notification.className = 'bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 animate__animated animate__fadeInDown';
-    notification.innerHTML = `
-      <p class="font-medium">Drug from symptoms pre-filled</p>
-      <p class="text-sm">We've filled the drug name from your symptom analysis. Click "Verify Drug" to check its authenticity.</p>
-    `;
-    document.querySelector('#verify-form > div').prepend(notification);
-    
-    // Remove notification after 5 seconds
-    setTimeout(() => {
-      notification.classList.add('animate__fadeOutUp');
-      setTimeout(() => notification.remove(), 500);
-    }, 5000);
-  }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Verification failed');
+        }
 
-  // Form submission handler
-  verificationForm.addEventListener('submit', async function(e) {
-    e.preventDefault();
+        return await response.json();
+    }
 
-    // Get form values
-    const productName = document.getElementById('product-name').value.trim();
-    const nafdacNumber = document.getElementById('nafdac-number').value.trim();
+    // Display verification results
+    function displayVerificationResults(data) {
+        // Set status based on verification result
+        const status = data.status || 'UNKNOWN';
+        const matchScore = data.match_score || 0;
+        const message = data.message || 'Verification complete';
 
-    // Validate at least one field is filled
-    if (!productName && !nafdacNumber) {
-      showError('Please enter either a drug name or NAFDAC number');
-      return;
+        // Update status elements
+        updateStatusElements(status, matchScore, message);
+
+        // Update progress circle
+        updateProgressCircle(matchScore);
+
+        // Update drug details if available
+        const drugDetails = document.getElementById('drug-details');
+        if (data.product_name) {
+            drugDetails.classList.remove('hidden');
+            document.getElementById('detail-name').textContent = data.product_name || '-';
+            document.getElementById('detail-reg-no').textContent = data.nafdac_reg_no || '-';
+            document.getElementById('detail-dosage').textContent = data.dosage_form || '-';
+            document.getElementById('detail-strengths').textContent = data.strength || '-';
+        } else {
+            drugDetails.classList.add('hidden');
+        }
+
+        // Show possible matches if available
+        const possibleMatchesContainer = document.getElementById('possible-matches-container');
+        if (data.possible_matches && data.possible_matches.length > 0) {
+            possibleMatchesContainer.classList.remove('hidden');
+            possibleMatchesContainer.innerHTML = `
+                <h3 class="text-lg font-bold font-serif mb-4">Possible Matching Drugs</h3>
+                <div class="grid grid-cols-1 gap-4">
+                    ${data.possible_matches.map(match => `
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-bold text-primary">${match.product_name}</h4>
+                                    <p class="text-sm text-gray-600">Manufacturer: ${match.manufacturer || 'Unknown'}</p>
+                                </div>
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    ${match.match_score}% match
+                                </span>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <span class="font-medium">NAFDAC No:</span> ${match.nafdac_reg_no || '-'}
+                                </div>
+                                <div>
+                                    <span class="font-medium">Dosage:</span> ${match.dosage_form || '-'}
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <button class="text-primary hover:text-secondary text-sm font-medium flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i> View details
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            possibleMatchesContainer.classList.add('hidden');
+        }
+    }
+
+    // Update status elements based on verification status
+    function updateStatusElements(status, score, message) {
+        const statusBadge = document.getElementById('status-badge');
+        const statusIcon = document.getElementById('status-icon');
+        const statusTitle = document.getElementById('status-title');
+        const statusMessage = document.getElementById('status-message');
+        const statusFooterText = document.getElementById('status-footer-text');
+        const matchScoreContainer = document.getElementById('match-score-container');
+        const matchScoreBar = document.getElementById('match-score-bar');
+        const matchScoreText = document.getElementById('match-score-text');
+        const statusFooter = document.getElementById('status-footer');
+
+        // Reset classes
+        statusBadge.className = 'inline-block px-3 py-1 rounded-full text-white font-medium mb-4 text-sm';
+        statusIcon.className = 'absolute inset-0 flex items-center justify-center text-3xl';
+
+        // Set based on status
+        switch(status) {
+            case 'VERIFIED':
+                statusBadge.classList.add('bg-verified');
+                statusBadge.textContent = 'Verified';
+                statusIcon.innerHTML = '<i class="fas fa-check-circle text-verified"></i>';
+                statusTitle.textContent = 'Drug Verified Successfully';
+                statusFooterText.textContent = 'This drug is verified by NAFDAC and matches official records.';
+                break;
+            case 'HIGH_SIMILARITY':
+                statusBadge.classList.add('bg-partial');
+                statusBadge.textContent = 'Similar Match';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-circle text-partial"></i>';
+                statusTitle.textContent = 'Similar Drugs Found';
+                statusFooterText.textContent = 'Some details match but others don\'t. Verify carefully.';
+                break;
+            case 'CONFLICT_WARNING':
+                statusBadge.classList.add('bg-conflict');
+                statusBadge.textContent = 'Conflict Warning';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-conflict"></i>';
+                statusTitle.textContent = 'Verification Warning';
+                statusFooterText.textContent = 'This drug has conflicting information. Caution advised.';
+                break;
+            case 'FLAGGED':
+                statusBadge.classList.add('bg-flagged');
+                statusBadge.textContent = 'Flagged';
+                statusIcon.innerHTML = '<i class="fas fa-flag text-flagged"></i>';
+                statusTitle.textContent = 'Drug Flagged as Suspicious';
+                statusFooterText.textContent = 'This drug has been flagged by multiple reports. Do not use.';
+                break;
+            default: // UNKNOWN
+                statusBadge.classList.add('bg-unknown');
+                statusBadge.textContent = 'Unknown';
+                statusIcon.innerHTML = '<i class="fas fa-question-circle text-unknown"></i>';
+                statusTitle.textContent = 'Verification Complete';
+                statusFooterText.textContent = 'This drug has possible matches.';
+        }
+
+        // Set the message
+        statusMessage.textContent = message;
+
+        // Show match score if not unknown
+        if (status !== 'UNKNOWN' && score > 0) {
+            matchScoreContainer.classList.remove('hidden');
+            matchScoreBar.style.width = `${score}%`;
+            matchScoreText.textContent = `${score}%`;
+        } else {
+            matchScoreContainer.classList.add('hidden');
+        }
+
+        // Show footer for all statuses except unknown
+        if (status !== 'UNKNOWN') {
+            statusFooter.classList.remove('hidden');
+        } else {
+            statusFooter.classList.add('hidden');
+        }
+    }
+
+    // Update progress circle visualization
+    function updateProgressCircle(score) {
+        const radius = 40;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (score / 100) * circumference;
+        const progressCircle = document.getElementById('progress-circle');
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = offset;
     }
 
     // Show loading state
-    buttonText.textContent = 'Verifying...';
-    buttonSpinner.classList.remove('hidden');
-    verifyButton.disabled = true;
-
-    try {
-      const data = await verifier.verifyDrug(productName, nafdacNumber);
-      if (!data) return; // Guest limit reached
-      
-      displayVerificationResults(data);
-      resultsSection.classList.remove('hidden');
-      
-      setTimeout(() => {
-        resultsSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }, 300);
-      
-    } catch (error) {
-      console.error('Verification error:', error);
-      showError('An error occurred while verifying. Please try again.');
-    } finally {
-      buttonText.textContent = 'Verify Drug';
-      buttonSpinner.classList.add('hidden');
-      verifyButton.disabled = false;
-    }
-  });
-
-  // New search button handler
-  newSearchBtn.addEventListener('click', function() {
-    // Hide results section
-    resultsSection.classList.add('hidden');
-
-    // Reset form
-    verificationForm.reset();
-
-    // Scroll to form
-    setTimeout(() => {
-      document.getElementById('verify-form').scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  });
-
-  // Save result button handler
-  saveResultButton.addEventListener('click', function() {
-    alert('Verification result saved to your history!');
-  });
-
-  // Display verification results
-  function displayVerificationResults(data) {
-    // Set status based on verification result
-    const status = data.status || 'unknown';
-    const matchScore = data.match_score || 0;
-
-    // Update status elements
-    updateStatusElements(status, matchScore);
-
-    // Update status message
-    document.getElementById('status-title').textContent = getStatusTitle(status);
-    document.getElementById('status-message').textContent = data.message || 'Verification complete';
-
-    // Update progress circle
-    updateProgressCircle(matchScore);
-
-    // Update drug details if available
-    const drugDetails = document.getElementById('drug-details');
-    if (data.product_name) {
-      drugDetails.classList.remove('hidden');
-      document.getElementById('detail-name').textContent = data.product_name || '-';
-      document.getElementById('detail-reg-no').textContent = data.nafdac_reg_no || '-';
-      document.getElementById('detail-dosage').textContent = data.dosage_form || '-';
-      document.getElementById('detail-strengths').textContent = data.strengths || '-';
-      document.getElementById('detail-ingredients').textContent = data.ingredients || '-';
-    } else {
-      drugDetails.classList.add('hidden');
+    function showLoading(show) {
+        const submitButton = verificationForm.querySelector('button[type="submit"]');
+        
+        if (show) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <i class="fas fa-circle-notch fa-spin mr-2"></i> Verifying...
+            `;
+        } else {
+            submitButton.disabled = false;
+            submitButton.innerHTML = `
+                <i class="fas fa-shield-alt mr-2"></i> Verify Medication
+            `;
+        }
     }
 
-    // Show report button for flagged/conflict drugs
-    const reportButton = document.getElementById('report-button');
-    if (status === 'flagged' || status === 'conflict_warning') {
-      reportButton.classList.remove('hidden');
-    } else {
-      reportButton.classList.add('hidden');
+    // Show toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium z-50 animate__animated animate__fadeInUp ${
+            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+        }`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Remove toast after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('animate__fadeOutDown');
+            setTimeout(() => toast.remove(), 500);
+        }, 5000);
     }
-  }
-
-  // Update status elements based on verification status
-  function updateStatusElements(status, score) {
-    const statusBadge = document.getElementById('status-badge');
-    const statusIcon = document.getElementById('status-icon');
-    const statusFooterText = document.getElementById('status-footer-text');
-    const matchScoreContainer = document.getElementById('match-score-container');
-    const matchScoreBar = document.getElementById('match-score-bar');
-    const matchScoreText = document.getElementById('match-score-text');
-    const statusFooter = document.getElementById('status-footer');
-
-    // Reset classes
-    statusBadge.className = 'inline-block px-4 py-2 rounded-full text-white font-medium mb-4 status-badge';
-    statusIcon.className = 'absolute inset-0 flex items-center justify-center text-4xl';
-
-    // Set based on status
-    switch(status) {
-      case 'verified':
-        statusBadge.classList.add('bg-verified');
-        statusBadge.textContent = 'Verified';
-        statusIcon.innerHTML = '<i class="fas fa-check-circle text-verified"></i>';
-        statusFooterText.textContent = 'This drug is verified by NAFDAC and matches official records.';
-        break;
-      case 'partial_match':
-        statusBadge.classList.add('bg-partial');
-        statusBadge.textContent = 'Partial Match';
-        statusIcon.innerHTML = '<i class="fas fa-exclamation-circle text-partial"></i>';
-        statusFooterText.textContent = 'Some details match but others don\'t. Verify carefully.';
-        break;
-      case 'conflict_warning':
-        statusBadge.classList.add('bg-conflict');
-        statusBadge.textContent = 'Conflict Warning';
-        statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-conflict"></i>';
-        statusFooterText.textContent = 'This drug has conflicting information. Caution advised.';
-        break;
-      case 'flagged':
-        statusBadge.classList.add('bg-flagged');
-        statusBadge.textContent = 'Flagged';
-        statusIcon.innerHTML = '<i class="fas fa-flag text-flagged"></i>';
-        statusFooterText.textContent = 'This drug has been flagged by multiple reports. Do not use.';
-        break;
-      default: // unknown
-        statusBadge.classList.add('bg-unknown');
-        statusBadge.textContent = 'Unknown';
-        statusIcon.innerHTML = '<i class="fas fa-question-circle text-unknown"></i>';
-        statusFooterText.textContent = 'This drug was not found in our verification system.';
-    }
-
-    // Show match score if not unknown
-    if (status !== 'unknown' && score > 0) {
-      matchScoreContainer.classList.remove('hidden');
-      matchScoreBar.style.width = `${score}%`;
-      matchScoreText.textContent = `${score}%`;
-    } else {
-      matchScoreContainer.classList.add('hidden');
-    }
-
-    // Show footer for all statuses except unknown
-    if (status !== 'unknown') {
-      statusFooter.classList.remove('hidden');
-    } else {
-      statusFooter.classList.add('hidden');
-    }
-  }
-
-  // Get status title based on verification status
-  function getStatusTitle(status) {
-    switch(status) {
-      case 'verified': return 'Drug Verified Successfully';
-      case 'partial_match': return 'Partial Match Found';
-      case 'conflict_warning': return 'Verification Warning';
-      case 'flagged': return 'Drug Flagged as Suspicious';
-      default: return 'Verification Complete';
-    }
-  }
-
-  // Update progress circle visualization
-  function updateProgressCircle(score) {
-    const radius = 40;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (score / 100) * circumference;
-    const progressCircle = document.getElementById('progress-circle');
-
-    progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
-    progressCircle.style.strokeDashoffset = offset;
-  }
-
-  // Show error message
-  function showError(message) {
-    alert(message); // In a real app, you'd show a nicer error message
-  }
 });

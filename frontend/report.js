@@ -232,7 +232,7 @@ class ReportHandler {
         formData.append('image', dropzone.files[0]);
       }
 
-      const response = await fetch('https://lyre-4m8l.onrender.com/submit-report', {
+      const response = await fetch('http://127.0.0.1:8000/submit-report', {
         method: 'POST',
         body: formData
       });
