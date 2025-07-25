@@ -13,6 +13,7 @@ from firebase_admin.exceptions import FirebaseError
 import logging
 import random
 import string
+from fastapi.responses import RedirectResponse
 import jwt
 from passlib.context import CryptContext
 from requests import request
@@ -82,13 +83,13 @@ async def signup(
                 detail="Authentication service unavailable"
             )
 
-        # Check for pending confirmations
         if user.email in pending_confirmations:
             existing = pending_confirmations[user.email]
             if datetime.now() < existing["expires_at"]:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Confirmation already sent"
+                confirmation_code = existing["confirmation_code"]
+                return RedirectResponse(
+                    url=f"/confirm-email.html?email={user.email}&code={confirmation_code}",
+                    status_code=status.HTTP_307_TEMPORARY_REDIRECT
                 )
             else:
                 del pending_confirmations[user.email]
@@ -225,18 +226,22 @@ async def confirm_email(confirmation: EmailConfirmation):
 
             # Create access token
             access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            access_token = create_access_token(
-                data={"sub": user_data["email"], "user_id": firebase_user.uid},
-                expires_delta=access_token_expires
-            )
-            
+            access_token_dict = create_access_token({
+                "email": user_data["email"],
+                "id": firebase_user.uid,
+                "first_name": user_data.get("first_name"),
+                "last_name": user_data.get("last_name"),
+                "role": "user"  # or user_data.get("role", "user") if roles are dynamic
+            })
+
             return {
                 "message": "Account successfully created",
                 "user_id": firebase_user.uid,
                 "email": user_data["email"],
-                "access_token": access_token,
-                "token_type": "bearer"
+                "access_token": access_token_dict["access_token"],
+                "token_type": access_token_dict["token_type"]
             }
+
 
         except auth.EmailAlreadyExistsError:
             raise HTTPException(
