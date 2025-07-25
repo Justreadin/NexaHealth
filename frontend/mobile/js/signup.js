@@ -1,7 +1,7 @@
 // signup.js - Comprehensive Signup Functionality
 
 // Configuration
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = 'https://lyre-4m8l.onrender.com';
 const REDIRECT_KEY = 'nexahealth_redirect_url';
 
 // DOM Elements

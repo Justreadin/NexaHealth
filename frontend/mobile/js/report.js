@@ -430,7 +430,7 @@ async function submitReport(type) {
             window.location.href = 'login.html';
             return;
         }
-        const endpoint = `http://localhost:8000/reports/submit-${type}`;
+        const endpoint = `https://lyre-4m8l.onrender.com/reports/submit-${type}`;
         // Send the request with Authorization header
         const response = await fetch(endpoint, {
             method: 'POST',

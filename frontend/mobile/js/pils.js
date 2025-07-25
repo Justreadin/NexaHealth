@@ -1,6 +1,6 @@
 // Configuration
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api/pils';
+const API_BASE_URL = 'https://lyre-4m8l.onrender.com/api/pils';
 // DOM Elements
 const searchInput = document.getElementById('pil-search');
 const searchLoader = document.getElementById('search-loader');

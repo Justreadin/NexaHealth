@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:8000/api/pils';
+const API_BASE_URL = 'https://lyre-4m8l.onrender.com/api/pils';
 
 function getQueryParam(param) {
     const urlParams = new URLSearchParams(window.location.search);
