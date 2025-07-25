@@ -35,8 +35,8 @@ class AuthMiddleware:
     "/api/test_verify/drug",
     "/submit-report",
     "/api/test_pil",  
-
-
+    ]
+    
     @classmethod
     async def authenticate(cls, request: Request, call_next):
         """Main authentication middleware"""
