@@ -92,7 +92,7 @@ class DashboardStats {
 
   async fetchStats(endpoint, params = '') {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/stats/${endpoint}${params}`, {
+      const response = await fetch(`https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }

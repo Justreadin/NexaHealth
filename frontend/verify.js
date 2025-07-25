@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nafdac_reg_no: nafdacNumber || null
         };
 
-        const response = await fetch('http://127.0.0.1:8000/api/test_verify/drug', {
+        const response = await fetch('https://lyre-4m8l.onrender.com/api/test_verify/drug', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

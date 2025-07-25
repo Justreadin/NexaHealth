@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load dashboard stats
         const loadDashboardStats = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/dashboard/stats', {
+                const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/stats', {
                     headers: {
                         'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
                     }
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("Access Token:", window.App.Auth.getAccessToken());
 
             try {
-                const response = await fetch('http://127.0.0.1:8000/dashboard/activity', {
+                const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/activity', {
                     headers: {
                         'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
                     }
@@ -138,14 +138,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
-        // Load all dashboard data
+                // Load all dashboard data
         Promise.all([
             loadUserData().catch(e => {
                 showAlert('Failed to load user data', 'error');
-                throw e; // Still important
+                throw e;
             }),
             loadDashboardStats().catch(e => console.error('Stats load failed:', e)),
-            loadRecentActivity().catch(e => console.error('Activity load failed:', e))
+            loadRecentActivity().catch(e => console.error('Activity load failed:', e)),
+            // Load referral script
+            new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'js/referral.js';
+                script.onload = resolve;
+                document.body.appendChild(script);
+            })
         ]);
 
     } catch (error) {
