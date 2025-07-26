@@ -110,18 +110,37 @@ class ReferralSystem {
   }
   
   shareViaWhatsApp() {
-    const message = `Join me on NexaHealth - the smart way to verify medications and track your health! Use my referral link: ${this.referralLink}`;
+  const message = `🌟 Check out NexaHealth! 🌟
+
+  I've been using NexaHealth to verify medications, manage prescriptions, and keep track of my health records—all in one place. It's secure, smart, and super easy to use.
+
+  Use my referral link to sign up and explore it for yourself: ${this.referralLink}
+
+  Take control of your health the smart way! 💊📈`;
+    
     const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
   }
-  
+
   shareViaEmail() {
-    const subject = 'Join me on NexaHealth';
-    const body = `Hi there,\n\nI thought you might be interested in NexaHealth - a platform that helps verify medications and track health records.\n\nUse my referral link to sign up: ${this.referralLink}\n\nBest regards,`;
+    const subject = 'Join me on NexaHealth – A Smarter Way to Manage Your Health';
+    const body = `Hi there,
+
+  I wanted to share a great platform with you: NexaHealth. It's been incredibly useful for verifying medications, tracking prescriptions, and securely managing personal health records.
+
+  If you're looking for a smarter way to stay on top of your health, I think you'll really like it.
+
+  Use my referral link to join: ${this.referralLink}
+
+  Let me know what you think once you've tried it!
+
+  Best regards,`;
+
     const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = url;
   }
-  
+
+    
   showSuccessMessage() {
     // Add confetti effect
     if (typeof confetti === 'function') {
