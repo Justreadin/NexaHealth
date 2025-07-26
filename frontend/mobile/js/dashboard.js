@@ -157,8 +157,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } catch (error) {
         console.error('Dashboard error:', error);
-        if (error.message === 'Session expired') {
-            showAlert('Your session has expired. Please log in again.', 'error');
+        if (
+            error.message === 'Session expired' ||
+            error.message === 'Failed to load user data'
+        ) {
+            showAlert('Your session has expired or could not be verified. Please log in again.', 'error');
             window.location.href = 'login.html';
         }
     }
