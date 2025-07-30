@@ -74,8 +74,12 @@ def get_indexed_drugs():
             indexed["name_index"][part].append(drug)
         
         # Index by registration number
-        if reg_no := drug.get("identifiers", {}).get("nafdac_reg_no", "").lower():
-            indexed["reg_index"][reg_no] = drug
+        raw_reg = drug.get("identifiers", {}).get("nafdac_reg_no", "").lower()
+        clean_reg = re.sub(r"[-/ ]", "", raw_reg)
+        if clean_reg:
+            indexed["reg_index"][clean_reg] = drug
+
+
         
         # Index by manufacturer
         if manu := drug.get("manufacturer", {}).get("name", "").lower():
