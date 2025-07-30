@@ -55,10 +55,12 @@ COMMON_NAME_MAPPINGS = {
 
 # Nigerian manufacturer variations
 MANUFACTURER_VARIANTS = {
-    "emzor": ["emzor pharmaceutical", "emzor pharma"],
-    "fidson": ["fidson healthcare", "fidson pharm"],
-    "may & baker": ["may and baker", "m&b"],
-    "swiss pharma": ["swiss pharmaceutical"]
+    "emzor": ["emzor", "emzor pharma", "emzor pharm", "emzorpharma"],
+    "fidson": ["fidson", "fidson healthcare", "fidson pharm"],
+    "may & baker": ["may and baker", "may baker", "m&b", "mb", "maybaker"],
+    "swiss pharma": ["swiss", "swiss pharm"],
+    "greenlife": ["green life", "greenlife pharma"],
+    "dana": ["dana pharma", "dana pharmaceuticals"],
 }
 
 # Preprocess and index the drug database
@@ -94,27 +96,34 @@ def get_indexed_drugs():
     return indexed
 
 def normalize_text(text: str) -> str:
-    """Normalize text for matching"""
+    """Ultra-flexible text normalization for drug names and manufacturers"""
     if not text:
         return ""
     
-    # Remove punctuation and special characters
-    text = re.sub(f"[{string.punctuation}]", "", text.lower())
+    # Convert to lowercase and remove all special characters/spaces
+    text = text.lower().strip()
+    text = re.sub(r'[^\w]', '', text)  # Remove ALL non-alphanumeric characters
     
-    # Common Nigerian drug name normalizations
+    # Common replacements for all drugs
     replacements = {
         "tab": "tablet",
         "cap": "capsule",
         "susp": "suspension",
         "inj": "injection",
         "supp": "suppository",
-        "pcm": "paracetamol"
+        "pcm": "paracetamol",
+        "vitc": "vitaminc",
+        "coartm": "coartem",
+        "amox": "amoxicillin",
+        "amp": "ampicillin",
+        "cfz": "ceftriaxone",
+        # Add more common drug abbreviations here
     }
     
     for short, long in replacements.items():
         text = re.sub(rf"\b{short}\b", long, text)
     
-    return text.strip()
+    return text
 
 def expand_common_names(input_name: str) -> List[str]:
     """Expand common drug names to their possible variants"""
