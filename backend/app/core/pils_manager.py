@@ -92,31 +92,31 @@ class PILManager:
     # pils_manager.py
 
     def _normalize_text(self, text: Optional[str]) -> str:
-    """Consistent normalization for all drug data"""
-    if not text:
-        return ''
-    
-    try:
-        # Remove all special characters and spaces
-        text = text.lower().strip()
-        text = re.sub(r'[^\w]', '', text)
+        """Consistent normalization for all drug data"""
+        if not text:
+            return ''
         
-        # Common replacements
-        replacements = {
-            "tab": "tablet",
-            "cap": "capsule",
-            "susp": "suspension",
-            # Add more as needed
-        }
-        
-        for short, long in replacements.items():
-            text = re.sub(rf"\b{short}\b", long, text)
+        try:
+            # Remove all special characters and spaces
+            text = text.lower().strip()
+            text = re.sub(r'[^\w]', '', text)
             
-        return text
-    except Exception as e:
-        logger.warning(f"Error normalizing text: {str(e)}")
-        return text.lower() if text else ''
-    
+            # Common replacements
+            replacements = {
+                "tab": "tablet",
+                "cap": "capsule",
+                "susp": "suspension",
+                # Add more as needed
+            }
+            
+            for short, long in replacements.items():
+                text = re.sub(rf"\b{short}\b", long, text)
+                
+            return text
+        except Exception as e:
+            logger.warning(f"Error normalizing text: {str(e)}")
+            return text.lower() if text else ''
+        
 
     def get_pil(self, pil_id: str) -> Optional[PILInDB]:
         """Get a single PIL by ID with null checks"""
