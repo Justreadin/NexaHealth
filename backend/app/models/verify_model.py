@@ -43,6 +43,16 @@ class DrugVerificationResponse(BaseModel):
     confidence: Literal["high", "medium", "low"] = "low"
     matched_fields: Optional[List[str]] = None
 
+    class Config:
+        use_enum_values = False  # Don't serialize Enums as their value (e.g., "verified")
+
+    def dict(self, **kwargs):
+        data = super().dict(**kwargs)
+        if "status" in data and isinstance(data["status"], VerificationStatus):
+            data["status"] = data["status"].name  # Converts Enum to UPPERCASE string
+        return data
+
+
 class SimpleDrugVerificationRequest(BaseModel):
     product_name: Optional[str] = None
     nafdac_reg_no: Optional[str] = None
