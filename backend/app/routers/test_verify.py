@@ -386,10 +386,7 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
             "match_score": round(min(100, highest_score)),
             "pil_id": best_match.get("nexahealth_id"),
             "match_details": match_details,
-            "matched_fields": (
-                f"Matched by: {', '.join(sorted(matched_field_labels))}"
-                if matched_field_labels else None
-            ),
+            "matched_fields": sorted(matched_field_labels) if matched_field_labels else None,
             "confidence": "high" if highest_score >= 80 else "medium"
         }
 
