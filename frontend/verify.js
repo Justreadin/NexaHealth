@@ -344,6 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             statusFooter.classList.add('hidden');
         }
+    }
 
     // Update progress circle visualization
     function updateProgressCircle(score) {
