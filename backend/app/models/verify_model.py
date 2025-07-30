@@ -59,5 +59,5 @@ class DrugVerificationResponse(BaseModel):
 
 
 class SimpleDrugVerificationRequest(BaseModel):
-    product_name: str
+    product_name: Optional[str] = None
     nafdac_reg_no: Optional[str] = None

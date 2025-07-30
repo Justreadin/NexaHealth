@@ -215,182 +215,177 @@ async def verify_drug(
     - Detailed match reporting
     """
     try:
-        logger.info(f"Drug verification request by user")
-        if not request.product_name or len(request.product_name.strip()) < 3:
+        logger.info("Drug verification request by user")
+
+        # Must provide at least one of the fields
+        if not request.product_name and not request.nafdac_reg_no:
             raise HTTPException(
                 status_code=400,
-                detail="Product name must be at least 3 characters"
+                detail="At least one of 'product_name' or 'nafdac_reg_no' must be provided."
             )
-        
-        input_name = normalize_text(request.product_name)
-        input_reg = normalize_text(request.nafdac_reg_no) if request.nafdac_reg_no else None
+
+        input_name = normalize_text(request.product_name) if request.product_name else ""
+        input_reg = normalize_text(request.nafdac_reg_no) if request.nafdac_reg_no else ""
 
         # Get indexed data
         indexes = get_indexed_drugs()
-        
+
         # Stage 1: Broad matching using indexes
         potential_matches = []
-        seen_ids = set()  # Track seen nexahealth_ids to avoid duplicates
-        
-        # Match by name parts
-        for part in input_name.split():
-            for drug in indexes["name_index"].get(part, []):
-                if drug["nexahealth_id"] not in seen_ids:
-                    potential_matches.append(drug)
-                    seen_ids.add(drug["nexahealth_id"])
-        
-        # Match by generic name parts
-        if " " in input_name:  # Likely contains generic name
+        seen_ids = set()
+
+        if input_name:
+            # Match by name parts
             for part in input_name.split():
-                for drug in indexes["generic_index"].get(part, []):
+                for drug in indexes["name_index"].get(part, []):
                     if drug["nexahealth_id"] not in seen_ids:
                         potential_matches.append(drug)
                         seen_ids.add(drug["nexahealth_id"])
-        
-        # If NAFDAC number provided, prioritize those matches
+
+            # Match by generic name parts
+            if " " in input_name:
+                for part in input_name.split():
+                    for drug in indexes["generic_index"].get(part, []):
+                        if drug["nexahealth_id"] not in seen_ids:
+                            potential_matches.append(drug)
+                            seen_ids.add(drug["nexahealth_id"])
+
+        # Match by NAFDAC number
         if input_reg:
-            # Check for exact match first
             if exact_reg_match := indexes["reg_index"].get(input_reg):
                 if exact_reg_match["nexahealth_id"] not in seen_ids:
-                    potential_matches.insert(0, exact_reg_match)  # Insert at beginning for priority
+                    potential_matches.insert(0, exact_reg_match)
                     seen_ids.add(exact_reg_match["nexahealth_id"])
             else:
-                # Check for partial matches in registration numbers
                 for reg_no, drug in indexes["reg_index"].items():
                     if (input_reg in reg_no or reg_no in input_reg) and drug["nexahealth_id"] not in seen_ids:
                         potential_matches.append(drug)
                         seen_ids.add(drug["nexahealth_id"])
-        
-        # If no potential matches found, try fuzzy name search on entire database
+
+        # If still no match, fallback to entire DB
         if not potential_matches:
             potential_matches = drug_db
-        
-        # Rest of the function remains the same...
-        # Stage 2: Detailed scoring of potential matches
+
+        # Stage 2: Detailed scoring
         best_match = None
         highest_score = 0
         match_details = []
         scored_matches = []
-        
+
         for drug in potential_matches:
             current_score = 0
             details = []
-            
-            # Get drug data
+
             db_name = normalize_text(drug.get("product_name", ""))
             db_reg = normalize_text(drug.get("identifiers", {}).get("nafdac_reg_no", ""))
             db_manu = normalize_text(drug.get("manufacturer", {}).get("name", ""))
             db_form = normalize_text(drug.get("dosage_form", ""))
             nexahealth_id = drug.get("nexahealth_id")
-            
-            # Name matching (multiple strategies)
-            name_variants = expand_common_names(input_name)
-            
-            # Strategy 1: Exact match with any variant
-            if any(variant == db_name for variant in name_variants):
-                current_score += 50
-                details.append(DrugMatchDetail(
-                    field="product_name",
-                    matched_value=drug.get("product_name"),
-                    input_value=request.product_name,
-                    score=100,
-                    algorithm="exact match with common name variant"
-                ))
-            
-            # Strategy 2: Fuzzy token match with expanded names
-            else:
-                best_variant_score = max(
-                    fuzz.token_set_ratio(variant, db_name) 
-                    for variant in name_variants
-                )
-                
-                if best_variant_score > 85:
-                    current_score += best_variant_score * 0.4
+
+            # Name matching
+            if input_name:
+                name_variants = expand_common_names(input_name)
+
+                if any(variant == db_name for variant in name_variants):
+                    current_score += 50
                     details.append(DrugMatchDetail(
                         field="product_name",
                         matched_value=drug.get("product_name"),
                         input_value=request.product_name,
-                        score=round(best_variant_score * 0.4),  # Round to integer
-                        algorithm="fuzzy token match"
+                        score=100,
+                        algorithm="exact match with common name variant"
                     ))
-                elif best_variant_score > 70:
-                    current_score += best_variant_score * 0.3
-                    details.append(DrugMatchDetail(
-                        field="product_name",
-                        matched_value=drug.get("product_name"),
-                        input_value=request.product_name,
-                        score=round(best_variant_score * 0.3),  # Round to integer
-                        algorithm="partial fuzzy match"
-                    ))
-            
+                else:
+                    best_variant_score = max(
+                        fuzz.token_set_ratio(variant, db_name) for variant in name_variants
+                    )
+
+                    if best_variant_score > 85:
+                        current_score += best_variant_score * 0.4
+                        details.append(DrugMatchDetail(
+                            field="product_name",
+                            matched_value=drug.get("product_name"),
+                            input_value=request.product_name,
+                            score=round(best_variant_score * 0.4),
+                            algorithm="fuzzy token match"
+                        ))
+                    elif best_variant_score > 70:
+                        current_score += best_variant_score * 0.3
+                        details.append(DrugMatchDetail(
+                            field="product_name",
+                            matched_value=drug.get("product_name"),
+                            input_value=request.product_name,
+                            score=round(best_variant_score * 0.3),
+                            algorithm="partial fuzzy match"
+                        ))
+
             # NAFDAC number matching
-            reg_score, reg_reason = match_nafdac_number(input_reg, db_reg)
-            if reg_score > 0:
-                current_score += reg_score * 0.3
-                details.append(DrugMatchDetail(
-                    field="nafdac_reg_no",
-                    matched_value=drug.get("identifiers", {}).get("nafdac_reg_no"),
-                    input_value=request.nafdac_reg_no or "",
-                    score=round(reg_score * 0.3),  # Round to integer
-                    algorithm=reg_reason
-                ))
-            
-            # Track this match
+            if input_reg:
+                reg_score, reg_reason = match_nafdac_number(input_reg, db_reg)
+                if reg_score > 0:
+                    current_score += reg_score * 0.3
+                    details.append(DrugMatchDetail(
+                        field="nafdac_reg_no",
+                        matched_value=drug.get("identifiers", {}).get("nafdac_reg_no"),
+                        input_value=request.nafdac_reg_no or "",
+                        score=round(reg_score * 0.3),
+                        algorithm=reg_reason
+                    ))
+
+            # Track
             scored_matches.append({
                 "drug": drug,
                 "score": current_score,
                 "details": details
             })
-            
-            # Update best match
+
             if current_score > highest_score:
-                highest_score = current_score
                 best_match = drug
+                highest_score = current_score
                 match_details = details
-        
-        # Stage 3: Determine response
+
         verification_status = best_match.get("verification", {}).get("status", "unknown") if best_match else "unknown"
-        
-        # No good match found
+
+        # Stage 3: No good match
         if not best_match or highest_score < 50:
-            # Try to suggest possible matches from the entire database
-            all_names = [d["product_name"] for d in drug_db]
-            matches = process.extract(
-                request.product_name, 
-                all_names, 
-                scorer=fuzz.token_set_ratio,
-                limit=5
-            )
-            
-            if matches and matches[0][1] > 60:
-                suggested_drugs = []
-                for name, score, _ in matches:
-                    drug = next(d for d in drug_db if d["product_name"] == name)
-                    suggested_drugs.append({
-                        "product_name": drug["product_name"],
-                        "dosage_form": drug["dosage_form"],
-                        "nafdac_reg_no": drug.get("identifiers", {}).get("nafdac_reg_no"),
-                        "manufacturer": drug.get("manufacturer", {}).get("name"),
-                        "match_score": score,
-                        "pil_id": drug.get("nexahealth_id")
-                    })
-                
-                return DrugVerificationResponse(
-                    status=VerificationStatus.HIGH_SIMILARITY,
-                    message="No exact match found. Here are possible options:",
-                    match_score=0,
-                    possible_matches=suggested_drugs,
-                    confidence="medium"
+            if input_name:
+                all_names = [d["product_name"] for d in drug_db]
+                matches = process.extract(
+                    request.product_name,
+                    all_names,
+                    scorer=fuzz.token_set_ratio,
+                    limit=5
                 )
-            
+
+                if matches and matches[0][1] > 60:
+                    suggested_drugs = []
+                    for name, score, _ in matches:
+                        drug = next(d for d in drug_db if d["product_name"] == name)
+                        suggested_drugs.append({
+                            "product_name": drug["product_name"],
+                            "dosage_form": drug["dosage_form"],
+                            "nafdac_reg_no": drug.get("identifiers", {}).get("nafdac_reg_no"),
+                            "manufacturer": drug.get("manufacturer", {}).get("name"),
+                            "match_score": score,
+                            "pil_id": drug.get("nexahealth_id")
+                        })
+
+                    return DrugVerificationResponse(
+                        status=VerificationStatus.HIGH_SIMILARITY,
+                        message="No exact match found. Here are possible options:",
+                        match_score=0,
+                        possible_matches=suggested_drugs,
+                        confidence="medium"
+                    )
+
             return DrugVerificationResponse(
                 status=VerificationStatus.UNKNOWN,
                 message="No matching drug found in NAFDAC records.",
                 match_score=0,
                 confidence="low"
             )
-        
-        # Prepare successful response
+
+        # Prepare response
         response_data = {
             "status": VerificationStatus(verification_status),
             "product_name": best_match.get("product_name"),
@@ -398,44 +393,41 @@ async def verify_drug(
             "strength": best_match.get("strength"),
             "nafdac_reg_no": best_match.get("identifiers", {}).get("nafdac_reg_no"),
             "manufacturer": best_match.get("manufacturer", {}).get("name"),
-            "match_score": round(min(100, highest_score)),  # Ensure integer
+            "match_score": round(min(100, highest_score)),
             "pil_id": best_match.get("nexahealth_id"),
             "match_details": match_details,
             "confidence": "high" if highest_score >= 80 else "medium"
         }
-        
-        # Set appropriate message
+
         if highest_score >= 90:
-            if verification_status == "verified":
-                response_data["message"] = "✅ Verified medication (exact match)"
-            else:
-                response_data["message"] = "⚠️ Verified but flagged - check details"
+            response_data["message"] = "✅ Verified medication (exact match)" if verification_status == "verified" \
+                else "⚠️ Verified but flagged - check details"
         elif highest_score >= 70:
             response_data["message"] = "⚠️ Good match - please verify details"
         else:
             response_data["message"] = "⚠️ Partial match - review carefully"
-        
-        # Check for conflicts
+
+        # Conflict checks
         conflicts = []
         if input_name and best_match.get("product_name"):
             input_norm = normalize_text(input_name)
             db_norm = normalize_text(best_match["product_name"])
             if input_norm != db_norm and fuzz.token_set_ratio(input_norm, db_norm) < 85:
                 conflicts.append("name mismatch")
-        
+
         if input_reg and best_match.get("identifiers", {}).get("nafdac_reg_no"):
             input_reg_clean = re.sub(r"[-/ ]", "", input_reg.lower())
             db_reg_clean = re.sub(r"[-/ ]", "", best_match["identifiers"]["nafdac_reg_no"].lower())
             if input_reg_clean != db_reg_clean:
                 conflicts.append("NAFDAC number mismatch")
-        
+
         if conflicts:
             response_data["status"] = VerificationStatus.CONFLICT_WARNING
             response_data["message"] = f"⚠️ Possible issues: {', '.join(conflicts)}"
             response_data["confidence"] = "medium"
-        
+
         return DrugVerificationResponse(**response_data)
-    
+
     except Exception as e:
         logger.error(f"Verification error: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Drug verification failed")
