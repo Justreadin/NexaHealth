@@ -200,24 +200,11 @@ def match_dosage_form(input_form: str, db_form: str) -> Tuple[int, str]:
     
     return 0, ""
 
-# Update the verify_drug function in verify.py
-
 @router.post("/drug", response_model=DrugVerificationResponse)
-async def verify_drug(
-     request: SimpleDrugVerificationRequest
-):
-    """
-    Ultra-powerful drug verification system for Nigerian market with:
-    - Advanced fuzzy matching
-    - Common name handling
-    - Manufacturer variants
-    - NAFDAC number flexibility
-    - Detailed match reporting
-    """
+async def verify_drug(request: SimpleDrugVerificationRequest):
     try:
         logger.info("Drug verification request by user")
 
-        # Must provide at least one of the fields
         if not request.product_name and not request.nafdac_reg_no:
             raise HTTPException(
                 status_code=400,
@@ -227,22 +214,17 @@ async def verify_drug(
         input_name = normalize_text(request.product_name) if request.product_name else ""
         input_reg = normalize_text(request.nafdac_reg_no) if request.nafdac_reg_no else ""
 
-        # Get indexed data
         indexes = get_indexed_drugs()
-
-        # Stage 1: Broad matching using indexes
         potential_matches = []
         seen_ids = set()
 
         if input_name:
-            # Match by name parts
             for part in input_name.split():
                 for drug in indexes["name_index"].get(part, []):
                     if drug["nexahealth_id"] not in seen_ids:
                         potential_matches.append(drug)
                         seen_ids.add(drug["nexahealth_id"])
 
-            # Match by generic name parts
             if " " in input_name:
                 for part in input_name.split():
                     for drug in indexes["generic_index"].get(part, []):
@@ -250,7 +232,6 @@ async def verify_drug(
                             potential_matches.append(drug)
                             seen_ids.add(drug["nexahealth_id"])
 
-        # Match by NAFDAC number
         if input_reg:
             if exact_reg_match := indexes["reg_index"].get(input_reg):
                 if exact_reg_match["nexahealth_id"] not in seen_ids:
@@ -262,19 +243,19 @@ async def verify_drug(
                         potential_matches.append(drug)
                         seen_ids.add(drug["nexahealth_id"])
 
-        # If still no match, fallback to entire DB
         if not potential_matches:
             potential_matches = drug_db
 
-        # Stage 2: Detailed scoring
         best_match = None
         highest_score = 0
         match_details = []
         scored_matches = []
+        matched_field_labels = set()  # ✅ Track human-readable matched fields
 
         for drug in potential_matches:
             current_score = 0
             details = []
+            fields_used = set()
 
             db_name = normalize_text(drug.get("product_name", ""))
             db_reg = normalize_text(drug.get("identifiers", {}).get("nafdac_reg_no", ""))
@@ -282,12 +263,13 @@ async def verify_drug(
             db_form = normalize_text(drug.get("dosage_form", ""))
             nexahealth_id = drug.get("nexahealth_id")
 
-            # Name matching
             if input_name:
                 name_variants = expand_common_names(input_name)
 
                 if any(variant == db_name for variant in name_variants):
                     current_score += 50
+                    fields_used.add("product_name")
+                    matched_field_labels.add("Product Name")
                     details.append(DrugMatchDetail(
                         field="product_name",
                         matched_value=drug.get("product_name"),
@@ -302,6 +284,8 @@ async def verify_drug(
 
                     if best_variant_score > 85:
                         current_score += best_variant_score * 0.4
+                        fields_used.add("product_name")
+                        matched_field_labels.add("Product Name")
                         details.append(DrugMatchDetail(
                             field="product_name",
                             matched_value=drug.get("product_name"),
@@ -311,6 +295,8 @@ async def verify_drug(
                         ))
                     elif best_variant_score > 70:
                         current_score += best_variant_score * 0.3
+                        fields_used.add("product_name")
+                        matched_field_labels.add("Product Name")
                         details.append(DrugMatchDetail(
                             field="product_name",
                             matched_value=drug.get("product_name"),
@@ -319,11 +305,12 @@ async def verify_drug(
                             algorithm="partial fuzzy match"
                         ))
 
-            # NAFDAC number matching
             if input_reg:
                 reg_score, reg_reason = match_nafdac_number(input_reg, db_reg)
                 if reg_score > 0:
                     current_score += reg_score * 0.3
+                    fields_used.add("nafdac_reg_no")
+                    matched_field_labels.add("NAFDAC Number")
                     details.append(DrugMatchDetail(
                         field="nafdac_reg_no",
                         matched_value=drug.get("identifiers", {}).get("nafdac_reg_no"),
@@ -332,11 +319,11 @@ async def verify_drug(
                         algorithm=reg_reason
                     ))
 
-            # Track
             scored_matches.append({
                 "drug": drug,
                 "score": current_score,
-                "details": details
+                "details": details,
+                "fields_used": fields_used
             })
 
             if current_score > highest_score:
@@ -346,7 +333,6 @@ async def verify_drug(
 
         verification_status = best_match.get("verification", {}).get("status", "unknown") if best_match else "unknown"
 
-        # Stage 3: No good match
         if not best_match or highest_score < 50:
             if input_name:
                 all_names = [d["product_name"] for d in drug_db]
@@ -385,7 +371,7 @@ async def verify_drug(
                 confidence="low"
             )
 
-        # Prepare response
+        # ✅ Build response
         response_data = {
             "status": VerificationStatus(verification_status),
             "product_name": best_match.get("product_name"),
@@ -396,18 +382,26 @@ async def verify_drug(
             "match_score": round(min(100, highest_score)),
             "pil_id": best_match.get("nexahealth_id"),
             "match_details": match_details,
+            "matched_fields": (
+                f"Matched by: {', '.join(sorted(matched_field_labels))}"
+                if matched_field_labels else None
+            ),
             "confidence": "high" if highest_score >= 80 else "medium"
         }
 
+        # Message
         if highest_score >= 90:
-            response_data["message"] = "✅ Verified medication (exact match)" if verification_status == "verified" \
-                else "⚠️ Verified but flagged - check details"
+            response_data["message"] = (
+                "✅ Verified medication (exact match)"
+                if verification_status == "verified" else
+                "⚠️ Verified but flagged - check details"
+            )
         elif highest_score >= 70:
             response_data["message"] = "⚠️ Good match - please verify details"
         else:
             response_data["message"] = "⚠️ Partial match - review carefully"
 
-        # Conflict checks
+        # Conflict warning
         conflicts = []
         if input_name and best_match.get("product_name"):
             input_norm = normalize_text(input_name)
