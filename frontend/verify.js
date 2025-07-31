@@ -257,80 +257,60 @@ document.addEventListener('DOMContentLoaded', function() {
         statusBadge.className = 'inline-block px-3 py-1 rounded-full text-white font-medium mb-4 text-sm';
         statusIcon.className = 'absolute inset-0 flex items-center justify-center text-3xl';
 
-        // Set based on status
-        switch (status) {
-            case 'VERIFIED':
-                statusBadge.classList.add('bg-verified');
-                statusBadge.textContent = 'Verified';
-                statusIcon.innerHTML = '<i class="fas fa-check-circle text-verified"></i>';
-                statusTitle.textContent = 'Drug Verified Successfully';
-                statusFooterText.textContent = 'This drug is verified by NAFDAC and matches official records.';
-                break;
-
-            case 'HIGH_SIMILARITY':
-                statusBadge.classList.add('bg-partial');
-                statusBadge.textContent = 'High Similarity';
-                statusIcon.innerHTML = '<i class="fas fa-exclamation-circle text-partial"></i>';
-                statusTitle.textContent = 'Highly Similar Drug Found';
-                statusFooterText.textContent = 'The drug details are highly similar but not an exact match. Review carefully.';
-                break;
-
-            case 'PARTIAL_MATCH':
-                statusBadge.classList.add('bg-partial');
-                statusBadge.textContent = 'Partial Match';
-                statusIcon.innerHTML = '<i class="fas fa-adjust text-partial"></i>';
-                statusTitle.textContent = 'Partial Match Found';
-                statusFooterText.textContent = 'Some key fields match. Please verify batch number, manufacturer, or NAFDAC number.';
-                break;
-
-            case 'COMMON_NAME_MATCH':
-                statusBadge.classList.add('bg-partial');
-                statusBadge.textContent = 'Name Match';
-                statusIcon.innerHTML = '<i class="fas fa-prescription-bottle-alt text-partial"></i>';
-                statusTitle.textContent = 'Matched by Name Only';
-                statusFooterText.textContent = 'Matched using product name. Please cross-check NAFDAC number or packaging.';
-                break;
-
-            case 'CONFLICT_WARNING':
-                statusBadge.classList.add('bg-conflict');
-                statusBadge.textContent = 'Conflict Warning';
-                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-conflict"></i>';
-                statusTitle.textContent = 'Verification Conflict';
-                statusFooterText.textContent = 'This drug has conflicting entries or mismatched records. Caution advised.';
-                break;
-
-            case 'FLAGGED':
-                statusBadge.classList.add('bg-flagged');
-                statusBadge.textContent = 'Flagged';
-                statusIcon.innerHTML = '<i class="fas fa-flag text-flagged"></i>';
-                statusTitle.textContent = 'Flagged as Suspicious';
-                statusFooterText.textContent = 'This drug has been flagged by users or authorities. Avoid using it.';
-                break;
-
-            case 'UNKNOWN':
-                statusBadge.classList.add('bg-unknown');
-                statusBadge.textContent = 'Not Found';
-                statusIcon.innerHTML = '<i class="fas fa-question-circle text-unknown"></i>';
-                statusTitle.textContent = 'No Exact Match';
-                statusFooterText.textContent = 'No matching drug was found. You may review similar matches below.';
-                break;
-
-            default:
-                statusBadge.classList.add('bg-gray-500');
-                statusBadge.textContent = 'Unrecognized';
-                statusIcon.innerHTML = '<i class="fas fa-question text-white"></i>';
-                statusTitle.textContent = 'Status Not Recognized';
-                statusFooterText.textContent = 'The system returned an unexpected status. Please try again or contact support.';
+        // First check if we have a high confidence match (score >= 80)
+        if (score >= 80) {
+            statusBadge.classList.add('bg-verified');
+            statusBadge.textContent = 'Verified';
+            statusIcon.innerHTML = '<i class="fas fa-check-circle text-verified"></i>';
+            statusTitle.textContent = 'Drug Verified Successfully';
+            statusFooterText.textContent = 'This drug is verified by NAFDAC and matches official records.';
+            status = 'VERIFIED'; // Override the status for display purposes
+        }
+        // Then handle other cases based on status
+        else {
+            switch(status) {
+                case 'VERIFIED':
+                    statusBadge.classList.add('bg-verified');
+                    statusBadge.textContent = 'Verified';
+                    statusIcon.innerHTML = '<i class="fas fa-check-circle text-verified"></i>';
+                    statusTitle.textContent = 'Drug Verified Successfully';
+                    statusFooterText.textContent = 'This drug is verified by NAFDAC and matches official records.';
+                    break;
+                case 'HIGH_SIMILARITY':
+                    statusBadge.classList.add('bg-partial');
+                    statusBadge.textContent = 'Similar Match';
+                    statusIcon.innerHTML = '<i class="fas fa-exclamation-circle text-partial"></i>';
+                    statusTitle.textContent = 'Similar Drugs Found';
+                    statusFooterText.textContent = 'Some details match but others don\'t. Verify carefully.';
+                    break;
+                case 'CONFLICT_WARNING':
+                    statusBadge.classList.add('bg-conflict');
+                    statusBadge.textContent = 'Conflict Warning';
+                    statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-conflict"></i>';
+                    statusTitle.textContent = 'Verification Warning';
+                    statusFooterText.textContent = 'This drug has conflicting information. Caution advised.';
+                    break;
+                case 'FLAGGED':
+                    statusBadge.classList.add('bg-flagged');
+                    statusBadge.textContent = 'Flagged';
+                    statusIcon.innerHTML = '<i class="fas fa-flag text-flagged"></i>';
+                    statusTitle.textContent = 'Drug Flagged as Suspicious';
+                    statusFooterText.textContent = 'This drug has been flagged by multiple reports. Do not use.';
+                    break;
+                default: // UNKNOWN
+                    statusBadge.classList.add('bg-unknown');
+                    statusBadge.textContent = 'Unknown';
+                    statusIcon.innerHTML = '<i class="fas fa-question-circle text-unknown"></i>';
+                    statusTitle.textContent = 'Verification Complete';
+                    statusFooterText.textContent = 'No exact match found in our database.';
+            }
         }
 
-
+        // Set the message
         statusMessage.textContent = message;
 
-        // List of statuses where match score should be shown
-        const showScoreStatuses = ['VERIFIED', 'HIGH_SIMILARITY', 'PARTIAL_MATCH', 'COMMON_NAME_MATCH', 'CONFLICT_WARNING'];
-
-        // Show match score if it's meaningful
-        if (showScoreStatuses.includes(status) && score > 0) {
+        // Show match score if available
+        if (score > 0) {
             matchScoreContainer.classList.remove('hidden');
             matchScoreBar.style.width = `${score}%`;
             matchScoreText.textContent = `${score}%`;
@@ -338,8 +318,8 @@ document.addEventListener('DOMContentLoaded', function() {
             matchScoreContainer.classList.add('hidden');
         }
 
-        // Show footer if status is not UNKNOWN or unrecognized
-        if (status !== 'UNKNOWN' && status !== 'UNRECOGNIZED') {
+        // Show footer for all statuses except unknown
+        if (status !== 'UNKNOWN') {
             statusFooter.classList.remove('hidden');
         } else {
             statusFooter.classList.add('hidden');
