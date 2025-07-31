@@ -89,8 +89,6 @@ class PILManager:
             return name.lower() if name else ''
 
 
-    # pils_manager.py
-
     def _normalize_text(self, text: Optional[str]) -> str:
         """Consistent normalization for all drug data"""
         if not text:
@@ -116,10 +114,8 @@ class PILManager:
         except Exception as e:
             logger.warning(f"Error normalizing text: {str(e)}")
             return text.lower() if text else ''
-        
 
     def get_pil(self, pil_id: str) -> Optional[PILInDB]:
-        """Get a single PIL by ID with null checks"""
         try:
             if not pil_id or not self.pils:
                 return None

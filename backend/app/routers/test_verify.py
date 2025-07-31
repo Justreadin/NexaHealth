@@ -79,7 +79,9 @@ def get_indexed_drugs():
         if clean_reg:
             indexed["reg_index"][clean_reg] = drug
 
-
+        if reg_no := drug.get("identifiers", {}).get("nafdac_reg_no", "").lower():
+            reg_key = re.sub(r"[-/ ]", "", reg_no)
+            indexed["reg_index"][reg_key] = drug
         
         # Index by manufacturer
         if manu := drug.get("manufacturer", {}).get("name", "").lower():
@@ -212,23 +214,60 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
         if not request.product_name and not request.nafdac_reg_no:
             raise HTTPException(
                 status_code=400,
-                detail="At least one of 'product_name' or 'nafdac_reg_no' must be provided."
+                detail="At least one of product name or NAFDAC number must be provided"
             )
 
         input_name = normalize_text(request.product_name) if request.product_name else ""
         input_reg = normalize_text(request.nafdac_reg_no) if request.nafdac_reg_no else ""
 
         indexes = get_indexed_drugs()
+
+        # ✅ Handle NAFDAC-only lookup directly
+        if input_reg and not input_name:
+            normalized_reg = re.sub(r"[-/ ]", "", input_reg.lower())
+            drug = indexes["reg_index"].get(normalized_reg)
+            if drug:
+                return DrugVerificationResponse(
+                    status=VerificationStatus(drug.get("verification", {}).get("status", "unknown")),
+                    product_name=drug.get("product_name"),
+                    dosage_form=drug.get("dosage_form"),
+                    strength=drug.get("strength"),
+                    nafdac_reg_no=drug.get("identifiers", {}).get("nafdac_reg_no"),
+                    manufacturer=drug.get("manufacturer", {}).get("name"),
+                    match_score=100,
+                    pil_id=drug.get("nexahealth_id"),
+                    match_details=[
+                        DrugMatchDetail(
+                            field="nafdac_reg_no",
+                            matched_value=drug.get("identifiers", {}).get("nafdac_reg_no"),
+                            input_value=request.nafdac_reg_no,
+                            score=100,
+                            algorithm="exact NAFDAC match"
+                        )
+                    ],
+                    matched_fields=["NAFDAC Number"],
+                    confidence="high",
+                    message="✅ Verified via exact NAFDAC number match, please verify details"
+                )
+
+       
         potential_matches = []
         seen_ids = set()
 
+        # 🟢 1. NAFDAC match (exact)
+        if input_reg:
+            normalized_reg = re.sub(r"[-/ ]", "", input_reg.lower())
+            if exact_reg_match := indexes["reg_index"].get(normalized_reg):
+                potential_matches.append(exact_reg_match)
+                seen_ids.add(exact_reg_match["nexahealth_id"])
+
+        # 🟢 2. Product name matches (name index + generic index)
         if input_name:
             for part in input_name.split():
                 for drug in indexes["name_index"].get(part, []):
                     if drug["nexahealth_id"] not in seen_ids:
                         potential_matches.append(drug)
                         seen_ids.add(drug["nexahealth_id"])
-
             if " " in input_name:
                 for part in input_name.split():
                     for drug in indexes["generic_index"].get(part, []):
@@ -236,16 +275,17 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
                             potential_matches.append(drug)
                             seen_ids.add(drug["nexahealth_id"])
 
-        if input_reg:
-            if exact_reg_match := indexes["reg_index"].get(input_reg):
-                if exact_reg_match["nexahealth_id"] not in seen_ids:
-                    potential_matches.insert(0, exact_reg_match)
-                    seen_ids.add(exact_reg_match["nexahealth_id"])
-            else:
-                for reg_no, drug in indexes["reg_index"].items():
-                    if (input_reg in reg_no or reg_no in input_reg) and drug["nexahealth_id"] not in seen_ids:
-                        potential_matches.append(drug)
-                        seen_ids.add(drug["nexahealth_id"])
+        # 🟡 3. Partial NAFDAC match (if exact wasn't found above)
+        if input_reg and not exact_reg_match:
+            for reg_no, drug in indexes["reg_index"].items():
+                if (input_reg in reg_no or reg_no in input_reg) and drug["nexahealth_id"] not in seen_ids:
+                    potential_matches.append(drug)
+                    seen_ids.add(drug["nexahealth_id"])
+
+        # 🔴 4. Fallback: use entire DB only if still empty
+        if not potential_matches:
+            potential_matches = drug_db
+
 
         if not potential_matches:
             potential_matches = drug_db
@@ -254,7 +294,7 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
         highest_score = 0
         match_details = []
         scored_matches = []
-        matched_field_labels = set()  # ✅ Track human-readable matched fields
+        matched_field_labels = set()
 
         for drug in potential_matches:
             current_score = 0
@@ -375,7 +415,6 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
                 confidence="low"
             )
 
-        # ✅ Build response
         response_data = {
             "status": VerificationStatus(verification_status),
             "product_name": best_match.get("product_name"),
@@ -390,7 +429,6 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
             "confidence": "high" if highest_score >= 80 else "medium"
         }
 
-        # Message
         if highest_score >= 90:
             response_data["message"] = (
                 "✅ Verified medication (exact match)"
@@ -402,7 +440,6 @@ async def verify_drug(request: SimpleDrugVerificationRequest):
         else:
             response_data["message"] = "⚠️ Partial match - review carefully"
 
-        # Conflict warning
         conflicts = []
         if input_name and best_match.get("product_name"):
             input_norm = normalize_text(input_name)
