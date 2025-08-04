@@ -24,7 +24,7 @@ async def whatsapp_reply(
                 async with httpx.AsyncClient() as client:
                     payload = {"product_name": query}
                     res = await client.post(
-                        "https://lyre-4m8l.onrender.com/api/test_verify/drug",
+                        "https://nexahealth.onrender.com/api/test_verify/drug",
                         json=payload
                     )
                     data = res.json()
@@ -60,10 +60,17 @@ async def whatsapp_reply(
     
     else:
         msg.body(
-            "👋 Welcome to *NexaHealth WhatsApp Bot*.\n\nType:\n"
-            "- `verify panadol`\n"
-            "- `report paracetamol fake`\n"
-            "- `pil amoxicillin`"
+            "👋🏽 *Welcome to NexaHealth — Your AI Drug Safety Companion!*\n\n"
+            "I can help you:\n"
+            "🔍 *Verify a drug*: check if it’s NAFDAC-approved\n"
+            "🧾 *Read drug leaflets (PILs)*: know how to use your medicine\n"
+            "🚨 *Report suspicious drugs*: help protect others\n\n"
+            "👉🏽 Type any of these to get started:\n"
+            "• `verify amoxicillin`\n"
+            "• `pil flagyl`\n"
+            "• `report coartem fake`\n\n"
+            "🩺 Built for Nigerians. Powered by AI. Backed by verified data.\n"
+            "💡 Try it now!"
         )
 
     return str(resp)
