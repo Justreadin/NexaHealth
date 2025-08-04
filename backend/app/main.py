@@ -38,7 +38,7 @@ app.middleware("http")(AuthMiddleware.authenticate)
 from app.routers import (
     auth, guest, verify, report, map, nearby, 
     ai_companion, feedback, pils, dashboard, test_verify, test_report, test_pil,
-    count, referral
+    count, referral, whatsapp
 )
 
 app.include_router(auth.router)
@@ -56,6 +56,7 @@ app.include_router(test_report.router)
 app.include_router(test_pil.router)
 app.include_router(count.router) 
 app.include_router(referral.router)
+app.include_router(whatsapp.router)
 
 # Static files
 from fastapi.staticfiles import StaticFiles
