@@ -305,14 +305,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add event listeners to download buttons
         document.querySelectorAll('.download-pil-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+            btn.addEventListener('click', function () {
                 const pilId = this.getAttribute('data-pil-id');
-                try {
-                    await downloadPil(pilId);
-                } catch (error) {
-                    console.error('Error downloading leaflet:', error);
-                    showToast('Could not download leaflet', 'error');
-                }
+                
+                // Show login prompt instead of downloading
+                showToast('Please log in to download the leaflet.', 'info');
             });
         });
     }
@@ -451,9 +448,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="flex flex-col sm:flex-row gap-3 justify-center py-6 border-t">
                 <button id="download-pil" class="health-gradient hover:opacity-90 text-white py-3 px-6 rounded-full font-medium shadow-lg hover:shadow-xl flex items-center justify-center" 
                         data-pil-id="${pil.id}">
-                    <i class="fas fa-download mr-2"></i> Download Leaflet
+                    <i class="fas fa-lock mr-2"></i> Login to Download
                 </button>
-                <a href="login.html" class="border-2 border-primary text-primary hover:bg-blue-50 py-3 px-6 rounded-full font-medium transition-all flex items-center justify-center">
+                <a href="mobile/login.html" class="border-2 border-primary text-primary hover:bg-blue-50 py-3 px-6 rounded-full font-medium transition-all flex items-center justify-center">
                     <i class="fas fa-user-plus mr-2"></i> Sign Up for Full Access
                 </a>
             </div>
@@ -462,16 +459,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add download event listener to modal button
         const downloadBtn = modalContent.querySelector('#download-pil');
         if (downloadBtn) {
-            downloadBtn.addEventListener('click', async function() {
-                const pilId = this.getAttribute('data-pil-id');
-                try {
-                    await downloadPil(pilId);
-                } catch (error) {
-                    console.error('Error downloading leaflet:', error);
-                    showToast('Could not download leaflet', 'error');
-                }
+            downloadBtn.addEventListener('click', function () {
+                showToast('Please log in to download the leaflet.', 'info');
             });
         }
+
         
         // Re-attach close button event
         const newCloseBtn = modalContent.querySelector('#close-pil');
