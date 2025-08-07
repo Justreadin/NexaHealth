@@ -367,17 +367,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Generate appropriate status message
     function generateStatusMessage(status, data) {
         const messages = {
-            'VERIFIED': `✅ Verified with ${data.match_score}% confidence`,
-            'HIGH_SIMILARITY': `⚠️ Close match found (${data.match_score}% similarity)`,
+            'VERIFIED': `Verified with ${data.match_score}% confidence`,
+            'HIGH_SIMILARITY': `Close match found (${data.match_score}% similarity)`,
             'PARTIAL_MATCH': data.possible_matches?.length > 0
-                ? `ℹ️possible matches found check medications below`
+                ? `ℹpossible matches found check medications below`
                 : data.match_score > 0
-                    ? `ℹ️ Potential match found (${data.match_score}% similarity)`
-                    : 'ℹ️ Possible match found',
-            'CONFLICT_WARNING': '⚠️ Conflicting details detected',
-            'FLAGGED': '🚩 Flagged for safety concerns',
-            'UNKNOWN': '🔍 Drug not found in our database',
-            'ERROR': '❌ Verification failed'
+                    ? `Potential match found (${data.match_score}% similarity)`
+                    : 'Possible match found',
+            'CONFLICT_WARNING': 'Conflicting details detected',
+            'FLAGGED': 'Flagged for safety concerns',
+            'UNKNOWN': 'Drug not found in our database',
+            'ERROR': 'Verification failed'
         };
         
         return messages[status] || 'Verification complete';
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     : 'Potential Match',
                 description: (data.possible_matches?.length > 0
                     ? 'Review similar medications below'
-                    : 'This may be a match - verify details carefully') + conflictMessage,
+                    : 'This may be a match, verify details carefully') + conflictMessage,
                 icon: 'fa-exclamation-circle',
                 color: 'text-partial',
                 actions: [
