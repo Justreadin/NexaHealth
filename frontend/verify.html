@@ -15,8 +15,8 @@
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="verify.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -82,6 +82,105 @@
             animation: pulse 2s infinite;
         }
         
+        /* Drug Status Indicators */
+        .drug-status {
+            position: relative;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .drug-status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .drug-status-content {
+            position: relative;
+            z-index: 1;
+        }
+        .drug-mismatch {
+            position: relative;
+        }
+        .drug-mismatch::after {
+            content: "⚠️ Mismatch";
+            position: absolutes;
+            right: 0;
+            top: 0;
+            font-size: 0.7rem;
+            color: #ef4444;
+            background: #fee2e2;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+        }
+        /* Verified status */
+        .status-verified {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid #10b981;
+        }
+
+        .status-verified::before {
+            background-color: #10b981;
+        }
+
+        /* Fake status */
+        .status-fake {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-left: 4px solid #ef4444;
+        }
+
+        .status-fake::before {
+            background-color: #ef4444;
+        }
+
+        /* Flagged status */
+        .status-flagged {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left: 4px solid #f59e0b;
+        }
+
+        .status-flagged::before {
+            background-color: #f59e0b;
+        }
+
+        /* Unknown status */
+        .status-unknown {
+            background-color: rgba(100, 116, 139, 0.1);
+            border-left: 4px solid #64748b;
+        }
+
+        .status-unknown::before {
+            background-color: #64748b;
+        }
+
+        /* View PIL button */
+        .view-pil-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+        }
+
+        .view-pil-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Status icon animation */
+        @keyframes pulse-glow {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .status-icon {
+            animation: pulse-glow 2s infinite;
+        }
         @keyframes pulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
             70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
@@ -152,12 +251,8 @@
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
-                    <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
-                        Login
-                    </a>
-                    <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
-                        Signup
-                    </a>
+                            <a href="mobile/login.html"  class="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-700 hover:shadow-xl" > Login</a>
+                <a  href="mobile/signup.html"  class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-50 hover:shadow-xl"> Signup </a>
                 </div>
 
                 <!-- Mobile Hamburger -->
@@ -178,8 +273,8 @@
                 <a href="verify.html" class="mobile-link text-primary transition"">Verify</a>
                 <a href="report.html" class="mobile-link text-dark hover:text-primary transition">Report</a>
                 <a href="pil.html" class="mobile-link text-dark hover:text-primary transition">View Drug Leaflet</a>
-                <a href="mobile/login.html"  class="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-700 hover:shadow-xl" > Login</a>
-                <a  href="mobile/signup.html"  class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-50 hover:shadow-xl"> Signup </a>
+                <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-xl">Login</a>
+                <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-xl">Signup</a>
             </div>
         </div>
     </nav>
@@ -392,27 +487,39 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Upgrade CTA -->
-                <div class="bg-gradient-to-r from-primary to-secondary text-white rounded-xl shadow-lg overflow-hidden p-6">
-                    <div class="flex flex-col md:flex-row items-center">
-                        <div class="md:mr-6 mb-4 md:mb-0">
-                            <div class="bg-white/20 p-3 rounded-full inline-block">
-                                <i class="fas fa-crown text-2xl"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold font-serif mb-2">Unlock Full Verification Power</h3>
-                            <p class="text-white/90 mb-4">Sign up for free to access AI-powered scanning, full verification history, and advanced safety features.</p>
-                            <a href="mobile/login.html" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
-                                Create Free Account
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
+
+    <section class="px-4 py-10 md:py-16 bg-gray-50">
+    <div class="max-w-5xl mx-auto bg-gradient-to-r from-primary to-secondary text-white rounded-2xl shadow-2xl overflow-hidden p-8 md:p-12 transition-all duration-500">
+        
+        <div class="flex flex-col md:flex-row items-center gap-6">
+        
+        <!-- Icon Circle -->
+        <div class="flex-shrink-0 bg-white/20 p-4 rounded-full shadow-lg backdrop-blur-md transform hover:scale-105 transition-transform">
+            <i class="fas fa-crown text-3xl text-white"></i>
+        </div>
+
+        <!-- Text Content -->
+        <div class="flex-1">
+            <h3 class="text-2xl md:text-3xl font-extrabold font-serif mb-3 leading-tight">
+            Unlock Full Verification Power
+            </h3>
+            <p class="text-white/90 text-base md:text-lg mb-6">
+            Sign up for free to access AI-powered scanning, full verification history, and advanced safety features.
+            </p>
+            
+            <!-- CTA Button -->
+            <a href="mobile/login.html" class="inline-block bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-full font-semibold shadow-md hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+            Create Free Account
+            </a>
+        </div>
+        </div>
+        
+    </div>
+    </section>
+
 
     <!-- Premium Features Section -->
     <section id="premium-features" class="py-16 bg-white">
@@ -525,7 +632,7 @@
             </div>
         </div>
     </footer>
-    <script src="verify.js" defer></script>
+    <script src="verify.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
