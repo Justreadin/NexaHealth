@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="mt-2 text-sm text-red-700">
                             <p>This drug was not found in our verified NAFDAC database.</p>
                             <div class="mt-4 space-y-3">
-                                <a href="report.html" 
+                                <a href="report.html#report-form" 
                                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors">
                                     <i class="fas fa-flag mr-2"></i> Report Suspicious Drug
                                 </a>
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Concerns',
                         icon: 'fa-flag',
-                        url: `report.html`,
+                        url: `report.html#report-form`,
                         class: 'bg-yellow-600 hover:bg-yellow-700'
                     }
                 ]
@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Drug',
                         icon: 'fa-flag',
-                        url: `report.html`,
+                        url: `report.html#report-form`,
                         class: 'bg-red-600 hover:bg-red-700'
                     },
                     {
@@ -511,7 +511,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Issue',
                         icon: 'fa-flag',
-                        url: `report.html`,
+                        url: `report.html#report-form`,
                         class: 'bg-red-600 hover:bg-red-700'
                     }
                 ]
@@ -526,13 +526,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'View Details',
                         icon: 'fa-file-prescription',
-                        url: `${baseUrl}/pil.html?drug=${drugParam}`,
+                        url: `pil.html`,
                         class: 'view-pil-btn bg-gray-600 hover:bg-gray-700'
                     },
                     {
                         text: 'Report Now',
                         icon: 'fa-exclamation-triangle',
-                        url: `${baseUrl}/report.html?drug=${drugParam}`,
+                        url: `report.html#report-form`,
                         class: 'bg-red-600 hover:bg-red-700'
                     }
                 ]
@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Suspicious Drug',
                         icon: 'fa-exclamation-triangle',
-                        url: `${baseUrl}/report.html?drug=${drugParam}`,
+                        url: `${baseUrl}/report.html#report-form?drug=${drugParam}`,
                         class: 'bg-red-600 hover:bg-red-700'
                     },
                     {
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Problem',
                         icon: 'fa-bug',
-                        url: `${baseUrl}/report.html?type=technical`,
+                        url: `${baseUrl}/report.html#report-form?type=technical`,
                         class: 'bg-gray-600 hover:bg-gray-700'
                     }
                 ]
