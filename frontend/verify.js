@@ -312,9 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePossibleMatches(data);
     }
 
-    // Show drug not found state
     function showDrugNotFoundState() {
         const drugDetails = document.getElementById('drug-details');
+        const drugName = document.getElementById('drug-name').value.trim();
+        const nafdacNumber = document.getElementById('nafdac-number').value.trim();
+        
         drugDetails.classList.remove('hidden');
         drugDetails.innerHTML = `
             <div class="bg-red-50 border-l-4 border-red-400 p-4">
@@ -327,8 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="mt-2 text-sm text-red-700">
                             <p>This drug was not found in our verified NAFDAC database.</p>
                             <div class="mt-4 space-y-3">
-                                <a href="report.html#report-form" 
-                                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors">
+                                <a href="report.html#report-form?drug=${encodeURIComponent(drugName)}&nafdac=${encodeURIComponent(nafdacNumber)}" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 transition-colors">
                                     <i class="fas fa-flag mr-2"></i> Report Suspicious Drug
                                 </a>
                                 <button onclick="showBetterResultsModal()" 
@@ -342,7 +344,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
     }
-
     // Determine verification status
     function determineVerificationStatus(data) {
         // Handle explicit statuses first
@@ -464,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Concerns',
                         icon: 'fa-flag',
-                        url: `report.html#report-form`,
+                        url: `report.html#report-form?drug=${drugParam}&nafdac=${nafdacParam}`,
                         class: 'bg-yellow-600 hover:bg-yellow-700'
                     }
                 ]
@@ -483,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Drug',
                         icon: 'fa-flag',
-                        url: `report.html#report-form`,
+                        url: `report.html#report-form?drug=${drugParam}&nafdac=${nafdacParam}`,
                         class: 'bg-red-600 hover:bg-red-700'
                     },
                     {
@@ -511,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Issue',
                         icon: 'fa-flag',
-                        url: `report.html#report-form`,
+                        url: `report.html#report-form?drug=${drugParam}&nafdac=${nafdacParam}`,
                         class: 'bg-red-600 hover:bg-red-700'
                     }
                 ]
@@ -532,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         text: 'Report Now',
                         icon: 'fa-exclamation-triangle',
-                        url: `report.html#report-form`,
+                        url: `report.html#report-form?drug=${drugParam}&nafdac=${nafdacParam}`,
                         class: 'bg-red-600 hover:bg-red-700'
                     }
                 ]
@@ -660,7 +661,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
     }
 
-    // Update possible matches section
     function updatePossibleMatches(data) {
         const container = document.getElementById('possible-matches-container');
         
@@ -694,7 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="mt-3 flex space-x-2">
                             <a href="pil.html?drug=${encodeURIComponent(match.product_name)}" 
-                               class="text-primary hover:text-secondary text-sm font-medium flex items-center">
+                            class="text-primary hover:text-secondary text-sm font-medium flex items-center">
                                 <i class="fas fa-info-circle mr-1"></i> View details
                             </a>
                             <a href="report.html#report-form?drug=${encodeURIComponent(match.product_name)}&nafdac=${encodeURIComponent(match.nafdac_reg_no || '')}" 
@@ -705,17 +705,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `).join('')}
             </div>
-            ${data.possible_matches.length > 3 ? `
-                <div class="mt-4 text-center">
-                    <button onclick="showBetterResultsModal()" 
-                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                        <i class="fas fa-search-plus mr-2"></i> See more matches with advanced search
-                    </button>
-                </div>
-            ` : ''}
         `;
     }
-
     // Update status elements (badge, icon, etc.)
     function updateStatusElements(status, score, message) {
         const elements = {
