@@ -21,7 +21,23 @@ class ReportHandler {
     this.initMap();
     this.initDropzone();
     this.initLocationHandlers();
+    this.populateFormFromUrl();
   }
+
+    populateFormFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const drugName = urlParams.get('drug');
+    const nafdacNumber = urlParams.get('nafdac');
+
+    if (drugName && document.getElementById('drug-name')) {
+      document.getElementById('drug-name').value = drugName;
+    }
+
+    if (nafdacNumber && document.getElementById('nafdac-number')) {
+      document.getElementById('nafdac-number').value = nafdacNumber;
+    }
+  }
+
 
   // Initialize form elements and handlers
   initForm() {
