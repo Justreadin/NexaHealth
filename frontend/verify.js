@@ -404,6 +404,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getStatusConfiguration(status, data) {
         const baseUrl = window.location.href.split('/').slice(0, 3).join('/');
         const drugParam = encodeURIComponent(data.product_name || '');
+        const nafdacParam = encodeURIComponent(data.nafdac_reg_no || '');
         
         // Detect specific mismatches
         let conflictMessage = '';
