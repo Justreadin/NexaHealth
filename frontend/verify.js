@@ -370,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'VERIFIED': `✅ Verified with ${data.match_score}% confidence`,
             'HIGH_SIMILARITY': `⚠️ Close match found (${data.match_score}% similarity)`,
             'PARTIAL_MATCH': data.possible_matches?.length > 0
-                ? `ℹ️ ${data.possible_matches.length} possible matches found`
+                ? `ℹ️possible matches found check medications below`
                 : data.match_score > 0
                     ? `ℹ️ Potential match found (${data.match_score}% similarity)`
                     : 'ℹ️ Possible match found',
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: 'text-partial',
                 actions: [
                     {
-                        text: 'View Similar Product',
+                        text: 'View Product Leaflet',
                         icon: 'fa-file-prescription',
                         url: `pil.html`,
                         class: 'view-pil-btn health-gradient hover:opacity-90'
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         container.classList.remove('hidden');
         container.innerHTML = `
-            <h3 class="text-lg font-bold font-serif mb-4">${data.possible_matches.length} Possible Matching Drugs</h3>
+            <h3 class="text-lg font-bold font-serif mb-4">Possible Matching Drugs</h3>
             <div class="grid grid-cols-1 gap-4">
                 ${data.possible_matches.map(match => `
                     <div class="bg-white p-4 rounded-lg shadow border border-gray-200 hover:shadow-md transition-shadow">
