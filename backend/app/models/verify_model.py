@@ -37,6 +37,8 @@ class DrugVerificationResponse(BaseModel):
     match_score: int
     report_count: int = 0
     pil_id: Optional[int] = None
+    generic_name: Optional[str] = None
+    matched_fields: Optional[List[str]] = None
     last_verified: Optional[datetime] = None
     match_details: List[DrugMatchDetail] = []  # Detailed matching info
     possible_matches: Optional[List[Dict]] = None

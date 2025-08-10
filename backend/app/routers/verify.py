@@ -42,19 +42,18 @@ with open(DRUG_DB_FILE, encoding="utf-8") as f:
 
 # --- Configurable thresholds & starting weights (tunable) ---
 SCORES = {
-    "high_confidence": 85,
-    "medium_confidence": 70,
-    "low_confidence": 60,
-    "min_return_score": 55
+    "high_confidence": 90,     # Increased from 85
+    "medium_confidence": 75,   # Increased from 70
+    "low_confidence": 65,      # Increased from 60
+    "min_return_score": 60     # Increased from 55
 }
 
 WEIGHTS = {
-    # defaults; tuning script can change these at runtime if you want
-    "product_name": 0.40,
-    "generic_name": 0.40,
-    "manufacturer": 0.15,
-    # nafdac handled specially (high precision)
-    "nafdac_additive": 0.30
+    "product_name": 0.35,      # Slightly reduced from 0.40
+    "generic_name": 0.30,      # Maintained importance
+    "manufacturer": 0.25,      # Increased from 0.15
+    "nafdac_additive": 0.40,   # Increased from 0.30 (most important)
+    "dosage_form": 0.05,       # Small but helpful
 }
 
 CORP_SUFFIXES = [
@@ -294,28 +293,24 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
 
     total_score = 0.0
     details: List[DrugMatchDetail] = []
+    matched_fields = []
 
-    # product
+    # Product name scoring
     if inputs.get("product_name"):
-        s = best_similarity(inputs["product_name"], product_db)
-        # alias bonus if input maps to alias that equals generic_db
-        alias_bonus = 0
-        for a in ALIAS_MAP.get(inputs["product_name"], []):
-            if a == generic_db:
-                alias_bonus = 95
-                break
-        name_score = max(s, alias_bonus)
-        weighted = name_score * WEIGHTS["product_name"]
+        s = score_product_name_match(inputs["product_name"], product_db, generic_db)
+        weighted = s * WEIGHTS["product_name"]
         total_score += weighted
         details.append(DrugMatchDetail(
             field="product_name",
             matched_value=drug.get("product_name"),
             input_value=inputs.get("raw_product_name") or "",
             score=int(round(weighted)),
-            algorithm=f"name_best({s})"
+            algorithm=f"enhanced_name_match({s})"
         ))
+        if s >= 80:
+            matched_fields.append("product_name")
 
-    # generic
+    # Generic name scoring
     if inputs.get("generic_name"):
         s = best_similarity(inputs["generic_name"], generic_db)
         weighted = s * WEIGHTS["generic_name"]
@@ -327,22 +322,12 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
             score=int(round(weighted)),
             algorithm=f"generic_best({s})"
         ))
+        if s >= 80:
+            matched_fields.append("generic_name")
 
-    # manufacturer
+    # Manufacturer scoring
     if inputs.get("manufacturer"):
-        s = best_similarity(inputs["manufacturer"], manu_db)
-        compact_in = normalize_compact(inputs.get("manufacturer"))
-        compact_db = normalize_compact(manu_db)
-        if compact_in and compact_db and (compact_in == compact_db or compact_in in compact_db or compact_db in compact_in):
-            s = max(s, 95)
-        # phonetic check (double metaphone)
-        try:
-            in_dm1, in_dm2 = dm_codes(inputs.get("manufacturer") or "")
-            db_dm1, db_dm2 = dm_codes(manu_db)
-            if in_dm1 and db_dm1 and (in_dm1 == db_dm1 or in_dm1 == db_dm2 or in_dm2 == db_dm1):
-                s = max(s, 95)
-        except Exception:
-            pass
+        s = score_manufacturer_match(inputs["manufacturer"], manu_db)
         weighted = s * WEIGHTS["manufacturer"]
         total_score += weighted
         details.append(DrugMatchDetail(
@@ -350,10 +335,12 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
             matched_value=(drug.get("manufacturer") or {}).get("name"),
             input_value=inputs.get("raw_manufacturer") or "",
             score=int(round(weighted)),
-            algorithm=f"manufacturer_best({s})"
+            algorithm=f"enhanced_manufacturer({s})"
         ))
+        if s >= 80:
+            matched_fields.append("manufacturer")
 
-    # nafdac additive
+    # NAFDAC scoring
     if inputs.get("nafdac"):
         in_reg = normalize_compact(inputs.get("nafdac"))
         db_reg = nafdac_db
@@ -364,14 +351,15 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
                 nafdac_score = 100
                 nafdac_reason = "exact nafdac"
             elif in_reg in db_reg or db_reg in in_reg:
-                nafdac_score = 80
+                nafdac_score = 95  # Increased from 80
                 nafdac_reason = "partial nafdac"
             elif len(in_reg) >= 5 and len(db_reg) >= 5 and in_reg[:5] == db_reg[:5]:
-                nafdac_score = 70
+                nafdac_score = 85  # Increased from 70
                 nafdac_reason = "prefix nafdac"
             else:
                 nafdac_score = best_similarity(in_reg, db_reg)
                 nafdac_reason = "fuzzy nafdac"
+            
             nafdac_contribution = nafdac_score * WEIGHTS["nafdac_additive"]
             total_score += nafdac_contribution
             details.append(DrugMatchDetail(
@@ -381,25 +369,73 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
                 score=int(round(nafdac_contribution)),
                 algorithm=nafdac_reason
             ))
+            if nafdac_score >= 80:
+                matched_fields.append("nafdac_reg_no")
 
-    # dosage small boost
+    # Dosage form scoring
     if inputs.get("dosage_form"):
         s = best_similarity(inputs["dosage_form"], dosage_db)
         if s > 60:
-            total_score += s * 0.05
+            dosage_contribution = s * WEIGHTS["dosage_form"]
+            total_score += dosage_contribution
             details.append(DrugMatchDetail(
                 field="dosage_form",
                 matched_value=drug.get("dosage_form"),
                 input_value=inputs.get("raw_dosage_form") or "",
-                score=int(round(s * 0.05)),
+                score=int(round(dosage_contribution)),
                 algorithm=f"dosage_best({s})"
             ))
+            if s >= 80:
+                matched_fields.append("dosage_form")
 
-    # scale to 0..100 (theoretical max can exceed 100 because of additive nafdac)
-    max_possible = WEIGHTS["product_name"] * 100 + WEIGHTS["generic_name"] * 100 + WEIGHTS["manufacturer"] * 100 + (WEIGHTS["nafdac_additive"] * 100)
+    # Scale to 0..100
+    max_possible = sum(WEIGHTS.values()) * 100
     score_scaled = (total_score / max_possible) * 100 if max_possible > 0 else total_score
     score_scaled = max(0.0, min(100.0, score_scaled))
-    return score_scaled, details
+    
+    return score_scaled, details, matched_fields
+
+# --- Enhanced Matching Functions ---
+def score_manufacturer_match(input_manu: str, db_manu: str) -> int:
+    """Enhanced manufacturer matching"""
+    if not input_manu or not db_manu:
+        return 0
+        
+    norm_input = normalize_compact(input_manu)
+    norm_db = normalize_compact(db_manu)
+    
+    if norm_input == norm_db:
+        return 100
+        
+    if norm_input in norm_db or norm_db in norm_input:
+        return 90
+        
+    in_dm1, in_dm2 = dm_codes(input_manu)
+    db_dm1, db_dm2 = dm_codes(db_manu)
+    if (in_dm1 and db_dm1 and 
+        (in_dm1 == db_dm1 or in_dm1 == db_dm2 or in_dm2 == db_dm1)):
+        return 85
+        
+    return best_similarity(input_manu, db_manu)
+
+def score_product_name_match(input_name: str, db_name: str, db_generic: str) -> int:
+    """Enhanced product name matching"""
+    if input_name == db_name:
+        return 100
+        
+    if input_name == db_generic:
+        return 95
+        
+    for generic, names in COMMON_NAME_MAPPINGS.items():
+        if input_name in names and db_generic == generic:
+            return 95
+            
+    return max(
+        fuzz.token_sort_ratio(input_name, db_name),
+        fuzz.token_set_ratio(input_name, db_name),
+        fuzz.partial_ratio(input_name, db_name),
+        fuzz.QRatio(input_name, db_name)
+    )
 
 # --- Background worker: populate ALIAS_MAP and PRECOMPUTED_CACHE ---
 def background_initializer():
@@ -441,7 +477,7 @@ def background_initializer():
                     continue
                 # compute actual score against the query tokens
                 inputs = {"product_name": normalize_text_ultra(combined_query), "raw_product_name": combined_query}
-                score, details = score_drug_against_input(drug, inputs)
+                score, details, matched_fields = score_drug_against_input(drug, inputs)
                 if score >= SCORES["min_return_score"]:
                     candidate_list.append({
                         "product_name": drug.get("product_name"),
@@ -506,29 +542,32 @@ async def verify_drug(
         if inputs["nafdac"]:
             if inputs["nafdac"] in idx["nafdac_map"]:
                 exact_drug = idx["nafdac_map"][inputs["nafdac"]]
-                score, details = score_drug_against_input(exact_drug, inputs)
+                score, details, matched_fields = score_drug_against_input(drug, inputs)
                 verification_status = exact_drug.get("verification", {}).get("status", "unknown")
+                # In the verify_drug endpoint, update the response_data construction:
                 response_data = {
                     "status": VerificationStatus(verification_status),
                     "product_name": exact_drug.get("product_name"),
+                    "generic_name": exact_drug.get("generic_name"),
                     "dosage_form": exact_drug.get("dosage_form"),
                     "strength": exact_drug.get("strength"),
-                    "nafdac_reg_no": exact_drug.get("identifiers", {}).get("nafdac_reg_no"),
+                    "nafdac_reg_no": (exact_drug.get("identifiers") or {}).get("nafdac_reg_no"),
                     "manufacturer": (exact_drug.get("manufacturer") or {}).get("name"),
                     "match_score": int(round(min(100, score))),
                     "pil_id": exact_drug.get("nexahealth_id"),
                     "last_verified": exact_drug.get("approval", {}).get("approval_date"),
                     "report_count": exact_drug.get("report_stats", {}).get("total_reports", 0),
                     "match_details": details,
-                    "confidence": "high" if score >= SCORES["high_confidence"] else ("medium" if score >= SCORES["medium_confidence"] else "low")
+                    "matched_fields": matched_fields,
+                    "confidence": "high",
+                    "possible_matches": [],
+                    "message": "✅ Verified medication (NAFDAC exact match)" if verification_status == "verified" 
+                            else "⚠️ Matched by NAFDAC - verify details"
                 }
-                if score >= SCORES["high_confidence"] and verification_status == "verified":
-                    response_data["message"] = "✅ Verified medication (NAFDAC exact match)"
-                else:
-                    response_data["message"] = "⚠️ Matched by NAFDAC - verify details"
+                
                 await increment_stat_counter("verifications")
                 return DrugVerificationResponse(**response_data)
-
+      
         # Build candidate set using index heuristics
         candidate_ids = set()
         if inputs["product_name"]:
