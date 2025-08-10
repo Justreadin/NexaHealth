@@ -1,22 +1,22 @@
+// Make authFetch global
+window.authFetch = function (url, options = {}) {
+    const token = window.App?.Auth?.getAccessToken?.();
+    const headers = options.headers || {};
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    return fetch(url, {
+        ...options,
+        headers,
+        credentials: token ? 'same-origin' : 'include' // send cookies if no token
+    });
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         let retries = 20;
-
-        // ✅ Helper fetch
-        function authFetch(url, options = {}) {
-            const token = window.App?.Auth?.getAccessToken?.();
-            const headers = options.headers || {};
-
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            return fetch(url, {
-                ...options,
-                headers,
-                credentials: token ? 'same-origin' : 'include' // send cookies if no token
-            });
-        }
 
         // Wait for Auth
         const waitForAuth = async () => {
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load user data
         const loadUserData = async () => {
             try {
-                const response = await authFetch(`${window.App.Auth.API_BASE_URL}/auth/me`, {
+                const response = await window.authFetch(`${window.App.Auth.API_BASE_URL}/auth/me`, {
                     headers: { 'Content-Type': 'application/json' }
                 });
 
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load dashboard stats
         const loadDashboardStats = async () => {
             try {
-                const response = await authFetch('https://lyre-4m8l.onrender.com/dashboard/stats');
+                const response = await window.authFetch('https://lyre-4m8l.onrender.com/dashboard/stats');
                 if (!response.ok) throw new Error('Failed to load stats');
 
                 const stats = await response.json();
@@ -94,10 +94,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load recent activity
         const loadRecentActivity = async () => {
             console.log("🔥 loadRecentActivity(): Starting");
-            //console.log("Access Token:", window.App.Auth.getAccessToken());
 
             try {
-                const response = await authFetch('https://lyre-4m8l.onrender.com/dashboard/activity');
+                const response = await window.authFetch('https://lyre-4m8l.onrender.com/dashboard/activity');
                 if (!response.ok) throw new Error('Failed to load activity');
 
                 const activities = await response.json();
