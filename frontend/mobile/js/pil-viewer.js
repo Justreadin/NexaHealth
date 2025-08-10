@@ -80,7 +80,7 @@ const PILViewer = {
     },
 
     recordView: async function(pilId) {
-        const token = localStorage.getItem('nexahealth_access_token');
+        const token = localStorage.getItem('nexahealth_access_token') || sessionStorage.getItem('nexahealth_access_token');
         if (!token) return;
 
         try {
