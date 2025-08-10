@@ -147,30 +147,47 @@ async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
 ) -> UserInDB:
-    token = credentials.credentials if credentials else None
-    logger.debug(f"Auth header present? {bool(credentials)}")
-    logger.debug(f"Token snippet: {token[:10] + '...'}" if token else "No token found")
+    """Get current user from JWT token in Authorization header or cookies."""
+    token = None
+
+    # 1️⃣ Try Authorization header first
+    if credentials and credentials.scheme.lower() == "bearer":
+        token = credentials.credentials
+
+    # 2️⃣ Fallback: Try cookie named 'access_token'
+    if not token:
+        token = request.cookies.get("access_token")
+
+    # 3️⃣ No token found at all
+    if not token:
+        logger.warning("No access token provided in header or cookie")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
 
     try:
         payload = await verify_token(token)
-        logger.debug(f"Decoded token payload: {payload}")
-        
-        user_id = payload["user_id"]
+        user_id = payload.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid token payload")
+
+        # Fetch user from Firestore
         user_doc = users_collection.document(user_id).get()
-        logger.debug(f"User exists in Firestore? {user_doc.exists}")
-        
         if not user_doc.exists:
+            logger.warning(f"User ID {user_id} not found in Firestore")
             raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
         return UserInDB(**user_doc.to_dict())
-        
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"User retrieval failed: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
         )
-
 
 
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
