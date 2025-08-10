@@ -77,12 +77,12 @@ async def get_dashboard_stats(current_user: UserInDB = Depends(get_current_activ
     try:
         # Get actual counts from Firestore
         verified_drugs = len([doc for doc in 
-            reports_collection.where(filter=("user_id", "==", current_user.id))
+            reports_collection.where("user_id", "==", current_user.id)
                             .where(filter=("status", "==", "verified")).stream()])
 
         
         reported_issues = len([doc for doc in 
-            reports_collection.where(filter=("user_id", "==", current_user.id))
+            reports_collection.where("user_id", "==", current_user.id)
                             .where(filter=("status", "==", "reported")).stream()])
 
         
