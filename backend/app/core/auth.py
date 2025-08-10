@@ -147,19 +147,22 @@ async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
 ) -> UserInDB:
-    """Get current user from either JWT or Firebase token"""
-    token = credentials.credentials
+    token = credentials.credentials if credentials else None
+    logger.debug(f"Auth header present? {bool(credentials)}")
+    logger.debug(f"Token snippet: {token[:10] + '...'}" if token else "No token found")
+
     try:
         payload = await verify_token(token)
-        user_id = payload["user_id"]
+        logger.debug(f"Decoded token payload: {payload}")
         
+        user_id = payload["user_id"]
         user_doc = users_collection.document(user_id).get()
+        logger.debug(f"User exists in Firestore? {user_doc.exists}")
+        
         if not user_doc.exists:
             raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
-            
-        user_data = user_doc.to_dict()
-        return UserInDB(**user_data)
+        return UserInDB(**user_doc.to_dict())
         
     except Exception as e:
         logger.error(f"User retrieval failed: {str(e)}")
@@ -167,6 +170,7 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials"
         )
+
 
 
 async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
