@@ -508,6 +508,13 @@ async def verify_drug(
 ):
     try:
         logger.info(f"Drug verification request by user: {current_user.email}")
+
+        best_drug = None
+        best_score = 0
+        best_details = []
+        matched_fields = []
+        possible_matches = []
+
         if not request.product_name or len(request.product_name.strip()) < 2:
             raise HTTPException(status_code=400, detail="Product name must be at least 2 characters")
 
@@ -530,6 +537,18 @@ async def verify_drug(
             "raw_dosage_form": raw_dosage
         }
 
+        if not request.product_name or len(request.product_name.strip()) < 2:
+            raise HTTPException(
+                status_code=400,
+                detail="Product name must be at least 2 characters"
+            )
+
+        if inputs["nafdac"] and not re.match(r'^[A-Z0-9-]+$', inputs["nafdac"]):
+            raise HTTPException(
+                status_code=400,
+                detail="NAFDAC number must contain only letters, numbers and hyphens"
+            )
+
         idx = build_indexes()
 
         # Fast path: check precomputed cache for exact key
@@ -539,12 +558,11 @@ async def verify_drug(
             cache_key_candidates = PRECOMPUTED_CACHE[cache_query_key]
 
         # Fast path 2: direct NAFDAC exact match
-        if inputs["nafdac"]:
-            if inputs["nafdac"] in idx["nafdac_map"]:
-                exact_drug = idx["nafdac_map"][inputs["nafdac"]]
-                score, details, matched_fields = score_drug_against_input(drug, inputs)
-                verification_status = exact_drug.get("verification", {}).get("status", "unknown")
-                # In the verify_drug endpoint, update the response_data construction:
+        if inputs["nafdac"] and inputs["nafdac"] in idx["nafdac_map"]:
+            exact_drug = idx["nafdac_map"][inputs["nafdac"]]
+            if exact_drug:  # Ensure drug exists
+                score, details, matched_fields = score_drug_against_input(exact_drug, inputs)
+                verification_status = exact_drug.get("verification", {}).get("status", "unknown")# In the verify_drug endpoint, update the response_data construction:
                 response_data = {
                     "status": VerificationStatus(verification_status),
                     "product_name": exact_drug.get("product_name"),
@@ -613,19 +631,20 @@ async def verify_drug(
         MAX_CANDIDATES = 1000
         candidate_ids_list = list(candidate_ids)[:MAX_CANDIDATES] if candidate_ids else []
 
-        # score candidates and keep a heap of top results
         scored_heap = []
         for nid in candidate_ids_list:
             drug = idx["id_map"].get(nid)
             if not drug:
+                logger.warning(f"Drug with ID {nid} not found in index")
                 continue
+                
             try:
-                score, details = score_drug_against_input(drug, inputs)
+                score, details, drug_matched_fields = score_drug_against_input(drug, inputs)
+                if score >= SCORES["min_return_score"]:
+                    heapq.heappush(scored_heap, (-score, nid, drug, score, details, drug_matched_fields))
             except Exception as e:
-                logger.warning(f"Scoring error for nid {nid}: {e}")
+                logger.error(f"Error scoring drug {nid}: {str(e)}")
                 continue
-            if score >= SCORES["min_return_score"]:
-                heapq.heappush(scored_heap, (-score, nid, drug, score, details))
 
         # if none, use suggestion fallback using product names
         if not scored_heap:
@@ -659,13 +678,15 @@ async def verify_drug(
                 confidence="low"
             )
 
-        # get top results
         results = []
         while scored_heap and len(results) < 10:
-            neg_score, nid, drug, score_val, details = heapq.heappop(scored_heap)
-            results.append((score_val, drug, details))
+            neg_score, nid, drug, score_val, details, drug_matched_fields = heapq.heappop(scored_heap)
+            results.append((score_val, drug, details, drug_matched_fields))
 
-        best_score, best_drug, best_details = results[0]
+        if not results:
+            return await handle_no_matches(request, drug_db)
+
+        best_score, best_drug, best_details, matched_fields = results[0]
         verification_status = best_drug.get("verification", {}).get("status", "unknown")
 
         possible_matches = []
@@ -725,3 +746,42 @@ async def verify_drug(
     except Exception as e:
         logger.exception("Verification error")
         raise HTTPException(status_code=500, detail="Drug verification failed")
+
+async def handle_no_matches(request, drug_db):
+    all_names = [d.get("product_name") or "" for d in drug_db if d]
+    matches = process.extract(
+        request.product_name, 
+        all_names, 
+        scorer=fuzz.token_set_ratio, 
+        limit=5
+    )
+    
+    suggested_drugs = []
+    for name, score_s, _ in matches:
+        drug_obj = next((d for d in drug_db if d and d.get("product_name") == name), None)
+        if drug_obj:
+            suggested_drugs.append({
+                "product_name": drug_obj.get("product_name"),
+                "dosage_form": drug_obj.get("dosage_form"),
+                "nafdac_reg_no": (drug_obj.get("identifiers") or {}).get("nafdac_reg_no"),
+                "manufacturer": (drug_obj.get("manufacturer") or {}).get("name"),
+                "match_score": score_s,
+                "pil_id": drug_obj.get("nexahealth_id")
+            })
+
+    await increment_stat_counter("verifications")
+    if suggested_drugs:
+        return DrugVerificationResponse(
+            status=VerificationStatus.HIGH_SIMILARITY,
+            message="No direct match found. Here are possible options:",
+            match_score=0,
+            possible_matches=suggested_drugs,
+            confidence="medium"
+        )
+    
+    return DrugVerificationResponse(
+        status=VerificationStatus.UNKNOWN,
+        message="No matching drug found in NAFDAC records.",
+        match_score=0,
+        confidence="low"
+    )
