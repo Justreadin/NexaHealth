@@ -99,7 +99,7 @@ const PILViewer = {
         if (!this.currentPilId) return;
         
         try {
-            const token = localStorage.getItem('nexahealth_access_token');
+            const token = localStorage.getItem('nexahealth_access_token') || sessionStorage.getItem('nexahealth_access_token');
             if (!token) {
                 throw new Error('Not authenticated');
             }
