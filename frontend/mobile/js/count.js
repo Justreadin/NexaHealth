@@ -92,11 +92,26 @@ class DashboardStats {
 
   async fetchStats(endpoint, params = '') {
     try {
-      const response = await fetch(`https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+      const response = await authFetch(
+        `https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
-      });
+      );
+
+      if (response.status === 401) {
+        console.warn(`Token expired while fetching ${endpoint}, trying refresh...`);
+        try {
+          await window.App.Auth.refreshToken();
+          return this.fetchStats(endpoint, params); // retry after refresh
+        } catch (refreshError) {
+          console.error('Refresh token failed:', refreshError);
+          window.location.href = 'login.html';
+          return { total: 0, today: 0, error: 'Unauthorized' };
+        }
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -105,11 +120,7 @@ class DashboardStats {
       return await response.json();
     } catch (error) {
       console.error(`Error fetching ${endpoint}:`, error);
-      return {
-        total: 0,
-        today: 0,
-        error: error.message
-      };
+      return { total: 0, today: 0, error: error.message };
     }
   }
 

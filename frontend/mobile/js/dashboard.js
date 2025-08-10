@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Load recent activity
         const loadRecentActivity = async () => {
             console.log("🔥 loadRecentActivity(): Starting");
-            console.log("Access Token:", window.App.Auth.getAccessToken());
+            //console.log("Access Token:", window.App.Auth.getAccessToken());
 
             try {
                 const response = await authFetch('https://lyre-4m8l.onrender.com/dashboard/activity');
