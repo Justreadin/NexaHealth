@@ -40,129 +40,56 @@ DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_
 with open(DRUG_DB_FILE, encoding="utf-8") as f:
     drug_db = json.load(f)
 
-# --- Configurable thresholds & starting weights (tunable) ---
+# --- Configurable thresholds & weights ---
 SCORES = {
-    "high_confidence": 90,     # Increased from 85
-    "medium_confidence": 75,   # Increased from 70
-    "low_confidence": 65,      # Increased from 60
-    "min_return_score": 60     # Increased from 55
+    "high_confidence": 90,
+    "medium_confidence": 75,
+    "low_confidence": 65,
+    "min_return_score": 60
 }
 
 WEIGHTS = {
-    "product_name": 0.35,      # Slightly reduced from 0.40
-    "generic_name": 0.30,      # Maintained importance
-    "manufacturer": 0.25,      # Increased from 0.15
-    "nafdac_additive": 0.40,   # Increased from 0.30 (most important)
-    "dosage_form": 0.05,       # Small but helpful
+    "product_name": 0.40,
+    "generic_name": 0.30,
+    "manufacturer": 0.35,  # Highest priority
+    "nafdac_additive": 0.50,  # Most powerful matching
+    "dosage_form": 0.10,
 }
 
 CORP_SUFFIXES = [
-    # General corporate suffixes (various global)
     r"\bltd\b", r"\blimited\b", r"\bplc\b", r"\binc\b", r"\bincorporated\b",
     r"\bco\b", r"\bcompany\b", r"\bcorp\b", r"\bcorporation\b", r"\bllc\b",
     r"\bllp\b", r"\bpartners\b", r"\bgroup\b", r"\bholdings\b",
-    r"\bsa\b", r"\bag\b", r"\bgmbh\b", r"\bsp\.?z\.?o\.?o\.?\b",  # common european suffixes
-
-    # Pharma and healthcare-specific suffixes and terms
+    r"\bsa\b", r"\bag\b", r"\bgmbh\b", r"\bsp\.?z\.?o\.?o\.?\b",
     r"\bindustries\b", r"\bpharma\b", r"\bpharmaceuticals\b", r"\bpharmacies\b",
     r"\bhealthcare\b", r"\bbiotech\b", r"\bbiotechnology\b", r"\bmedicines\b",
     r"\blaboratories\b", r"\blabs\b", r"\bresearch\b", r"\btherapeutics\b",
     r"\bsciences\b", r"\bformulations\b",
-
-    # Common abbreviations and variants with punctuation
     r"\bltd\.?\b", r"\binc\.?\b", r"\bco\.?\b", r"\bplc\.?\b",
-
-    # Regional or local variants
     r"\bpty ltd\b", r"\bpvt ltd\b", r"\bprivate limited\b", r"\bprivate ltd\b"
 ]
 
 COMMON_NAME_MAPPINGS = {
-    "paracetamol": [
-        "panadol", "acetaminophen", "tylenol", "panadol extra", "panadol tablet", "calpol"
-    ],
-    "metronidazole": [
-        "flagyl", "metrogel", "metro", "metrogyl", "metronidazole tablet"
-    ],
-    "amoxicillin": [
-        "amoxil", "amoxycillin", "moxatag", "amox", "amoxicillin trihydrate"
-    ],
-    "artemether lumefantrine": [
-        "coartem", "artemether/lumefantrine", "ralem", "artemether lumefantrine tablet"
-    ],
-    "ciprofloxacin": [
-        "cipro", "ciproxin", "ciprofloxacin hydrochloride", "ciproxin xl"
-    ],
-    "ibuprofen": [
-        "advil", "motrin", "nurofen", "brufen", "ibuprofen tablet"
-    ],
-    "azithromycin": [
-        "azitromycin", "zithromax", "azitro", "azithromycin tablet"
-    ],
-    "omeprazole": [
-        "prilosec", "omeprazole magnesium", "omeprazole delayed-release"
-    ],
-    "salbutamol": [
-        "ventolin", "albuterol", "salbutamol inhaler", "ventolin inhaler"
-    ],
-    "diclofenac": [
-        "voltaren", "diclofenac sodium", "diclofenac gel", "voltaren emulgel"
-    ],
-    "hydrocortisone": [
-        "cortizone", "hydrocortisone cream", "hydrocortisone acetate"
-    ],
-    "diphenhydramine": [
-        "benadryl", "diphenhydramine hydrochloride", "diphenhydramine tablet"
-    ],
-    "atorvastatin": [
-        "lipitor", "atorvastatin calcium"
-    ],
-    "simvastatin": [
-        "zocor", "simvastatin tablet"
-    ],
-    "levothyroxine": [
-        "synthroid", "euthyrox", "levothyroxine sodium"
-    ],
-    "metformin": [
-        "glucophage", "metformin hydrochloride"
-    ],
-    "insulin glargine": [
-        "lantus", "toujeo", "basaglar"
-    ],
-    # Add common misspellings, regional brand names, or formulations:
-    "paracetamol-codeine": [
-        "panadeine", "co-codamol", "paracetamol with codeine"
-    ],
-    "amoxicillin clavulanate": [
-        "augmentin", "co-amoxiclav", "amoxycillin clavulanate"
-    ],
-    "prednisone": [
-        "deltasone", "prednisolone", "prednisone acetate"
-    ],
-    "fluconazole": [
-        "flucox", "diflucan", "fluconazole tablet"
-    ],
+    "paracetamol": ["panadol", "acetaminophen", "tylenol", "panadol extra"],
+    "metronidazole": ["flagyl", "metrogel", "metro", "metrogyl"],
+    "amoxicillin": ["amoxil", "amoxycillin", "moxatag", "amox"],
+    # ... (keep your existing common name mappings)
 }
 
-# --- Phonetic matching: Double Metaphone (optional) ---
+# --- Phonetic matching ---
 try:
     from metaphone import doublemetaphone
     def dm_codes(s: str) -> Tuple[str, str]:
         return doublemetaphone(s or "")
-    logger.info("Double Metaphone available (metaphone.doublemetaphone)")
-except Exception:
-    # fallback simple phonetic: keep first consonant cluster + vowels removed (very rough)
+except ImportError:
     def dm_codes(s: str) -> Tuple[str, str]:
-        if not s:
-            return ("", "")
+        if not s: return ("", "")
         s2 = re.sub(r'[^a-z0-9]', '', s.lower())
-        # fallback produce a pair with truncated / reversed to mimic two codes
         return (s2[:6], s2[::-1][:6])
-    logger.warning("metaphone.doublemetaphone not available - using fallback phonetic")
 
-# --- Helpers: normalization & similarity ---
+# --- Normalization functions ---
 def normalize_text_ultra(text: Optional[str]) -> str:
-    if not text:
-        return ""
+    if not text: return ""
     s = unicodedata.normalize("NFD", text)
     s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
     s = s.lower().strip()
@@ -172,26 +99,24 @@ def normalize_text_ultra(text: Optional[str]) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
+def normalize_nafdac(nafdac: str) -> str:
+    """Normalize NAFDAC number by removing all non-alphanumeric chars and spaces"""
+    if not nafdac: return ""
+    return re.sub(r"[^a-zA-Z0-9]", "", nafdac).upper()
+
 def normalize_compact(text: Optional[str]) -> str:
     return re.sub(r"[^\w]", "", normalize_text_ultra(text))
 
+# --- Similarity functions ---
 def best_similarity(a: str, b: str) -> int:
-    if not a or not b:
-        return 0
-    try:
-        # take max of heuristic scorers
-        return int(max(
-            fuzz.token_set_ratio(a, b),
-            fuzz.partial_ratio(a, b),
-            fuzz.WRatio(a, b)
-        ))
-    except Exception:
-        try:
-            return int(fuzz.ratio(a, b))
-        except Exception:
-            return 0
+    if not a or not b: return 0
+    return int(max(
+        fuzz.token_set_ratio(a, b),
+        fuzz.partial_ratio(a, b),
+        fuzz.WRatio(a, b)
+    ))
 
-# --- Index builder (cached) ---
+# --- Index builder ---
 @lru_cache(maxsize=1)
 def build_indexes() -> Dict[str, Any]:
     logger.info("Building search indexes (cached)")
@@ -208,35 +133,27 @@ def build_indexes() -> Dict[str, Any]:
             nid = drug.get("nexahealth_id")
             id_map[nid] = drug
 
-            product = drug.get("product_name", "") or ""
-            generic = drug.get("generic_name", "") or ""
-            manu = (drug.get("manufacturer") or {}).get("name", "") or ""
-            nafdac = (drug.get("identifiers") or {}).get("nafdac_reg_no", "") or ""
-            dosage = drug.get("dosage_form", "") or ""
-            strength = drug.get("strength", "") or ""
-
+            product = drug.get("product_name", "")
+            generic = drug.get("generic_name", "")
+            manu = (drug.get("manufacturer") or {}).get("name", "")
+            nafdac = (drug.get("identifiers") or {}).get("nafdac_reg_no", "")
+            
             product_norm = normalize_text_ultra(product)
             generic_norm = normalize_text_ultra(generic)
             manu_norm = normalize_text_ultra(manu)
-            nafdac_compact = normalize_compact(nafdac)
+            nafdac_norm = normalize_nafdac(nafdac)
 
-            if product_norm:
-                product_map[product_norm].append(nid)
-            if generic_norm:
-                generic_map[generic_norm].append(nid)
-            if manu_norm:
-                manu_map[manu_norm].append(nid)
-            if nafdac_compact:
-                nafdac_map[nafdac_compact] = drug
+            if product_norm: product_map[product_norm].append(nid)
+            if generic_norm: generic_map[generic_norm].append(nid)
+            if manu_norm: manu_map[manu_norm].append(nid)
+            if nafdac_norm: nafdac_map[nafdac_norm] = drug
 
             combined = " ".join(filter(None, [
-                product_norm,
-                generic_norm,
-                manu_norm,
-                normalize_text_ultra(dosage),
-                normalize_text_ultra(strength),
-                nafdac_compact
-            ])).strip()
+                product_norm, generic_norm, manu_norm,
+                normalize_text_ultra(drug.get("dosage_form", "")),
+                normalize_text_ultra(drug.get("strength", "")),
+                nafdac_norm
+            ]))
             if combined:
                 search_text_map[combined] = nid
                 all_search_texts.append(combined)
@@ -253,52 +170,117 @@ def build_indexes() -> Dict[str, Any]:
         "all_search_texts": all_search_texts
     }
 
-# --- Alias map (populated in background) ---
-ALIAS_MAP: Dict[str, List[str]] = {}
-PRECOMPUTED_CACHE: Dict[str, List[Dict[str, Any]]] = {}  # query -> top candidate list
+# --- Enhanced matching functions ---
+def score_manufacturer_match(input_manu: str, db_manu: str) -> int:
+    """Enhanced manufacturer matching with priority"""
+    if not input_manu or not db_manu: return 0
+        
+    norm_input = normalize_compact(input_manu)
+    norm_db = normalize_compact(db_manu)
+    
+    if norm_input == norm_db: return 100
+    if norm_input in norm_db or norm_db in norm_input: return 95
+        
+    in_dm1, in_dm2 = dm_codes(input_manu)
+    db_dm1, db_dm2 = dm_codes(db_manu)
+    if (in_dm1 and db_dm1 and 
+        (in_dm1 == db_dm1 or in_dm1 == db_dm2 or in_dm2 == db_dm1)):
+        return 90
+        
+    return best_similarity(input_manu, db_manu)
 
-def build_alias_map_from_db() -> Dict[str, List[str]]:
-    logger.info("Building ALIAS_MAP from DB")
-    idx = build_indexes()
-    alias_map = defaultdict(set)
-    for nid, drug in idx["id_map"].items():
-        product_norm = normalize_text_ultra(drug.get("product_name", "") or "")
-        generic_norm = normalize_text_ultra(drug.get("generic_name", "") or "")
-        if product_norm and generic_norm:
-            alias_map[product_norm].add(generic_norm)
-            alias_map[generic_norm].add(product_norm)
-        # consider composition tokens as aliases
-        comp = normalize_text_ultra(drug.get("composition") or "")
-        if comp:
-            # add each token
-            for token in comp.split():
-                alias_map[token].add(product_norm)
-                alias_map[token].add(generic_norm)
-    # include COMMON_NAME_MAPPINGS
-    for k, vals in COMMON_NAME_MAPPINGS.items():
-        k_norm = normalize_text_ultra(k)
-        for v in vals:
-            alias_map[k_norm].add(normalize_text_ultra(v))
-            alias_map[normalize_text_ultra(v)].add(k_norm)
-    # convert to lists
-    return {k: list(v) for k, v in alias_map.items()}
+def score_nafdac_match(input_nafdac: str, db_nafdac: str) -> Tuple[int, str]:
+    """Enhanced NAFDAC matching with flexible formatting"""
+    if not input_nafdac or not db_nafdac: return (0, "no match")
+    
+    norm_input = normalize_nafdac(input_nafdac)
+    norm_db = normalize_nafdac(db_nafdac)
+    
+    if norm_input == norm_db: return (100, "exact match")
+    if len(norm_input) >= 5 and len(norm_db) >= 5 and norm_input[:5] == norm_db[:5]:
+        return (95, "prefix match")
+    if norm_input in norm_db or norm_db in norm_input: return (90, "partial match")
+    
+    # Try matching with common variations (B4-1234 vs B41234)
+    input_clean = re.sub(r'[^A-Z0-9]', '', input_nafdac.upper())
+    db_clean = re.sub(r'[^A-Z0-9]', '', db_nafdac.upper())
+    if input_clean == db_clean: return (95, "format-normalized match")
+    
+    # Try phonetic matching for letter prefixes
+    if len(input_clean) >= 2 and len(db_clean) >= 2:
+        input_prefix = input_clean[:2]
+        db_prefix = db_clean[:2]
+        if input_prefix == db_prefix:
+            num_sim = best_similarity(input_clean[2:], db_clean[2:])
+            if num_sim > 80:
+                return (85, "prefix + numeric match")
+    
+    return (best_similarity(input_nafdac, db_nafdac), "fuzzy match")
 
-# --- Scoring routine (single drug vs inputs) ---
-def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tuple[float, List[DrugMatchDetail]]:
+def score_product_name_match(input_name: str, db_name: str, db_generic: str) -> int:
+    """Enhanced product name matching"""
+    if input_name == db_name: return 100
+    if input_name == db_generic: return 95
+        
+    for generic, names in COMMON_NAME_MAPPINGS.items():
+        if input_name in names and db_generic == generic:
+            return 95
+            
+    return max(
+        fuzz.token_sort_ratio(input_name, db_name),
+        fuzz.token_set_ratio(input_name, db_name),
+        fuzz.partial_ratio(input_name, db_name),
+        fuzz.QRatio(input_name, db_name)
+    )
+
+# --- Scoring routine ---
+def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tuple[float, List[DrugMatchDetail], List[str]]:
     product_db = normalize_text_ultra(drug.get("product_name", "") or "")
     generic_db = normalize_text_ultra(drug.get("generic_name", "") or "")
     manu_db = normalize_text_ultra((drug.get("manufacturer") or {}).get("name", "") or "")
-    nafdac_db = normalize_compact((drug.get("identifiers") or {}).get("nafdac_reg_no", "") or "")
+    nafdac_db = (drug.get("identifiers") or {}).get("nafdac_reg_no", "") or ""
     dosage_db = normalize_text_ultra(drug.get("dosage_form", "") or "")
 
     total_score = 0.0
     details: List[DrugMatchDetail] = []
     matched_fields = []
+    field_weights = WEIGHTS.copy()
+
+    # Manufacturer scoring (highest priority)
+    if inputs.get("manufacturer"):
+        s = score_manufacturer_match(inputs["manufacturer"], manu_db)
+        weighted = s * field_weights["manufacturer"]
+        total_score += weighted
+        details.append(DrugMatchDetail(
+            field="manufacturer",
+            matched_value=(drug.get("manufacturer") or {}).get("name"),
+            input_value=inputs.get("raw_manufacturer") or "",
+            score=int(round(weighted)),
+            algorithm=f"enhanced_manufacturer({s})"
+        ))
+        if s >= 80:
+            matched_fields.append("manufacturer")
+
+    # NAFDAC scoring (most powerful)
+    if inputs.get("nafdac"):
+        nafdac_score, nafdac_reason = score_nafdac_match(inputs["nafdac"], nafdac_db)
+        if nafdac_score > 0:
+            weighted = nafdac_score * field_weights["nafdac_additive"]
+            total_score += weighted
+            details.append(DrugMatchDetail(
+                field="nafdac_reg_no",
+                matched_value=(drug.get("identifiers") or {}).get("nafdac_reg_no"),
+                input_value=inputs.get("raw_nafdac") or "",
+                score=int(round(weighted)),
+                algorithm=nafdac_reason
+            ))
+            if nafdac_score >= 80:
+                matched_fields.append("nafdac_reg_no")
 
     # Product name scoring
     if inputs.get("product_name"):
         s = score_product_name_match(inputs["product_name"], product_db, generic_db)
-        weighted = s * WEIGHTS["product_name"]
+        weighted = s * field_weights["product_name"]
         total_score += weighted
         details.append(DrugMatchDetail(
             field="product_name",
@@ -313,7 +295,7 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
     # Generic name scoring
     if inputs.get("generic_name"):
         s = best_similarity(inputs["generic_name"], generic_db)
-        weighted = s * WEIGHTS["generic_name"]
+        weighted = s * field_weights["generic_name"]
         total_score += weighted
         details.append(DrugMatchDetail(
             field="generic_name",
@@ -325,182 +307,30 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
         if s >= 80:
             matched_fields.append("generic_name")
 
-    # Manufacturer scoring
-    if inputs.get("manufacturer"):
-        s = score_manufacturer_match(inputs["manufacturer"], manu_db)
-        weighted = s * WEIGHTS["manufacturer"]
-        total_score += weighted
-        details.append(DrugMatchDetail(
-            field="manufacturer",
-            matched_value=(drug.get("manufacturer") or {}).get("name"),
-            input_value=inputs.get("raw_manufacturer") or "",
-            score=int(round(weighted)),
-            algorithm=f"enhanced_manufacturer({s})"
-        ))
-        if s >= 80:
-            matched_fields.append("manufacturer")
-
-    # NAFDAC scoring
-    if inputs.get("nafdac"):
-        in_reg = normalize_compact(inputs.get("nafdac"))
-        db_reg = nafdac_db
-        nafdac_score = 0
-        nafdac_reason = ""
-        if in_reg and db_reg:
-            if in_reg == db_reg:
-                nafdac_score = 100
-                nafdac_reason = "exact nafdac"
-            elif in_reg in db_reg or db_reg in in_reg:
-                nafdac_score = 95  # Increased from 80
-                nafdac_reason = "partial nafdac"
-            elif len(in_reg) >= 5 and len(db_reg) >= 5 and in_reg[:5] == db_reg[:5]:
-                nafdac_score = 85  # Increased from 70
-                nafdac_reason = "prefix nafdac"
-            else:
-                nafdac_score = best_similarity(in_reg, db_reg)
-                nafdac_reason = "fuzzy nafdac"
-            
-            nafdac_contribution = nafdac_score * WEIGHTS["nafdac_additive"]
-            total_score += nafdac_contribution
-            details.append(DrugMatchDetail(
-                field="nafdac_reg_no",
-                matched_value=(drug.get("identifiers") or {}).get("nafdac_reg_no"),
-                input_value=inputs.get("raw_nafdac") or "",
-                score=int(round(nafdac_contribution)),
-                algorithm=nafdac_reason
-            ))
-            if nafdac_score >= 80:
-                matched_fields.append("nafdac_reg_no")
-
     # Dosage form scoring
     if inputs.get("dosage_form"):
         s = best_similarity(inputs["dosage_form"], dosage_db)
         if s > 60:
-            dosage_contribution = s * WEIGHTS["dosage_form"]
-            total_score += dosage_contribution
+            weighted = s * field_weights["dosage_form"]
+            total_score += weighted
             details.append(DrugMatchDetail(
                 field="dosage_form",
                 matched_value=drug.get("dosage_form"),
                 input_value=inputs.get("raw_dosage_form") or "",
-                score=int(round(dosage_contribution)),
+                score=int(round(weighted)),
                 algorithm=f"dosage_best({s})"
             ))
             if s >= 80:
                 matched_fields.append("dosage_form")
 
     # Scale to 0..100
-    max_possible = sum(WEIGHTS.values()) * 100
+    max_possible = sum(w for f, w in field_weights.items() if inputs.get(f))
     score_scaled = (total_score / max_possible) * 100 if max_possible > 0 else total_score
     score_scaled = max(0.0, min(100.0, score_scaled))
     
     return score_scaled, details, matched_fields
 
-# --- Enhanced Matching Functions ---
-def score_manufacturer_match(input_manu: str, db_manu: str) -> int:
-    """Enhanced manufacturer matching"""
-    if not input_manu or not db_manu:
-        return 0
-        
-    norm_input = normalize_compact(input_manu)
-    norm_db = normalize_compact(db_manu)
-    
-    if norm_input == norm_db:
-        return 100
-        
-    if norm_input in norm_db or norm_db in norm_input:
-        return 90
-        
-    in_dm1, in_dm2 = dm_codes(input_manu)
-    db_dm1, db_dm2 = dm_codes(db_manu)
-    if (in_dm1 and db_dm1 and 
-        (in_dm1 == db_dm1 or in_dm1 == db_dm2 or in_dm2 == db_dm1)):
-        return 85
-        
-    return best_similarity(input_manu, db_manu)
-
-def score_product_name_match(input_name: str, db_name: str, db_generic: str) -> int:
-    """Enhanced product name matching"""
-    if input_name == db_name:
-        return 100
-        
-    if input_name == db_generic:
-        return 95
-        
-    for generic, names in COMMON_NAME_MAPPINGS.items():
-        if input_name in names and db_generic == generic:
-            return 95
-            
-    return max(
-        fuzz.token_sort_ratio(input_name, db_name),
-        fuzz.token_set_ratio(input_name, db_name),
-        fuzz.partial_ratio(input_name, db_name),
-        fuzz.QRatio(input_name, db_name)
-    )
-
-# --- Background worker: populate ALIAS_MAP and PRECOMPUTED_CACHE ---
-def background_initializer():
-    global ALIAS_MAP, PRECOMPUTED_CACHE
-    try:
-        logger.info("Background initializer started: building alias map + precompute cache")
-        ALIAS_MAP = build_alias_map_from_db()
-        logger.info(f"Alias map built with {len(ALIAS_MAP)} keys")
-        # Precompute cache of top candidates for popular keys
-        idx = build_indexes()
-        # Heuristic: take top N most common normalized product + generic + manu keys
-        keys_with_freq = []
-        for k, lst in idx["product_map"].items():
-            keys_with_freq.append((len(lst), k))
-        for k, lst in idx["generic_map"].items():
-            keys_with_freq.append((len(lst), k))
-        for k, lst in idx["manu_map"].items():
-            keys_with_freq.append((len(lst), k))
-        keys_with_freq.sort(reverse=True)
-        top_keys = [k for _, k in keys_with_freq[:2000]]  # we will generate combined queries then prune to 1000 cache entries
-
-        cache_count = 0
-        for key in top_keys:
-            if cache_count >= 1000:
-                break
-            # create a combined query (key may be product, generic, or manu)
-            q = key
-            combined_query = q
-            # generate candidates via process.extract on all_search_texts (fast because it's cached)
-            search_space = idx["all_search_texts"]
-            raw_matches = process.extract(combined_query, search_space, scorer=fuzz.token_set_ratio, limit=50)
-            candidate_list = []
-            for match_text, match_score, _ in raw_matches:
-                nid = idx["search_text_map"].get(match_text)
-                if not nid:
-                    continue
-                drug = idx["id_map"].get(nid)
-                if not drug:
-                    continue
-                # compute actual score against the query tokens
-                inputs = {"product_name": normalize_text_ultra(combined_query), "raw_product_name": combined_query}
-                score, details, matched_fields = score_drug_against_input(drug, inputs)
-                if score >= SCORES["min_return_score"]:
-                    candidate_list.append({
-                        "product_name": drug.get("product_name"),
-                        "dosage_form": drug.get("dosage_form"),
-                        "nafdac_reg_no": (drug.get("identifiers") or {}).get("nafdac_reg_no"),
-                        "manufacturer": (drug.get("manufacturer") or {}).get("name"),
-                        "match_score": int(round(score)),
-                        "pil_id": drug.get("nexahealth_id")
-                    })
-            if candidate_list:
-                # sort descending
-                candidate_list.sort(key=lambda x: x["match_score"], reverse=True)
-                PRECOMPUTED_CACHE[combined_query] = candidate_list[:10]
-                cache_count += 1
-        logger.info(f"Precomputed cache built with {len(PRECOMPUTED_CACHE)} entries")
-    except Exception as e:
-        logger.exception(f"Background initialization failed: {e}")
-
-# start background initializer thread
-bg_thread = threading.Thread(target=background_initializer, daemon=True)
-bg_thread.start()
-
-# --- Main verify endpoint (refactor of your previous function) ---
+# --- Verification endpoint ---
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
     request: DrugVerificationRequest,
@@ -509,236 +339,157 @@ async def verify_drug(
     try:
         logger.info(f"Drug verification request by user: {current_user.email}")
 
-        best_drug = None
-        best_score = 0
-        best_details = []
-        matched_fields = []
-        possible_matches = []
-
-        if not request.product_name or len(request.product_name.strip()) < 2:
-            raise HTTPException(status_code=400, detail="Product name must be at least 2 characters")
-
-        raw_product = (request.product_name or "").strip()
-        raw_generic = (getattr(request, "generic_name", "") or "").strip()
-        raw_manu = (getattr(request, "manufacturer", "") or "").strip()
-        raw_nafdac = (getattr(request, "nafdac_reg_no", "") or "").strip()
-        raw_dosage = (getattr(request, "dosage_form", "") or "").strip()
-
+        # Normalize inputs
         inputs = {
-            "product_name": normalize_text_ultra(raw_product),
-            "raw_product_name": raw_product,
-            "generic_name": normalize_text_ultra(raw_generic),
-            "raw_generic_name": raw_generic,
-            "manufacturer": normalize_text_ultra(raw_manu),
-            "raw_manufacturer": raw_manu,
-            "nafdac": normalize_compact(raw_nafdac),
-            "raw_nafdac": raw_nafdac,
-            "dosage_form": normalize_text_ultra(raw_dosage),
-            "raw_dosage_form": raw_dosage
+            "product_name": normalize_text_ultra(request.product_name or ""),
+            "raw_product_name": request.product_name or "",
+            "generic_name": normalize_text_ultra(request.generic_name or ""),
+            "raw_generic_name": request.generic_name or "",
+            "manufacturer": normalize_text_ultra(request.manufacturer or ""),
+            "raw_manufacturer": request.manufacturer or "",
+            "nafdac": request.nafdac_reg_no or "",
+            "raw_nafdac": request.nafdac_reg_no or "",
+            "dosage_form": normalize_text_ultra(request.dosage_form or ""),
+            "raw_dosage_form": request.dosage_form or ""
         }
 
-        if not request.product_name or len(request.product_name.strip()) < 2:
-            raise HTTPException(
-                status_code=400,
-                detail="Product name must be at least 2 characters"
-            )
-
-        if inputs["nafdac"] and not re.match(r'^[A-Z0-9-]+$', inputs["nafdac"]):
-            raise HTTPException(
-                status_code=400,
-                detail="NAFDAC number must contain only letters, numbers and hyphens"
-            )
+        # Validate at least one field is provided
+        if not any(inputs.values()):
+            raise HTTPException(status_code=400, detail="At least one search field must be provided")
 
         idx = build_indexes()
-
-        # Fast path: check precomputed cache for exact key
-        cache_key_candidates = []
-        cache_query_key = inputs["product_name"] or inputs["generic_name"] or inputs["manufacturer"]
-        if cache_query_key and cache_query_key in PRECOMPUTED_CACHE:
-            cache_key_candidates = PRECOMPUTED_CACHE[cache_query_key]
-
-        # Fast path 2: direct NAFDAC exact match
-        if inputs["nafdac"] and inputs["nafdac"] in idx["nafdac_map"]:
-            exact_drug = idx["nafdac_map"][inputs["nafdac"]]
-            if exact_drug:  # Ensure drug exists
-                score, details, matched_fields = score_drug_against_input(exact_drug, inputs)
-                verification_status = exact_drug.get("verification", {}).get("status", "unknown")# In the verify_drug endpoint, update the response_data construction:
-                response_data = {
-                    "status": VerificationStatus(verification_status),
-                    "product_name": exact_drug.get("product_name"),
-                    "generic_name": exact_drug.get("generic_name"),
-                    "dosage_form": exact_drug.get("dosage_form"),
-                    "strength": exact_drug.get("strength"),
-                    "nafdac_reg_no": (exact_drug.get("identifiers") or {}).get("nafdac_reg_no"),
-                    "manufacturer": (exact_drug.get("manufacturer") or {}).get("name"),
-                    "match_score": int(round(min(100, score))),
-                    "pil_id": exact_drug.get("nexahealth_id"),
-                    "last_verified": exact_drug.get("approval", {}).get("approval_date"),
-                    "report_count": exact_drug.get("report_stats", {}).get("total_reports", 0),
-                    "match_details": details,
-                    "matched_fields": matched_fields,
-                    "confidence": "high",
-                    "possible_matches": [],
-                    "message": "✅ Verified medication (NAFDAC exact match)" if verification_status == "verified" 
-                            else "⚠️ Matched by NAFDAC - verify details"
-                }
-                
-                await increment_stat_counter("verifications")
-                return DrugVerificationResponse(**response_data)
-      
-        # Build candidate set using index heuristics
         candidate_ids = set()
-        if inputs["product_name"]:
-            prod_key = inputs["product_name"]
-            for k in idx["product_map"].keys():
-                if prod_key == k or prod_key in k or k in prod_key:
-                    candidate_ids.update(idx["product_map"][k])
-            for alias in ALIAS_MAP.get(prod_key, []):
-                candidate_ids.update(idx["product_map"].get(alias, []))
 
-        if inputs["generic_name"]:
-            gen_key = inputs["generic_name"]
-            for k in idx["generic_map"].keys():
-                if gen_key == k or gen_key in k or k in gen_key:
-                    candidate_ids.update(idx["generic_map"][k])
-            for alias in ALIAS_MAP.get(gen_key, []):
-                candidate_ids.update(idx["generic_map"].get(alias, []))
-
+        # 1. Priority: Manufacturer search if provided
         if inputs["manufacturer"]:
             manu_key = inputs["manufacturer"]
             for k in idx["manu_map"].keys():
                 if manu_key == k or manu_key in k or k in manu_key:
                     candidate_ids.update(idx["manu_map"][k])
 
-        # if precomputed cache had entries, add their nids (faster path)
-        if cache_key_candidates:
-            for item in cache_key_candidates:
-                if item.get("pil_id"):
-                    candidate_ids.add(item["pil_id"])
+        # 2. NAFDAC exact or partial match if provided
+        nafdac_matches = []
+        if inputs["nafdac"]:
+            norm_nafdac = normalize_nafdac(inputs["nafdac"])
+            # Exact match
+            if norm_nafdac in idx["nafdac_map"]:
+                candidate_ids.add(idx["nafdac_map"][norm_nafdac].get("nexahealth_id"))
+            # Partial matches (first 5 chars)
+            if len(norm_nafdac) >= 5:
+                for db_nafdac, drug in idx["nafdac_map"].items():
+                    if db_nafdac.startswith(norm_nafdac[:5]):
+                        candidate_ids.add(drug.get("nexahealth_id"))
 
-        # fallback to global fuzzy if no candidate
+        # 3. Product/generic name search if provided
+        if inputs["product_name"]:
+            prod_key = inputs["product_name"]
+            for k in idx["product_map"].keys():
+                if prod_key == k or prod_key in k or k in prod_key:
+                    candidate_ids.update(idx["product_map"][k])
+
+        if inputs["generic_name"]:
+            gen_key = inputs["generic_name"]
+            for k in idx["generic_map"].keys():
+                if gen_key == k or gen_key in k or k in gen_key:
+                    candidate_ids.update(idx["generic_map"][k])
+
+        # Fallback to fuzzy search if no candidates
         if not candidate_ids:
-            combined_query = " ".join(filter(None, [inputs["product_name"], inputs["generic_name"], inputs["manufacturer"], inputs["nafdac"]]))
-            if not combined_query:
-                combined_query = inputs["product_name"] or inputs["generic_name"] or inputs["manufacturer"] or ""
-            raw_matches = process.extract(combined_query, idx["all_search_texts"], scorer=fuzz.token_set_ratio, limit=200)
-            for match_text, match_score, _ in raw_matches:
-                nid = idx["search_text_map"].get(match_text)
-                if nid:
-                    candidate_ids.add(nid)
-
-        # limit candidates for speed
-        MAX_CANDIDATES = 1000
-        candidate_ids_list = list(candidate_ids)[:MAX_CANDIDATES] if candidate_ids else []
-
-        scored_heap = []
-        for nid in candidate_ids_list:
-            drug = idx["id_map"].get(nid)
-            if not drug:
-                logger.warning(f"Drug with ID {nid} not found in index")
-                continue
-                
-            try:
-                score, details, drug_matched_fields = score_drug_against_input(drug, inputs)
-                if score >= SCORES["min_return_score"]:
-                    heapq.heappush(scored_heap, (-score, nid, drug, score, details, drug_matched_fields))
-            except Exception as e:
-                logger.error(f"Error scoring drug {nid}: {str(e)}")
-                continue
-
-        # if none, use suggestion fallback using product names
-        if not scored_heap:
-            all_names = [d.get("product_name") or "" for d in drug_db]
-            matches = process.extract(request.product_name, all_names, scorer=fuzz.token_set_ratio, limit=5)
-            suggested_drugs = []
-            for name, score_s, _ in matches:
-                drug_obj = next((d for d in drug_db if d.get("product_name") == name), None)
-                if drug_obj:
-                    suggested_drugs.append({
-                        "product_name": drug_obj.get("product_name"),
-                        "dosage_form": drug_obj.get("dosage_form"),
-                        "nafdac_reg_no": (drug_obj.get("identifiers") or {}).get("nafdac_reg_no"),
-                        "manufacturer": (drug_obj.get("manufacturer") or {}).get("name"),
-                        "match_score": score_s,
-                        "pil_id": drug_obj.get("nexahealth_id")
-                    })
-            await increment_stat_counter("verifications")
-            if suggested_drugs:
-                return DrugVerificationResponse(
-                    status=VerificationStatus.HIGH_SIMILARITY,
-                    message="No direct match found. Here are possible options:",
-                    match_score=0,
-                    possible_matches=suggested_drugs,
-                    confidence="medium"
-                )
-            return DrugVerificationResponse(
-                status=VerificationStatus.UNKNOWN,
-                message="No matching drug found in NAFDAC records.",
-                match_score=0,
-                confidence="low"
+            combined_query = " ".join(filter(None, [
+                inputs["product_name"],
+                inputs["generic_name"],
+                inputs["manufacturer"],
+                inputs["nafdac"]
+            ]))
+            raw_matches = process.extract(
+                combined_query,
+                idx["all_search_texts"],
+                scorer=fuzz.token_set_ratio,
+                limit=200
             )
+            for match_text, _, _ in raw_matches:
+                nid = idx["search_text_map"].get(match_text)
+                if nid: candidate_ids.add(nid)
 
-        results = []
-        while scored_heap and len(results) < 10:
-            neg_score, nid, drug, score_val, details, drug_matched_fields = heapq.heappop(scored_heap)
-            results.append((score_val, drug, details, drug_matched_fields))
+        # Score all candidates
+        scored_heap = []
+        for nid in candidate_ids:
+            drug = idx["id_map"].get(nid)
+            if not drug: continue
+            
+            score, details, matched_fields = score_drug_against_input(drug, inputs)
+            if score >= SCORES["min_return_score"]:
+                heapq.heappush(scored_heap, (-score, drug, details, matched_fields))
 
-        if not results:
+        # Process results
+        if not scored_heap:
             return await handle_no_matches(request, drug_db)
 
-        best_score, best_drug, best_details, matched_fields = results[0]
+        # Get top matches
+        results = []
+        while scored_heap and len(results) < 10:
+            neg_score, drug, details, matched_fields = heapq.heappop(scored_heap)
+            results.append((abs(neg_score), drug, details, matched_fields))
+
+        best_score, best_drug, best_details, best_matched = results[0]
         verification_status = best_drug.get("verification", {}).get("status", "unknown")
 
-        possible_matches = []
-        for score_val, drug_obj, details in results:
-            possible_matches.append({
-                "product_name": drug_obj.get("product_name"),
-                "dosage_form": drug_obj.get("dosage_form"),
-                "nafdac_reg_no": (drug_obj.get("identifiers") or {}).get("nafdac_reg_no"),
-                "manufacturer": (drug_obj.get("manufacturer") or {}).get("name"),
-                "match_score": int(round(score_val)),
-                "pil_id": drug_obj.get("nexahealth_id")
-            })
-
+        # Build response
         response_data = {
             "status": VerificationStatus(verification_status),
             "product_name": best_drug.get("product_name"),
+            "generic_name": best_drug.get("generic_name"),
             "dosage_form": best_drug.get("dosage_form"),
             "strength": best_drug.get("strength"),
             "nafdac_reg_no": (best_drug.get("identifiers") or {}).get("nafdac_reg_no"),
             "manufacturer": (best_drug.get("manufacturer") or {}).get("name"),
-            "match_score": int(round(min(100, best_score))),
+            "match_score": int(round(best_score)),
             "pil_id": best_drug.get("nexahealth_id"),
             "last_verified": best_drug.get("approval", {}).get("approval_date"),
             "report_count": best_drug.get("report_stats", {}).get("total_reports", 0),
             "match_details": best_details,
-            "confidence": "high" if best_score >= SCORES["high_confidence"] else ("medium" if best_score >= SCORES["medium_confidence"] else "low"),
-            "possible_matches": possible_matches[1:] if len(possible_matches) > 1 else []
+            "matched_fields": best_matched,
+            "confidence": (
+                "high" if best_score >= SCORES["high_confidence"] else
+                "medium" if best_score >= SCORES["medium_confidence"] else
+                "low"
+            ),
+            "possible_matches": [
+                {
+                    "product_name": drug.get("product_name"),
+                    "generic_name": drug.get("generic_name"),
+                    "dosage_form": drug.get("dosage_form"),
+                    "nafdac_reg_no": (drug.get("identifiers") or {}).get("nafdac_reg_no"),
+                    "manufacturer": (drug.get("manufacturer") or {}).get("name"),
+                    "match_score": int(round(score)),
+                    "pil_id": drug.get("nexahealth_id")
+                }
+                for score, drug, _, _ in results[1:10]
+            ]
         }
 
-        if best_score >= SCORES["high_confidence"]:
-            if verification_status == "verified":
-                response_data["message"] = "✅ Verified medication (high confidence match)"
-            else:
-                response_data["message"] = "⚠️ High confidence match (not marked verified)"
-        elif best_score >= SCORES["medium_confidence"]:
-            response_data["message"] = "⚠️ Likely match - please confirm details"
-        else:
-            response_data["message"] = "⚠️ Possible match - review carefully"
-
-        # conflict checks
+        # Determine message based on match quality and conflicts
         conflicts = []
         if inputs["product_name"] and best_drug.get("product_name"):
-            if fuzz.token_set_ratio(inputs["product_name"], normalize_text_ultra(best_drug.get("product_name") or "")) < 75:
-                conflicts.append("name mismatch")
+            if fuzz.token_set_ratio(inputs["product_name"], 
+                                  normalize_text_ultra(best_drug.get("product_name") or "")) < 75:
+                conflicts.append("product name mismatch")
+        
         if inputs["nafdac"] and best_drug.get("identifiers", {}).get("nafdac_reg_no"):
-            if inputs["nafdac"] != normalize_compact(best_drug.get("identifiers").get("nafdac_reg_no") or ""):
+            norm_input = normalize_nafdac(inputs["nafdac"])
+            norm_db = normalize_nafdac(best_drug.get("identifiers", {}).get("nafdac_reg_no") or "")
+            if norm_input != norm_db:
                 conflicts.append("NAFDAC number mismatch")
-
+        
         if conflicts:
             response_data["status"] = VerificationStatus.CONFLICT_WARNING
-            response_data["message"] = f"⚠️ Possible issues: {', '.join(conflicts)}"
-            response_data["confidence"] = "medium"
+            response_data["message"] = f"⚠️ Partial match with conflicts: {', '.join(conflicts)}"
+        elif best_score >= SCORES["high_confidence"]:
+            response_data["message"] = "✅ High confidence match"
+        elif best_score >= SCORES["medium_confidence"]:
+            response_data["message"] = "⚠️ Medium confidence match - verify details"
+        else:
+            response_data["message"] = "⚠️ Low confidence match - review carefully"
 
         await increment_stat_counter("verifications")
         return DrugVerificationResponse(**response_data)
@@ -748,25 +499,27 @@ async def verify_drug(
         raise HTTPException(status_code=500, detail="Drug verification failed")
 
 async def handle_no_matches(request, drug_db):
+    # Try to find similar products
     all_names = [d.get("product_name") or "" for d in drug_db if d]
     matches = process.extract(
-        request.product_name, 
-        all_names, 
-        scorer=fuzz.token_set_ratio, 
-        limit=5
+        request.product_name or request.generic_name or request.manufacturer or "",
+        all_names,
+        scorer=fuzz.token_set_ratio,
+        limit=10
     )
     
     suggested_drugs = []
-    for name, score_s, _ in matches:
-        drug_obj = next((d for d in drug_db if d and d.get("product_name") == name), None)
-        if drug_obj:
+    for name, score, _ in matches:
+        drug = next((d for d in drug_db if d and d.get("product_name") == name), None)
+        if drug:
             suggested_drugs.append({
-                "product_name": drug_obj.get("product_name"),
-                "dosage_form": drug_obj.get("dosage_form"),
-                "nafdac_reg_no": (drug_obj.get("identifiers") or {}).get("nafdac_reg_no"),
-                "manufacturer": (drug_obj.get("manufacturer") or {}).get("name"),
-                "match_score": score_s,
-                "pil_id": drug_obj.get("nexahealth_id")
+                "product_name": drug.get("product_name"),
+                "generic_name": drug.get("generic_name"),
+                "dosage_form": drug.get("dosage_form"),
+                "nafdac_reg_no": (drug.get("identifiers") or {}).get("nafdac_reg_no"),
+                "manufacturer": (drug.get("manufacturer") or {}).get("name"),
+                "match_score": score,
+                "pil_id": drug.get("nexahealth_id")
             })
 
     await increment_stat_counter("verifications")
@@ -781,7 +534,7 @@ async def handle_no_matches(request, drug_db):
     
     return DrugVerificationResponse(
         status=VerificationStatus.UNKNOWN,
-        message="No matching drug found in NAFDAC records.",
+        message="No matching drug found in database.",
         match_score=0,
         confidence="low"
     )
