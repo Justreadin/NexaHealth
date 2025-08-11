@@ -419,7 +419,7 @@ async def verify_drug(
             
             score, details, matched_fields = score_drug_against_input(drug, inputs)
             if score >= SCORES["min_return_score"]:
-                heapq.heappush(scored_heap, (-score, drug, details, matched_fields))
+                heapq.heappush(scored_heap, (-score, nid))  # Only store score and ID
 
         # Process results
         if not scored_heap:
@@ -428,9 +428,13 @@ async def verify_drug(
         # Get top matches
         results = []
         while scored_heap and len(results) < 10:
-            neg_score, drug, details, matched_fields = heapq.heappop(scored_heap)
-            results.append((abs(neg_score), drug, details, matched_fields))
-
+            neg_score, nid = heapq.heappop(scored_heap)
+            drug = idx["id_map"].get(nid)
+            if drug:
+                # Recalculate score to ensure consistency (optional)
+                score, details, matched_fields = score_drug_against_input(drug, inputs)
+                results.append((abs(neg_score), drug, details, matched_fields))
+        
         best_score, best_drug, best_details, best_matched = results[0]
         verification_status = best_drug.get("verification", {}).get("status", "unknown")
 
