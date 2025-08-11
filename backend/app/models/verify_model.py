@@ -13,10 +13,10 @@ class VerificationStatus(str, Enum):
     HIGH_SIMILARITY = "high_similarity"
 
 class DrugVerificationRequest(BaseModel):
-    product_name: str  # Now mandatory
+    product_name: Optional[str] = None 
     nafdac_reg_no: Optional[str] = None
     manufacturer: Optional[str] = None
-    batch_number: Optional[str] = None
+    generic_name: Optional[str] = None
     dosage_form: Optional[str] = None  # New field for better matching
 
 class DrugMatchDetail(BaseModel):
