@@ -45,7 +45,9 @@ SCORES = {
     "high_confidence": 90,
     "medium_confidence": 70,
     "low_confidence": 50,
-    "min_return_score": 40
+    "min_return_score": 40,
+    "nafdac_exact_bonus": 30,
+    "full_match_bonus": 20
 }
 
 WEIGHTS = {
@@ -54,7 +56,6 @@ WEIGHTS = {
     "manufacturer": 0.30,  # Highest priority
     "nafdac_additive": 0.60,  # Most powerful matching
     "dosage_form": 0.10,
-    "full_match_bonus": 20
 }
 
 CORP_SUFFIXES = [
@@ -450,9 +451,13 @@ def handle_nafdac_discrepancies(inputs: Dict, drug: Dict) -> Tuple[int, List[str
     penalty = 0
     warnings = []
     
-    if inputs.get("nafdac") and drug.get("identifiers", {}).get("nafdac_reg_no"):
+    try:
+        # Early return if missing data
+        if not inputs.get("nafdac") or not drug.get("identifiers", {}).get("nafdac_reg_no"):
+            return penalty, warnings
+            
         norm_input = normalize_nafdac(inputs["nafdac"])
-        norm_db = normalize_nafdac(drug.get("identifiers", {}).get("nafdac_reg_no", ""))
+        norm_db = normalize_nafdac(drug["identifiers"]["nafdac_reg_no"])
         
         # Exact match gives bonus
         if norm_input == norm_db:
@@ -461,6 +466,9 @@ def handle_nafdac_discrepancies(inputs: Dict, drug: Dict) -> Tuple[int, List[str
         elif norm_input != norm_db:
             penalty -= 50
             warnings.append("NAFDAC number mismatch")
+            
+    except Exception as e:
+        logger.warning(f"NAFDAC discrepancy check failed: {str(e)}")
     
     return penalty, warnings
 
