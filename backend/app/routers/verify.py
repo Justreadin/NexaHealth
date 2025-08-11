@@ -40,20 +40,21 @@ DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_
 with open(DRUG_DB_FILE, encoding="utf-8") as f:
     drug_db = json.load(f)
 
-# --- Configurable thresholds & weights ---
 SCORES = {
+    "exact_match": 100,
     "high_confidence": 90,
-    "medium_confidence": 75,
-    "low_confidence": 65,
-    "min_return_score": 60
+    "medium_confidence": 70,
+    "low_confidence": 50,
+    "min_return_score": 40
 }
 
 WEIGHTS = {
-    "product_name": 0.40,
-    "generic_name": 0.30,
-    "manufacturer": 0.35,  # Highest priority
-    "nafdac_additive": 0.50,  # Most powerful matching
+    "product_name": 0.35,
+    "generic_name": 0.25,
+    "manufacturer": 0.30,  # Highest priority
+    "nafdac_additive": 0.60,  # Most powerful matching
     "dosage_form": 0.10,
+    "full_match_bonus": 20
 }
 
 CORP_SUFFIXES = [
@@ -330,6 +331,139 @@ def score_drug_against_input(drug: Dict, inputs: Dict[str, Optional[str]]) -> Tu
     
     return score_scaled, details, matched_fields
 
+
+def determine_verification_status(inputs: Dict, best_score: float, best_drug: Dict, conflicts: List[str]) -> Dict:
+    """Enhanced verification status determination"""
+    # Exact NAFDAC match supersedes everything
+    if inputs.get("nafdac") and best_drug.get("identifiers", {}).get("nafdac_reg_no"):
+        norm_input = normalize_nafdac(inputs["nafdac"])
+        norm_db = normalize_nafdac(best_drug.get("identifiers", {}).get("nafdac_reg_no", ""))
+        if norm_input == norm_db:
+            return {
+                "status": VerificationStatus.VERIFIED,
+                "message": "✅ Verified via NAFDAC number",
+                "confidence": "exact"
+            }
+    
+    # Handle single-field cases
+    provided_fields = [f for f in inputs if inputs[f]]
+    if len(provided_fields) == 1:
+        field = provided_fields[0]
+        if field == "nafdac":
+            return {
+                "status": VerificationStatus.PARTIAL_MATCH,
+                "message": "⚠️ Only NAFDAC number provided - verify other details",
+                "confidence": "medium"
+            }
+        elif field == "product_name":
+            if best_score >= SCORES["high_confidence"]:
+                return {
+                    "status": VerificationStatus.HIGH_SIMILARITY,
+                    "message": f"⚠️ Multiple products match this name - verify manufacturer and NAFDAC",
+                    "confidence": "high"
+                }
+        elif field == "manufacturer":
+            return {
+                "status": VerificationStatus.PARTIAL_MATCH,
+                "message": "⚠️ Only manufacturer provided - many drugs match this manufacturer",
+                "confidence": "low"
+            }
+    
+    # Handle conflicts
+    if conflicts:
+        if "NAFDAC number mismatch" in conflicts:
+            return {
+                "status": VerificationStatus.CONFLICT,
+                "message": "❌ NAFDAC number doesn't match product details",
+                "confidence": "low"
+            }
+        return {
+            "status": VerificationStatus.CONFLICT_WARNING,
+            "message": f"⚠️ Partial match with conflicts: {', '.join(conflicts)}",
+            "confidence": "medium"
+        }
+    
+    # Standard confidence levels
+    if best_score >= SCORES["high_confidence"]:
+        return {
+            "status": VerificationStatus.VERIFIED,
+            "message": "✅ High confidence match",
+            "confidence": "high"
+        }
+    elif best_score >= SCORES["medium_confidence"]:
+        return {
+            "status": VerificationStatus.PARTIAL_MATCH,
+            "message": "⚠️ Medium confidence match - verify details",
+            "confidence": "medium"
+        }
+    else:
+        return {
+            "status": VerificationStatus.LOW_CONFIDENCE,
+            "message": "⚠️ Low confidence match - review carefully",
+            "confidence": "low"
+        }
+    
+def format_verification_result(inputs: Dict, results: List) -> Dict:
+    """Format the verification result based on input completeness"""
+    provided_fields = [f for f in inputs if inputs[f] and f not in ["raw_*"]]
+    
+    # Case 1: Only NAFDAC provided
+    if provided_fields == ["nafdac"]:
+        return {
+            "verification_type": "nafdac_only",
+            "message": "Verification based solely on NAFDAC number",
+            "results": results[:1]  # Only show exact match
+        }
+    
+    # Case 2: Only product name provided
+    elif provided_fields == ["product_name"]:
+        exact_matches = [r for r in results if r[0] == SCORES["exact_match"]]
+        if exact_matches:
+            return {
+                "verification_type": "exact_name_match",
+                "message": f"Found {len(exact_matches)} exact name matches",
+                "results": exact_matches
+            }
+        else:
+            return {
+                "verification_type": "similar_products",
+                "message": f"Found {len(results)} similar products",
+                "results": results[:10]  # Show top 10 similar
+            }
+    
+    # Case 3: Only manufacturer provided
+    elif provided_fields == ["manufacturer"]:
+        return {
+            "verification_type": "manufacturer_products",
+            "message": f"Showing products from this manufacturer",
+            "results": results[:20]  # Show more since manufacturer may have many products
+        }
+    
+    # Default case: Multiple fields provided
+    return {
+        "verification_type": "comprehensive_verification",
+        "message": "Comprehensive verification result",
+        "results": results[:5]  # Show top 5 matches
+    }
+def handle_nafdac_discrepancies(inputs: Dict, drug: Dict) -> Tuple[int, List[str]]:
+    """Check for NAFDAC-related issues and adjust score accordingly"""
+    penalty = 0
+    warnings = []
+    
+    if inputs.get("nafdac") and drug.get("identifiers", {}).get("nafdac_reg_no"):
+        norm_input = normalize_nafdac(inputs["nafdac"])
+        norm_db = normalize_nafdac(drug.get("identifiers", {}).get("nafdac_reg_no", ""))
+        
+        # Exact match gives bonus
+        if norm_input == norm_db:
+            penalty += SCORES["nafdac_exact_bonus"]
+        # Mismatch applies heavy penalty
+        elif norm_input != norm_db:
+            penalty -= 50
+            warnings.append("NAFDAC number mismatch")
+    
+    return penalty, warnings
+
 # --- Verification endpoint ---
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
@@ -359,6 +493,8 @@ async def verify_drug(
 
         idx = build_indexes()
         candidate_ids = set()
+        best_details = [] 
+        best_matched = []
 
         # 1. Priority: Manufacturer search if provided
         if inputs["manufacturer"]:
@@ -418,29 +554,42 @@ async def verify_drug(
             if not drug: continue
             
             score, details, matched_fields = score_drug_against_input(drug, inputs)
+            
+            # Apply NAFDAC discrepancy checks
+            nafdac_penalty, nafdac_warnings = handle_nafdac_discrepancies(inputs, drug)
+            score += nafdac_penalty
+            
+            # Apply bonus if all provided fields match
+            if len(matched_fields) == len([f for f in inputs if inputs[f]]):
+                score += SCORES["full_match_bonus"]
+            
             if score >= SCORES["min_return_score"]:
-                heapq.heappush(scored_heap, (-score, nid))  # Only store score and ID
+                heapq.heappush(scored_heap, (-score, nid, nafdac_warnings))
 
-        # Process results
+        # Process results with enhanced formatting
         if not scored_heap:
             return await handle_no_matches(request, drug_db)
 
-        # Get top matches
         results = []
         while scored_heap and len(results) < 10:
-            neg_score, nid = heapq.heappop(scored_heap)
+            neg_score, nid, warnings = heapq.heappop(scored_heap)
             drug = idx["id_map"].get(nid)
             if drug:
-                # Recalculate score to ensure consistency (optional)
-                score, details, matched_fields = score_drug_against_input(drug, inputs)
-                results.append((abs(neg_score), drug, details, matched_fields))
+                # Recalculate to ensure consistency
+                score = abs(neg_score)
+                results.append((score, drug, warnings))
         
-        best_score, best_drug, best_details, best_matched = results[0]
-        verification_status = best_drug.get("verification", {}).get("status", "unknown")
-
-        # Build response
+        # Determine verification status
+        best_score, best_drug, best_warnings = results[0]
+        verification = determine_verification_status(inputs, best_score, best_drug, best_warnings)
+        
+        # Format response based on input type
+        formatted_result = format_verification_result(inputs, results)
+        
+        # Build final response
         response_data = {
-            "status": VerificationStatus(verification_status),
+            **verification,
+            **formatted_result,
             "product_name": best_drug.get("product_name"),
             "generic_name": best_drug.get("generic_name"),
             "dosage_form": best_drug.get("dosage_form"),
