@@ -617,7 +617,7 @@ async def verify_drug(
                     "match_score": int(round(score)),
                     "pil_id": drug.get("nexahealth_id")
                 }
-                for score, drug, _, _ in results[1:10]
+                for score, drug, _ in results[1:10]
             ]
         }
 
