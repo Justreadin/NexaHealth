@@ -8,6 +8,7 @@ class VerificationStatus(str, Enum):
     FLAGGED = "flagged"
     UNKNOWN = "unknown"
     PARTIAL_MATCH = "partial_match"
+    CONFLICT = "conflict"
     CONFLICT_WARNING = "conflict_warning"
     COMMON_NAME_MATCH = "common_name_match"
     HIGH_SIMILARITY = "high_similarity"
