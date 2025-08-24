@@ -56,7 +56,7 @@ export function trackButtonClick(buttonName, location) {
   logEvent(analytics, "button_click", {
     button_name: buttonName,
     button_location: location,
-    ...extra
+    
   });
 }
 
