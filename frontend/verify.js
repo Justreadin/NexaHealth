@@ -1,27 +1,132 @@
+import { trackPage, trackEvent, trackButtonClick, trackFormSubmission, trackVerification } from "./firebase.js";
+
+// Make functions available globally
+window.trackEvent = trackEvent;
+window.trackButtonClick = trackButtonClick;
+window.trackFormSubmission = trackFormSubmission;
+window.trackVerification = trackVerification;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
+    trackPage("verify");
+    
+    let startTime = Date.now();
+    window.addEventListener('beforeunload', function() {
+        const timeSpent = Date.now() - startTime;
+        trackEvent('time_on_page', {
+            time_spent: timeSpent,
+            page_name: 'verify'
+        });
+    });
+
+    if (window.tippy) {
+        tippy('[data-tippy-content]', {
+            animation: 'scale',
+            duration: 200,
+            arrow: true
+        });
+    }
+
     const verificationForm = document.getElementById('verificationForm');
     const resultsSection = document.getElementById('results-section');
     const newSearchBtn = document.getElementById('new-search');
     
-    // Initialize containers
     initContainers();
     
-    // Check if we're on the verify page
     if (!verificationForm) return;
 
-    // Form submission handler
     verificationForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+         // Track form submission attempt
+        const formData = {
+        drug_name: document.getElementById('drug-name').value.trim(),
+        nafdac_number: document.getElementById('nafdac-number').value.trim()
+        };
+        
+    trackFormSubmission('drug_verification', formData);
+    trackVerification('attempt', 'started', formData);
+    
         await handleVerification();
     });
+      newSearchBtn.addEventListener('click', function() {
+            trackButtonClick('new_search', 'results_section');
+            resetSearch();
+        });
 
-    // New search button handler
-    newSearchBtn.addEventListener('click', resetSearch);
+     document.addEventListener('click', function(e) {
+        if (e.target.matches('#close-modal, #skip-modal')) {
+        trackButtonClick('modal_close', 'better_results_modal');
+        }
+        
+        if (e.target.closest('a[href*="signup.html"]')) {
+        trackButtonClick('signup_cta', e.target.closest('section').id || 'unknown_location');
+        }
+        
+        if (e.target.closest('a[href*="login.html"]')) {
+        trackButtonClick('login_cta', e.target.closest('section').id || 'unknown_location');
+        }
+    });
 
-    // Initialize containers if they don't exist
+
+    // Scroll tracking
+    let maxScroll = 0;
+    const sections = document.querySelectorAll('section');
+    const sectionVisibility = {};
+    
+    sections.forEach(section => {
+        sectionVisibility[section.id] = false;
+    });
+    
+    window.addEventListener('scroll', function() {
+        const currentScroll = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        
+        if (currentScroll > maxScroll) {
+            maxScroll = currentScroll;
+            
+            // Track major scroll milestones
+            if (maxScroll > 25 && maxScroll < 26) {
+                trackEvent('scroll_depth', { depth: '25%' });
+            } else if (maxScroll > 50 && maxScroll < 51) {
+                trackEvent('scroll_depth', { depth: '50%' });
+            } else if (maxScroll > 75 && maxScroll < 76) {
+                trackEvent('scroll_depth', { depth: '75%' });
+            } else if (maxScroll > 90 && maxScroll < 91) {
+                trackEvent('scroll_depth', { depth: '90%' });
+            }
+        }
+        
+        // Track section visibility
+        sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            const isVisible = (rect.top <= window.innerHeight / 2) && (rect.bottom >= window.innerHeight / 2);
+            
+            if (isVisible && !sectionVisibility[section.id]) {
+                sectionVisibility[section.id] = true;
+                trackEvent('section_view', { 
+                    section_id: section.id,
+                    section_name: section.querySelector('h1, h2, h3')?.textContent || 'unnamed'
+                });
+            }
+        });
+    });
+
+    // Outbound link tracking
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && link.hostname !== window.location.hostname) {
+            e.preventDefault();
+            trackEvent('outbound_link_click', {
+                link_url: link.href,
+                link_text: link.textContent.substring(0, 100)
+            });
+            
+            // Open link after a short delay to ensure tracking is sent
+            setTimeout(() => {
+                window.open(link.href, '_blank');
+            }, 150);
+        }
+    });
+
     function initContainers() {
-        // Possible matches container
         if (!document.getElementById('possible-matches-container')) {
             const container = document.createElement('div');
             container.id = 'possible-matches-container';
@@ -29,13 +134,11 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsSection.querySelector('.max-w-3xl').appendChild(container);
         }
 
-        // Better results modal
         if (!document.getElementById('better-results-modal')) {
             createBetterResultsModal();
         }
     }
 
-    // Create the better results modal
     function createBetterResultsModal() {
         const modalHTML = `
         <div id="better-results-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
@@ -89,8 +192,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const response = await verifyDrug(productName, nafdacNumber);
+             trackVerification('success', response.status || 'unknown', {
+                drug_name: productName,
+                nafdac_number: nafdacNumber,
+                match_score: response.match_score || 0,
+                has_possible_matches: !!(response.possible_matches && response.possible_matches.length)
+                });
             processVerificationResponse(response);
         } catch (error) {
+            trackVerification('error', 'failed', {
+                drug_name: productName,
+                nafdac_number: nafdacNumber,
+                error_message: error.message
+            });
             handleVerificationError(error);
         } finally {
             showLoading(false);
@@ -181,6 +295,14 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             showModalIfNeeded(normalizedData);
         }, 300);
+
+         const status = determineVerificationStatus(normalizedData);
+          trackEvent('verification_result', {
+            status: status,
+            match_score: normalizedData.match_score || 0,
+            has_conflict: !!normalizedData.conflict_warning,
+            possible_matches_count: normalizedData.possible_matches ? normalizedData.possible_matches.length : 0
+        });
     }
 
     // Normalize API response data
@@ -242,6 +364,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show the better results modal
     function showBetterResultsModal() {
+            trackEvent('modal_view', {
+            modal_name: 'better_results',
+            trigger: 'verification_uncertain'
+        });
         const modal = document.getElementById('better-results-modal');
         const closeBtn = document.getElementById('close-modal');
         const skipBtn = document.getElementById('skip-modal');
@@ -280,6 +406,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Reset the search form
     function resetSearch() {
+        trackEvent('user_action', {
+            action: 'reset_search',
+            location: 'results_section'
+        });
         resultsSection.classList.add('hidden');
         verificationForm.reset();
         
@@ -847,6 +977,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show toast notification
     function showToast(message, type = 'info') {
+        trackEvent('toast_shown', {
+            toast_type: type,
+            toast_message: message.substring(0, 100) // Limit length
+        });
         // Remove existing toasts
         document.querySelectorAll('.toast-notification').forEach(el => el.remove());
         
@@ -877,6 +1011,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make functions available globally
     window.showBetterResultsModal = showBetterResultsModal;
     window.shareVerification = function(drugName) {
+        trackButtonClick('share_verification', 'status_indicator');
         // Implement share functionality
         if (navigator.share) {
             navigator.share({
@@ -890,15 +1025,4 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('Web Share API not supported', 'error');
         }
     };
-});
-
-// Initialize tooltips if any
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.tippy) {
-        tippy('[data-tippy-content]', {
-            animation: 'scale',
-            duration: 200,
-            arrow: true
-        });
-    }
 });

@@ -204,10 +204,10 @@
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
-                    <a href="index.html" class="nav-link underline-animation text-primary font-medium transition text-sm lg:text-base">Home</a>
-                    <a href="verify.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
-                    <a href="report.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
-                    <a href="pil.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">View Drug Leaflet</a>
+                    <a href="index.html" class="nav-link underline-animation text-primary font-medium transition text-sm lg:text-base" onclick="trackButtonClick('home_nav', 'navigation')">Home</a>
+                    <a href="verify.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base" onclick="trackButtonClick('verify_nav', 'navigation')">Verify</a>
+                    <a href="report.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base" onclick="trackButtonClick('report_nav', 'navigation')">Report</a>
+                    <a href="pil.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base" onclick="trackButtonClick('pil_nav', 'navigation')">View Drug Leaflet</a>
                 </div>
 
                 <div class="hidden md:flex items-center space-x-4">
@@ -229,10 +229,10 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md py-4 px-6 absolute w-full left-0 shadow-lg">
             <div class="flex flex-col space-y-4">
-                <a href="index.html" class="mobile-link text-dark hover:text-primary transition">Home</a>
-                <a href="verify.html" class="mobile-link text-primary transition"">Verify</a>
-                <a href="report.html" class="mobile-link text-dark hover:text-primary transition">Report</a>
-                <a href="pil.html" class="mobile-link text-dark hover:text-primary transition">View Drug Leaflet</a>
+                <a href="index.html" class="mobile-link text-dark hover:text-primary transition"  onclick="trackButtonClick('home_nav', 'navigation')">Home</a>
+                <a href="verify.html" class="mobile-link text-primary transition" onclick="trackButtonClick('verify_nav', 'navigation')">Verify</a>
+                <a href="report.html" class="mobile-link text-dark hover:text-primary transition" onclick="trackButtonClick('report_nav', 'navigation')">Report</a>
+                <a href="pil.html" class="mobile-link text-dark hover:text-primary transition" onclick="trackButtonClick('pil_nav', 'navigation')">View Drug Leaflet</a>
                 <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-xl">Login</a>
                 <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:shadow-xl">Signup</a>
             </div>
@@ -594,5 +594,6 @@
     </footer>
     <script src="verify.js"></script>
     <script src="main.js"></script>
+
 </body>
 </html>

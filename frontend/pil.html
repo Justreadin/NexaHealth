@@ -521,5 +521,12 @@
     </script>
     <script src="pil.js"></script>
     <script src="main.js"></script>
+    <script type="module">
+  import { trackPage, trackEvent } from "firebase.js";
+
+  // Track page
+  trackPage("pil");   // for verify.html
+  // trackPage("index"); // for index.html
+</script>
 </body>
 </html>
