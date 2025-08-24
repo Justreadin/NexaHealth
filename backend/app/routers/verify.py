@@ -51,13 +51,14 @@ SCORES = {
     "full_match_bonus": 20,
     "manufacturer_mismatch_penalty": -40,
     "name_mismatch_penalty": -30,
-    "nafdac_mismatch_penalty": -50
+    "nafdac_mismatch_penalty": -80,
+    "nafdac_partial_match": 60
 }
 
 WEIGHTS = {
     "product_name": 0.35,
     "generic_name": 0.25,
-    "manufacturer": 0.40,  # Increased priority
+    "manufacturer": 0.50,  # Increased priority
     "nafdac": 0.60,       # Most powerful matching
     "dosage_form": 0.10,
 }
@@ -112,9 +113,15 @@ def normalize_text_ultra(text: Optional[str]) -> str:
     return s
 
 def normalize_nafdac(nafdac: str) -> str:
-    """Normalize NAFDAC number by removing all non-alphanumeric chars and spaces"""
+    """Normalize NAFDAC number by removing spaces but preserving dashes and format"""
     if not nafdac: return ""
-    return re.sub(r"[^a-zA-Z0-9]", "", nafdac).upper()
+    # Remove spaces but keep dashes and alphanumeric
+    normalized = re.sub(r"[^\w\-]", "", nafdac.upper())
+    # Ensure consistent format: XX-XXXX
+    if re.match(r"^\d{2}\-?\d{4}$", normalized):
+        if "-" not in normalized:
+            normalized = f"{normalized[:2]}-{normalized[2:]}"
+    return normalized
 
 def normalize_compact(text: Optional[str]) -> str:
     return re.sub(r"[^\w]", "", normalize_text_ultra(text))
@@ -208,32 +215,34 @@ def score_manufacturer_match(input_manu: str, db_manu: str) -> int:
     return best_similarity(input_manu, db_manu)
 
 def score_nafdac_match(input_nafdac: str, db_nafdac: str) -> Tuple[int, str]:
-    """Enhanced NAFDAC matching with flexible formatting"""
+    """Enhanced NAFDAC matching with proper formatting"""
     if not input_nafdac or not db_nafdac: return (0, "no match")
     
     norm_input = normalize_nafdac(input_nafdac)
     norm_db = normalize_nafdac(db_nafdac)
     
-    if norm_input == norm_db: return (100, "exact match")
-    if len(norm_input) >= 5 and len(norm_db) >= 5 and norm_input[:5] == norm_db[:5]:
-        return (95, "prefix match")
-    if norm_input in norm_db or norm_db in norm_input: return (90, "partial match")
+    # Exact match (highest priority)
+    if norm_input == norm_db:
+        return (100, "exact match")
     
-    # Try matching with common variations (B4-1234 vs B41234)
-    input_clean = re.sub(r'[^A-Z0-9]', '', input_nafdac.upper())
-    db_clean = re.sub(r'[^A-Z0-9]', '', db_nafdac.upper())
-    if input_clean == db_clean: return (95, "format-normalized match")
+    # Match without dashes
+    input_no_dash = norm_input.replace("-", "")
+    db_no_dash = norm_db.replace("-", "")
+    if input_no_dash == db_no_dash:
+        return (95, "format-normalized match")
     
-    # Try phonetic matching for letter prefixes
-    if len(input_clean) >= 2 and len(db_clean) >= 2:
-        input_prefix = input_clean[:2]
-        db_prefix = db_clean[:2]
-        if input_prefix == db_prefix:
-            num_sim = best_similarity(input_clean[2:], db_clean[2:])
-            if num_sim > 80:
-                return (85, "prefix + numeric match")
+    # Partial matches only if significant portion matches
+    if len(input_no_dash) >= 4 and len(db_no_dash) >= 4:
+        # Check if first 4 digits match
+        if input_no_dash[:4] == db_no_dash[:4]:
+            return (70, "partial prefix match")
     
-    return (best_similarity(input_nafdac, db_nafdac), "fuzzy match")
+    # Very low score for any other similarity
+    similarity = best_similarity(input_nafdac, db_nafdac)
+    if similarity > 60:
+        return (50, "fuzzy match")
+    
+    return (0, "no match")
 
 def score_product_name_match(input_name: str, db_name: str, db_generic: str) -> int:
     """Enhanced product name matching"""
@@ -376,19 +385,26 @@ def determine_verification_status(inputs: Dict, best_score: float, best_drug: Di
     """Enhanced verification status determination with 7 scenarios"""
     provided_fields = [f for f in inputs if inputs.get(f) and f not in ["raw_*"]]
     
-    # Scenario 1: Only NAFDAC provided
+    # In determine_verification_status function:
     if provided_fields == ["nafdac"]:
-        if best_score >= SCORES["high_confidence"]:
+        if best_score >= 95:  # Only exact or format-normalized matches
             return {
                 "status": VerificationStatus.VERIFIED,
                 "message": "✅ Verified via NAFDAC number",
                 "confidence": "high"
             }
-        return {
-            "status": VerificationStatus.PARTIAL_MATCH,
-            "message": "⚠️ Only NAFDAC number provided - verify other details",
-            "confidence": "medium"
-        }
+        elif best_score >= 70:  # Partial matches
+            return {
+                "status": VerificationStatus.PARTIAL_MATCH,
+                "message": "⚠️ Partial NAFDAC match - verify other details",
+                "confidence": "medium"
+            }
+        else:
+            return {
+                "status": VerificationStatus.LOW_CONFIDENCE,
+                "message": "❌ No close NAFDAC match found",
+                "confidence": "low"
+            }
     
     # Scenario 2: Only product name provided
     elif provided_fields == ["product_name"]:
@@ -597,16 +613,26 @@ async def verify_drug(
         best_details = [] 
         best_matched = []
 
-        # 1. Priority: NAFDAC exact or partial match if provided
+        # 1. Priority: NAFDAC exact or very close match if provided
         if inputs["nafdac"]:
             norm_nafdac = normalize_nafdac(inputs["nafdac"])
+            input_no_dash = norm_nafdac.replace("-", "")
+            
             # Exact match
             if norm_nafdac in idx["nafdac_map"]:
                 candidate_ids.add(idx["nafdac_map"][norm_nafdac].get("nexahealth_id"))
-            # Partial matches (first 5 chars)
-            if len(norm_nafdac) >= 5:
+            
+            # Match without dashes
+            for db_nafdac, drug in idx["nafdac_map"].items():
+                db_no_dash = db_nafdac.replace("-", "")
+                if input_no_dash == db_no_dash:
+                    candidate_ids.add(drug.get("nexahealth_id"))
+            
+            # Only allow very close partial matches (first 4 digits)
+            if len(input_no_dash) >= 4:
                 for db_nafdac, drug in idx["nafdac_map"].items():
-                    if db_nafdac.startswith(norm_nafdac[:5]):
+                    db_no_dash = db_nafdac.replace("-", "")
+                    if len(db_no_dash) >= 4 and input_no_dash[:4] == db_no_dash[:4]:
                         candidate_ids.add(drug.get("nexahealth_id"))
 
         # 2. Manufacturer search if provided
