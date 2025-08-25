@@ -2,7 +2,6 @@
  * Dashboard Statistics Controller
  * Handles fetching and displaying verification and report counts
  */
-
 class DashboardStats {
   constructor() {
     this.refreshInterval = 300000; // 5 minutes
@@ -64,90 +63,86 @@ class DashboardStats {
     }, this.refreshInterval);
   }
 
-  async updateDashboardStats(period = null) {
+  async updateDashboardStats(period = "day") {
+    this.setLoadingState(true);
+
+  const [verifications, reports] = await Promise.all([
+    this.fetchStats("verification-count", `?period=${period}`),
+    this.fetchStats("report-count", `?period=${period}`)
+  ]);
+
+  this.updateCard(".verified-stats", verifications, period);
+  this.updateCard(".reported-stats", reports, period);
+
+  this.setLoadingState(false);
+}
+
+  async fetchStats(endpoint, params = '') {
     try {
-      // Show loading states
-      this.setLoadingState(true);
+      const response = await fetch(`https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+        }
+      });
 
-      // Build query params if period is specified
-      const params = period ? `?period=${period}` : '';
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-      // Fetch data in parallel
-      const [verificationData, reportData] = await Promise.all([
-        this.fetchStats('verification-count', params),
-        this.fetchStats('report-count', params)
-      ]);
-
-      // Update cards
-      this.updateCard('.verified-stats', verificationData);
-      this.updateCard('.reported-stats', reportData);
-
+      return await response.json();
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
-      this.showErrorNotification('Failed to update dashboard statistics');
-    } finally {
-      this.setLoadingState(false);
+      console.error(`Error fetching ${endpoint}:`, error);
+      return { total: 0, today: 0, error: error.message };
     }
   }
 
-async fetchStats(endpoint, params = '') {
-    try {
-        const response = await window.authFetch( // <-- call the global version
-            `https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`,
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-
-        if (response.status === 401) {
-            console.warn(`Token expired while fetching ${endpoint}, trying refresh...`);
-            try {
-                await window.App.Auth.refreshToken();
-                return this.fetchStats(endpoint, params); // retry after refresh
-            } catch (refreshError) {
-                console.error('Refresh token failed:', refreshError);
-                window.location.href = 'login.html';
-                return { total: 0, today: 0, error: 'Unauthorized' };
-            }
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        return await response.json();
-    } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error);
-        return { total: 0, today: 0, error: error.message };
-    }
-}
-
-  updateCard(selector, data) {
+  updateCard(selector, data, period) {
     const card = document.querySelector(selector);
     if (!card) return;
 
-    // Update main count
     const countElement = card.querySelector('.text-lg');
-    if (countElement) {
-      countElement.textContent = data.total.toLocaleString();
-    }
-
-    // Update secondary count if available
     const secondaryElement = card.querySelector('.text-sm');
-    if (secondaryElement) {
-      if (data.period_count !== undefined) {
-        secondaryElement.textContent = `${data.period_count.toLocaleString()} this ${data.period}`;
-      } else {
-        secondaryElement.textContent = `${data.today.toLocaleString()} today`;
+
+    const formatNumber = (num) => {
+      if (num >= 1_000_000) return (num / 1_000_000).toFixed(1) + "M";
+      if (num >= 1_000) return (num / 1_000).toFixed(1) + "K";
+      return num.toLocaleString();
+    };
+
+    const formatPeriodLabel = (p) => {
+      switch (p) {
+        case "day": return "Today";
+        case "week": return "This Week";
+        case "month": return "This Month";
+        case "year": return "This Year";
+        case "all": return "All Time";
+        default: return "Period";
       }
+    };
+
+    // Main total
+    if (countElement) {
+      this.animateCount(countElement, data.total || 0, formatNumber);
     }
 
-    // Add animation
+    // Secondary count
+    if (secondaryElement) {
+      let desc;
+      if (period === "day") {
+        desc = `${formatNumber(data.today || 0)} Today`;
+      } else if (period === "all") {
+        desc = `Total ${formatNumber(data.total || 0)}`;
+      } else {
+        desc = `${formatNumber(data.period_count || 0)} ${formatPeriodLabel(period)}`;
+      }
+      secondaryElement.textContent = desc;
+      secondaryElement.classList.add("text-gray-600", "truncate");
+    }
+
+    // Animate card pulse
     this.animateCard(card);
 
-    // Update card status based on data
+    // Error state
     if (data.error) {
       card.classList.add('error-state');
     } else {
@@ -162,6 +157,24 @@ async fetchStats(endpoint, params = '') {
     }, 500);
   }
 
+  animateCount(element, newValue, formatter) {
+    const duration = 800;
+    const start = parseInt(element.textContent.replace(/[^0-9]/g, "")) || 0;
+    const end = newValue;
+    const startTime = performance.now();
+
+    const step = (now) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const current = Math.floor(start + (end - start) * progress);
+      element.textContent = formatter(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  }
+
   setLoadingState(isLoading) {
     document.querySelectorAll('.dashboard-card').forEach(card => {
       if (isLoading) {
@@ -173,16 +186,8 @@ async fetchStats(endpoint, params = '') {
   }
 
   showErrorNotification(message) {
-    // Implement your notification system here
     console.error(message);
-    // Example using Toastify:
-    // Toastify({
-    //   text: message,
-    //   duration: 3000,
-    //   gravity: "top",
-    //   position: "right",
-    //   backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-    // }).showToast();
+    // Toastify or another notification system can be plugged here
   }
 }
 
