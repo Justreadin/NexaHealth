@@ -19,17 +19,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         };
 
-        // Start waiting for Auth or listen for custom event
+        // Start waiting for Auth
         const authReady = await waitForAuth();
-
-        if (!authReady) return; // Exit if Auth never initialized
+        if (!authReady) return;
 
         // Also listen for the event just in case
         document.addEventListener('AuthReady', () => {
             console.log("AuthReady event received.");
         });
 
-        // Fallback timeout just in case
+        // Fallback timeout
         setTimeout(() => {
             if (!window.App?.Auth) {
                 console.error("Auth still not initialized after fallback timeout.");
@@ -70,32 +69,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
-        // Load dashboard stats
-        const loadDashboardStats = async () => {
-            try {
-                const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/stats', {
-                    headers: {
-                        'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to load stats');
-
-                const stats = await response.json();
-                document.querySelector('.verified-stats .text-lg').textContent = stats.verified_drugs;
-                document.querySelector('.reported-stats .text-lg').textContent = stats.reported_issues;
-                document.querySelector('.health-stats .text-lg').textContent = stats.health_checks;
-                document.querySelector('.facilities-stats .text-lg').textContent = stats.saved_facilities;
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
-        };
-
         // Load recent activity
         const loadRecentActivity = async () => {
-            //console.log("🔥 loadRecentActivity(): Starting");
-            //console.log("Access Token:", window.App.Auth.getAccessToken());
-
             try {
                 const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/activity', {
                     headers: {
@@ -144,7 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showAlert('Failed to load user data', 'error');
                 throw e;
             }),
-            loadDashboardStats().catch(e => console.error('Stats load failed:', e)),
             loadRecentActivity().catch(e => console.error('Activity load failed:', e)),
             // Load referral script
             new Promise((resolve) => {
