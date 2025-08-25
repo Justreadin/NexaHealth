@@ -167,6 +167,7 @@ async def get_current_user(
         )
 
     try:
+
         payload = await verify_token(token)
         user_id = payload.get("user_id")
         if not user_id:
@@ -275,3 +276,35 @@ async def verify_google_token(token: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error verifying Google token"
         )
+
+
+async def get_current_active_user_optional(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
+) -> Optional[UserInDB]:
+    """
+    Variant of get_current_active_user that returns None if no token is provided,
+    instead of raising an authentication error.
+    Useful for endpoints where anonymous users should be allowed (e.g. referral links).
+    """
+    token = None
+
+    # Try header
+    if credentials and credentials.scheme.lower() == "bearer":
+        token = credentials.credentials
+
+    # Try cookie
+    if not token:
+        token = request.cookies.get("access_token")
+
+    # No token found → anonymous
+    if not token:
+        return None
+
+    try:
+        current_user = await get_current_user(request, credentials)
+        if current_user.disabled:
+            return None
+        return current_user
+    except Exception:
+        return None
