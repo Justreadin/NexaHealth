@@ -78,23 +78,24 @@ class DashboardStats {
 }
 
   async fetchStats(endpoint, params = '') {
-    try {
-      const response = await fetch(`https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    const response = await fetch(`https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`, {
+      headers: {
+        'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
       }
+    });
 
-      return await response.json();
-    } catch (error) {
-      console.error(`Error fetching ${endpoint}:`, error);
-      return { total: 0, today: 0, error: error.message };
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    return { total: 0, today: 0, error: error.message };
   }
+}
+
 
   updateCard(selector, data, period) {
     const card = document.querySelector(selector);
