@@ -231,45 +231,101 @@
                 </div>
             </div>
         </section>
-        <!-- Referral Section -->
-        <section class="mb-6">
-        <div class="dashboard-card bg-gradient-to-r from-purple-600 to-indigo-600 text-white overflow-hidden">
+<section class="mb-6">
+        <div class="dashboard-card bg-gradient-to-r from-purple-600 to-indigo-600 text-white overflow-hidden relative">
             <div class="p-6 relative">
+
             <!-- Decorative elements -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full transform translate-x-16 -translate-y-16"></div>
-            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white bg-opacity-5 rounded-full transform -translate-x-20 translate-y-20"></div>
-            
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full transform -translate-x-20 translate-y-20"></div>
+
+            <!-- Content -->
             <div class="relative z-10">
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div class="mb-4 md:mb-0">
-                    <h2 class="text-xl font-bold mb-2">Unlock Early Access!</h2>
+                    <h2 class="text-2xl font-bold mb-2">🚀 Unlock Early Access!</h2>
                     <p class="opacity-90 max-w-lg">
-                    Refer 3 friends to be among the first to try our <span class="font-semibold">AI Symptom Checker</span> and <span class="font-semibold">Health Companion</span>.
-                    Help us build a healthier community!
+                    Refer friends and climb levels! Each invite unlocks <span class="font-semibold">exclusive perks</span> like 
+                    <span class="font-semibold">AI Health Companion</span>, <span class="font-semibold">Drug Scanner</span>, and more.  
+                    <br><span class="italic opacity-80">Be among the first in Naija to try it 🔥</span>
                     </p>
                 </div>
-                
+
                 <div class="flex-shrink-0">
-                    <button id="open-referral-modal" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all transform hover:scale-105">
+                    <button id="open-referral-modal"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-md text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all transform hover:scale-105">
                     <i class="fas fa-gift mr-2"></i> Invite Friends
                     </button>
                 </div>
                 </div>
-                
+
                 <!-- Progress Bar -->
                 <div class="mt-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium">Your progress</span>
+                    <span class="text-sm font-medium">Your Progress</span>
                     <span id="referral-progress-text" class="text-sm font-bold">0/3 referrals</span>
                 </div>
-                <div class="w-full bg-white bg-opacity-30 rounded-full h-2.5">
-                    <div id="referral-progress-bar" class="bg-yellow-400 h-2.5 rounded-full" style="width: 0%"></div>
+                <div class="w-full bg-white/30 rounded-full h-2.5 overflow-hidden">
+                    <div id="referral-progress-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                 </div>
                 </div>
+
+                <!-- Badges -->
+                <div id="referral-badges" class="mt-4 flex flex-wrap gap-2"></div>
             </div>
             </div>
         </div>
         </section>
+
+        <!-- Referral Modal -->
+        <div id="referral-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative">
+            <!-- Close -->
+            <button id="close-referral-modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-xl font-bold mb-4">🎉 Invite & Unlock Rewards</h3>
+
+            <!-- Referral Link -->
+            <div class="flex items-center mb-4">
+            <input id="referral-link" readonly
+                class="flex-1 border rounded-l-lg px-3 py-2 text-gray-700 text-sm" />
+            <button id="copy-referral-link"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
+                <i class="fas fa-copy mr-1"></i> Copy
+            </button>
+            </div>
+
+            <!-- Share Buttons -->
+            <div class="grid grid-cols-2 gap-2 mb-6">
+            <button id="share-whatsapp"
+                class="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-green-600">
+                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+            </button>
+            <button id="share-email"
+                class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-blue-600">
+                <i class="fas fa-envelope mr-2"></i> Email
+            </button>
+            <button id="share-twitter"
+                class="bg-sky-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-sky-600">
+                <i class="fab fa-twitter mr-2"></i> Twitter
+            </button>
+            <button id="share-telegram"
+                class="bg-indigo-400 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-indigo-500">
+                <i class="fab fa-telegram mr-2"></i> Telegram
+            </button>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+            <h4 class="text-sm font-semibold mb-2">🔥 Top Referrers</h4>
+            <div id="referral-leaderboard" class="space-y-2 text-sm">
+                <!-- Filled dynamically by ReferralSystem -->
+            </div>
+            </div>
+        </div>
+        </div>
         
         <section class="mb-6">
             <!-- Period Filters -->
