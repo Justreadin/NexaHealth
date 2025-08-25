@@ -76,8 +76,8 @@ async def get_verification_count(
 
                 query = (
                     stats_collection
-                    .where(filter=("date", ">=", start_date.isoformat()))
-                    .where(filter=("date", "<=", today.isoformat()))
+                    .where("date", ">=", start_date.isoformat())
+                    .where("date", "<=", today.isoformat())
                     .where(filter=("__name__", ">=", start_doc))
                     .where(filter=("__name__", "<=", end_doc))
                 )
@@ -132,8 +132,8 @@ async def get_report_count(
 
                 query = (
                     stats_collection
-                    .where(filter=("date", ">=", start_date.isoformat()))
-                    .where(filter=("date", "<=", today.isoformat()))
+                    .where("date", ">=", start_date.isoformat())
+                    .where("date", "<=", today.isoformat())
                     .where(filter=("__name__", ">=", start_doc))
                     .where(filter=("__name__", "<=", end_doc))
                 )
