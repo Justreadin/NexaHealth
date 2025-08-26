@@ -45,9 +45,22 @@ class DrugVerificationResponse(BaseModel):
     possible_matches: Optional[List[Dict]] = None
     confidence: Literal["high", "medium", "low"] = "low"
     matched_fields: Optional[List[str]] = None
-
+    requires_confirmation: bool = False  # NEW: For NAFDAC-only matches that need name confirmation
+    requires_nafdac: bool = False  # NEW: For matches that would benefit from NAFDAC input
+    
     class Config:
         use_enum_values = False  # Don't serialize Enums as their value (e.g., "verified")
+        schema_extra = {
+            "example": {
+                "status": "verified",
+                "message": "Drug verified successfully",
+                "confidence": "high",
+                "product_name": "Paracetamol Tablets",
+                "match_score": 95,
+                "requires_confirmation": False,
+                "requires_nafdac": False
+            }
+        }
 
     def dict(self, **kwargs):
         data = super().dict(**kwargs)
