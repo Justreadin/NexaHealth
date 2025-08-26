@@ -219,18 +219,27 @@ if (!window.ReferralSystem) {
       if (!code) return;
 
       try {
-        const response = await fetch(`${window.App.Auth.API_BASE_URL}/referrals/use/${encodeURIComponent(code)}`, {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${window.App.Auth.getAccessToken()}` }
-        });
+        const headers = { "Content-Type": "application/json" };
+        const token = window.App.Auth.getAccessToken?.();
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+
+        const response = await fetch(
+          `${window.App.Auth.API_BASE_URL}/referrals/use/${encodeURIComponent(code)}`,
+          { method: 'POST', headers }
+        );
+
         if (response.ok) {
-          this.showToast('✅ Referral applied!');
+          const data = await response.json();
+          this.showToast(`✅ Referral applied! (${data.newCount} total)`);
           this.playSound('referral.mp3');
+        } else {
+          console.warn("Referral not applied:", await response.text());
         }
       } catch (e) {
         console.error('Referral apply failed', e);
       }
     }
+
 
     // ---------- UTILS ----------
     generateRandomCode() {
