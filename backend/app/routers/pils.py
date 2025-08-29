@@ -22,24 +22,17 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 # Public endpoints - no authentication required
 @router.get("/", response_model=Dict)
 async def search_pils(
-    search: Optional[str] = Query(None, min_length=2, 
-                                description="Search term for drug name, generic name or description"),
-    category: Optional[DrugCategory] = Query(None, 
-                                           description="Filter by drug category"),
-    manufacturer: Optional[str] = Query(None, 
-                                      description="Filter by manufacturer"),
-    dosage_form: Optional[str] = Query(None,
-                                     description="Filter by dosage form"),
-    limit: int = Query(10, ge=1, le=100, 
-                      description="Maximum number of results")
+    search: Optional[str] = Query(None, min_length=2, description="Search term for drug name, generic name or description"),
+    category: Optional[DrugCategory] = Query(None, description="Filter by drug category"),
+    manufacturer: Optional[str] = Query(None, description="Filter by manufacturer"),
+    dosage_form: Optional[str] = Query(None, description="Filter by dosage form"),
+    nafdac_no: Optional[str] = Query(None, description="Search by NAFDAC registration number"),
+    limit: int = Query(10, ge=1, le=100, description="Maximum number of results")
 ):
     """
-    Search drug leaflets with fuzzy matching.
-    Returns:
-    {
-        "results": List[PILInDB],
-        "suggestions": List[str] (optional spelling suggestions)
-    }
+    Search drug leaflets by:
+    - NAFDAC number (most accurate, unique)
+    - or fallback to fuzzy search (names, generic, etc.)
     """
     try:
         search_result = pil_manager.search_pils(
@@ -47,6 +40,7 @@ async def search_pils(
             category=category.value if category else None,
             manufacturer=manufacturer,
             dosage_form=dosage_form,
+            nafdac_no=nafdac_no,
             limit=limit
         )
         
@@ -59,6 +53,7 @@ async def search_pils(
     except Exception as e:
         logger.error(f"Search error: {str(e)}")
         raise HTTPException(status_code=500, detail="Error searching drug leaflets")
+
 
 @router.get("/featured", response_model=List[PILInDB])
 async def get_featured_pils(

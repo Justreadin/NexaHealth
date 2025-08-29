@@ -23,6 +23,8 @@ class PILManager:
             'vitamen': 'vitamin',
             'panadol': 'paracetamol'
         }
+        self._nafdac_index = {}  # fast lookup: nafdac_no → PIL
+
     
     @property
     def pils(self) -> List[PILInDB]:
@@ -39,10 +41,19 @@ class PILManager:
         """Build optimized search indexes for fast lookup"""
         self._search_index = []
         self._drug_names_index = defaultdict(list)
+        self._nafdac_index = {}
 
         for pil in self._pils:
             if not pil or not hasattr(pil, 'identifiers'):
                 continue
+
+            nafdac_no = (
+                self._normalize_text(pil.identifiers.nafdac_reg_no)
+                if pil.identifiers and pil.identifiers.nafdac_reg_no
+                else ''
+            )
+            if nafdac_no:
+                self._nafdac_index[nafdac_no] = pil   # 🔑 store for O(1) lookup
 
             self._search_index.append({
                 'pil': pil,
@@ -51,7 +62,7 @@ class PILManager:
                 'composition': self._normalize_text(pil.composition),
                 'description': self._normalize_text(pil.description),
                 'strength': self._normalize_text(pil.strength),
-                'nafdac_no': self._normalize_text(pil.identifiers.nafdac_reg_no) if pil.identifiers and pil.identifiers.nafdac_reg_no else '',
+                'nafdac_no': nafdac_no,
                 'manufacturer': self._normalize_text(pil.manufacturer.name) if pil.manufacturer and pil.manufacturer.name else '',
                 'dosage_form': self._normalize_text(pil.dosage_form)
             })
@@ -130,29 +141,35 @@ class PILManager:
         category: Optional[str] = None,
         manufacturer: Optional[str] = None,
         dosage_form: Optional[str] = None,
+        nafdac_no: Optional[str] = None,
         limit: int = 10
     ) -> Dict[str, List]:
         """
-        Advanced search with proper null checks and error handling
+        Powerful search:
+        - Direct O(1) lookup by NAFDAC number (highest priority)
+        - Otherwise, fuzzy matching on names, generic, description, etc.
         """
         try:
-            if not self.pils:  # Ensure data is loaded
+            if not self.pils:  
                 return {'results': [], 'suggestions': []}
 
-            results = []
-            suggestions = []
-            search_normalized = self._normalize_drug_name(search) if search else None
+            # 🔍 1. Direct lookup by NAFDAC number
+            if nafdac_no:
+                normalized_no = self._normalize_text(nafdac_no)
+                pil = self._nafdac_index.get(normalized_no)
+                if pil:
+                    return {'results': [pil], 'suggestions': []}
+                else:
+                    return {'results': [], 'suggestions': []}  # no fuzzy here
 
-            # Apply filters first
+            # 🔍 2. Apply filters first
             filtered_pils = self._apply_filters(category, manufacturer, dosage_form)
 
-            # Fuzzy search if search term provided
-            if search_normalized:
-                results, suggestions = self._fuzzy_search(
-                    search_normalized, 
-                    filtered_pils,
-                    min_score=70
-                )
+            # 🔍 3. Fuzzy search if search term is provided
+            results, suggestions = [], []
+            if search:
+                search_normalized = self._normalize_drug_name(search)
+                results, suggestions = self._fuzzy_search(search_normalized, filtered_pils, min_score=70)
             else:
                 results = filtered_pils
 
@@ -163,6 +180,7 @@ class PILManager:
         except Exception as e:
             logger.error(f"Search error: {str(e)}", exc_info=True)
             return {'results': [], 'suggestions': []}
+
 
     def _apply_filters(
         self, 

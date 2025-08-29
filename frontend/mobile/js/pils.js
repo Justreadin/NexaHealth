@@ -2,6 +2,9 @@
 
 const API_BASE_URL = 'https://lyre-4m8l.onrender.com/api/pils';
 // DOM Elements
+// Add these right after your other DOM element declarations
+const manufacturerSearch = document.getElementById('manufacturer-search');
+const nafdacSearch = document.getElementById('nafdac-search');
 const searchInput = document.getElementById('pil-search');
 const searchLoader = document.getElementById('search-loader');
 const searchResultsSection = document.getElementById('search-results-section');
@@ -28,6 +31,13 @@ const manufacturerFilter = document.getElementById('manufacturer-filter');
 const dosageFormFilter = document.getElementById('dosage-form-filter');
 const applyFiltersBtn = document.getElementById('apply-filters');
 const resetFiltersBtn = document.getElementById('reset-filters');
+// Add these to your existing state variables
+const drugSearchTab = document.getElementById('drug-search-tab');
+const nafdacSearchTab = document.getElementById('nafdac-search-tab');
+const drugSearchContainer = document.getElementById('drug-search-container');
+const nafdacSearchContainer = document.getElementById('nafdac-search-container');
+let currentSearchType = 'drug'; // 'drug' or 'nafdac'
+
 
 // State
 const urlParams = new URLSearchParams(window.location.search);
@@ -76,8 +86,39 @@ function setupEventListeners() {
     searchInput.addEventListener('input', () => {
         clearTimeout(debounceTimer);
         currentSearchTerm = searchInput.value.trim();
-        debounceTimer = setTimeout(handleSearch, 300);
+        debounceTimer = setTimeout(() => handleSearch({ search: currentSearchTerm }), 300);
     });
+
+    // Manufacturer search
+    manufacturerSearch.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        currentManufacturer = manufacturerSearch.value.trim();
+        debounceTimer = setTimeout(() => handleSearch({ 
+            search: currentSearchTerm,
+            manufacturer: currentManufacturer 
+        }), 300);
+    });
+
+    // NAFDAC search
+    nafdacSearch.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const nafdacValue = nafdacSearch.value.trim();
+        debounceTimer = setTimeout(() => {
+            if (nafdacValue.length >= 3) {
+                handleSearch({ nafdac_no: nafdacValue });
+            }
+        }, 300);
+    });
+
+    // Search tabs
+    drugSearchTab.addEventListener('click', () => {
+        switchSearchTab('drug');
+    });
+
+    nafdacSearchTab.addEventListener('click', () => {
+        switchSearchTab('nafdac');
+    });
+
 
     // Modal close
     closePilModal.addEventListener('click', () => {
@@ -106,11 +147,24 @@ function setupEventListeners() {
         }
     });
 
-    // Apply filters
     applyFiltersBtn.addEventListener('click', () => {
-        currentManufacturer = manufacturerFilter.value.trim();
         currentDosageForm = dosageFormFilter.value;
-        handleSearch();
+        
+        // Perform search based on current search type
+        if (currentSearchType === 'drug') {
+            handleSearch({ 
+                search: currentSearchTerm,
+                manufacturer: currentManufacturer,
+                dosage_form: currentDosageForm
+            });
+        } else {
+            // For NAFDAC search, just use the current NAFDAC value
+            const nafdacValue = nafdacSearch.value.trim();
+            if (nafdacValue.length >= 3) {
+                handleSearch({ nafdac_no: nafdacValue });
+            }
+        }
+        
         advancedFilters.classList.add('hidden');
     });
 
@@ -126,17 +180,43 @@ function setupEventListeners() {
     });
 }
 
+
+function switchSearchTab(tab) {
+    if (tab === 'drug') {
+        drugSearchTab.classList.add('active');
+        nafdacSearchTab.classList.remove('active');
+        drugSearchContainer.classList.remove('hidden');
+        nafdacSearchContainer.classList.add('hidden');
+        currentSearchType = 'drug';
+    } else {
+        nafdacSearchTab.classList.add('active');
+        drugSearchTab.classList.remove('active');
+        nafdacSearchContainer.classList.remove('hidden');
+        drugSearchContainer.classList.add('hidden');
+        currentSearchType = 'nafdac';
+    }
+    
+    // Clear search fields when switching tabs
+    searchInput.value = '';
+    manufacturerSearch.value = '';
+    nafdacSearch.value = '';
+    
+    // Reset to default view
+    resetFilters();
+}
+
 // Reset all filters
 function resetFilters() {
     // Reset state
     currentSearchTerm = '';
-    currentCategory = 'all';
     currentManufacturer = '';
+    currentCategory = 'all';
     currentDosageForm = '';
     
     // Reset UI elements
     searchInput.value = '';
-    manufacturerFilter.value = '';
+    manufacturerSearch.value = '';
+    nafdacSearch.value = '';
     dosageFormFilter.value = '';
     
     // Reset category filters
@@ -166,45 +246,54 @@ function resetFilters() {
     loadInitialData();
 }
 
-// Handle search
-async function handleSearch() {
-    if (currentSearchTerm.length < 2 && currentCategory === 'all' && !currentManufacturer && !currentDosageForm) {
-        resetFilters();
-        return;
-    }
-
+// ✅ Handle search (unified)
+async function handleSearch(params = {}) {
     try {
-        searchLoader.classList.remove('hidden');
-        document.body.classList.add('loading-state');
-
+        showLoader();
+        
+        // Switch UI to search mode
         searchResultsSection.classList.remove('hidden');
         featuredSection.classList.add('hidden');
         recentSection.classList.add('hidden');
         savedSection.classList.add('hidden');
 
-        const params = {};
-        if (currentSearchTerm.length >= 2) params.search = currentSearchTerm;
-        if (currentCategory !== 'all') params.category = currentCategory;
-        if (currentManufacturer) params.manufacturer = currentManufacturer;
-        if (currentDosageForm) params.dosage_form = currentDosageForm;
-        params.limit = 100;
+        // Add filters if it's a drug search
+        if (params.search) {
+            if (currentCategory !== 'all') params.category = currentCategory;
+            if (currentDosageForm) params.dosage_form = currentDosageForm;
+            if (currentManufacturer) params.manufacturer = currentManufacturer;
+            params.limit = 100;
+        }
 
         const response = await fetchPils(params);
-        
+
         if (response.length === 0) {
             noResultsState.classList.remove('hidden');
             searchResultsSection.classList.add('hidden');
         } else {
             noResultsState.classList.add('hidden');
             renderSearchResults(response);
-            updateAvailableCategories(response);
+
+            if (!params.nafdac_no) {
+                updateAvailableCategories(response);
+            } else {
+                searchSuggestions.classList.add("hidden");
+            }
         }
+
     } catch (error) {
         console.error('Search error:', error);
     } finally {
-        searchLoader.classList.add('hidden');
-        document.body.classList.remove('loading-state');
+        hideLoader();
     }
+}
+
+function showLoader() {
+    searchLoader.classList.remove('hidden');
+}
+
+function hideLoader() {
+    searchLoader.classList.add('hidden');
 }
 
 // Update available categories based on search results
