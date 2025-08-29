@@ -1,6 +1,6 @@
 // Configuration
 
-const API_BASE_URL = 'https://lyre-4m8l.onrender.com/api/pils';
+const API_BASE_URL = 'https://nexahealth-1078108157667.africa-south1.run.app/api/pils';
 // DOM Elements
 const searchInput = document.getElementById('pil-search');
 const searchLoader = document.getElementById('search-loader');
