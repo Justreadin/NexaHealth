@@ -20,7 +20,7 @@ app.add_middleware(
         "http://localhost:*",
         "http://127.0.0.1:*",
         "http://localhost:5501",
-        "http://127.0.0.1:5501",
+        "http://127.0.0.1:5502",
         "https://nexahealth.vercel.app",
         "https://www.nexahealth.life",
 
