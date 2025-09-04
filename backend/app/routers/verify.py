@@ -39,11 +39,13 @@ def get_verification_engine():
         logger.info("DrugVerificationEngine initialized.")
     return verification_engine
 
-# LRU cache for repeated lookups by request dict (optional)
+# LRU cache for repeated lookups by request dict
 @lru_cache(maxsize=10000)
-def cached_verify_drug(request_hash: str) -> Dict:
+def cached_verify_drug(request_key: str) -> Dict:
+    """Cache results for repeated queries."""
     engine = get_verification_engine()
-    return engine.verify_drug(eval(request_hash))  # safe because request_hash is controlled
+    # Use eval safely because we control the input (string from str(dict))
+    return engine.verify_drug(eval(request_key))
 
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
