@@ -1,0 +1,200 @@
+
+✅ 1. Firestore Schema Design for Drug Safety Reports
+We recommend structuring reports in one main collection with optional subcollections if needed for follow-ups or audit trails.
+
+reports (collection)
+Each document represents a report (PQC or AE).
+Example Firestore document:
+
+json
+Copy code
+{
+  "drug_name": "Amoxicillin",
+  "report_type": "product_quality_complaint",
+  "nafdac_reg_no": "04-1234",
+  "batch_number": "BATCH007",
+  "pharmacy_name": "HealthPlus Lekki",
+  "issue_type": "expired",
+  "description": "The expiry date says 2022 but it’s still being sold.",
+  "state": "Lagos",
+  "lga": "Eti-Osa",
+  "street_address": "Lekki Phase 1",
+  "is_anonymous": false,
+  "user_id": "abc123",
+  "image_url": "uploads/pqc/amoxicillin/uuid_image.jpg",
+  "timestamp": "2024-07-13T12:30:00Z",
+  "status": "new",                    // new | in_review | resolved
+  "investigation_notes": null,
+  "follow_up_required": false,       // for AE only
+  "severity": null,                  // for AE only
+  "symptoms": null,                  // for AE only
+  "reaction_description": null,      // for AE only
+  "onset_datetime": null,            // for AE only
+  "medical_history": null            // for AE only
+}
+Recommended Indexes:
+report_type + timestamp (for dashboard filtering)
+
+drug_name (for per-drug views)
+
+state + severity (for geo-alerts or analytics)
+
+user_id (for user-specific dashboard)
+
+✅ 2. Frontend Integration Format
+Submit PQC Report (Mobile/Web Form)
+POST /reports/submit-pqc
+
+FormData:
+
+json
+Copy code
+{
+  "drug_name": "Amoxicillin",
+  "nafdac_reg_no": "04-1234",
+  "batch_number": "BATCH007",
+  "pharmacy_name": "HealthPlus",
+  "issue_type": "expired",
+  "description": "The expiry date is old.",
+  "state": "Lagos",
+  "lga": "Ikeja",
+  "street_address": "Allen Avenue",
+  "is_anonymous": true,
+  "image": (optional image file)
+}
+Submit AE Report
+POST /reports/submit-ae
+
+FormData:
+
+json
+Copy code
+{
+  "drug_name": "Paracetamol",
+  "nafdac_reg_no": "04-5678",
+  "batch_number": "P11122",
+  "pharmacy_name": "MedExpress",
+  "reaction_description": "Caused severe vomiting and rash.",
+  "severity": "severe",
+  "onset_datetime": "2025-07-13T10:00:00",
+  "symptoms": "vomiting,rash",
+  "state": "Abuja",
+  "lga": "Garki",
+  "street_address": "Area 11",
+  "medical_history": "Patient is allergic to NSAIDs",
+  "is_anonymous": false
+}
+✅ Frontend must send onset_datetime in ISO format (YYYY-MM-DDTHH:mm:ss)
+
+✅ 3. Role-Based Access to Reports
+Add role field to each user in Firestore:
+
+json
+Copy code
+{
+  "uid": "abc123",
+  "email": "user@nexa.com",
+  "role": "admin" // or "pharmacist", "user"
+}
+Define Roles:
+Role	Access
+user	View their own reports
+pharmacist	View all reports from their pharmacy or LGA
+admin	View and manage all reports, run analytics, resolve investigations
+
+Sample FastAPI Helper
+python
+Copy code
+def is_admin(user: dict) -> bool:
+    return user.get("role") == "admin"
+
+def is_pharmacist(user: dict) -> bool:
+    return user.get("role") == "pharmacist"
+✅ 4. Admin & SaaS Dashboard Endpoints
+🔍 Get Reports by Status or Type (Admin)
+python
+Copy code
+@router.get("/admin/reports")
+async def get_reports_for_admin(
+    report_type: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0,
+    user: dict = Depends(get_current_user)
+):
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    query = reports_collection
+    if report_type:
+        query = query.where("report_type", "==", report_type)
+    if status:
+        query = query.where("status", "==", status)
+    
+    results = query.offset(offset).limit(limit).stream()
+    return [doc.to_dict() for doc in results]
+📊 Get Analytics (Admin Dashboard)
+python
+Copy code
+@router.get("/admin/analytics")
+async def get_report_analytics(user: dict = Depends(get_current_user)):
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    total_reports = reports_collection.stream()
+    counts = {
+        "total": 0,
+        "pqc": 0,
+        "ae": 0,
+        "severe_ae": 0,
+        "pending": 0,
+        "resolved": 0
+    }
+
+    for doc in total_reports:
+        data = doc.to_dict()
+        counts["total"] += 1
+        if data["report_type"] == "product_quality_complaint":
+            counts["pqc"] += 1
+        elif data["report_type"] == "adverse_event":
+            counts["ae"] += 1
+            if data.get("severity") in ["severe", "life_threatening"]:
+                counts["severe_ae"] += 1
+
+        if data.get("status") == "new":
+            counts["pending"] += 1
+        if data.get("status") == "resolved":
+            counts["resolved"] += 1
+
+    return counts
+🧾 Pharmacist-Specific Reports (SaaS Dashboard)
+python
+Copy code
+@router.get("/pharmacy/reports")
+async def get_reports_for_pharmacist(user: dict = Depends(get_current_user)):
+    if not is_pharmacist(user):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    pharmacy_name = user.get("pharmacy_name")
+    reports = reports_collection.where("pharmacy_name", "==", pharmacy_name).stream()
+    return [doc.to_dict() for doc in reports]
+🔁 Admin Review Endpoint
+python
+Copy code
+@router.patch("/admin/reports/{report_id}/review")
+async def review_report(report_id: str, status: str = Form(...), notes: Optional[str] = Form(None), user: dict = Depends(get_current_user)):
+    if not is_admin(user):
+        raise HTTPException(status_code=403, detail="Admins only")
+
+    doc_ref = reports_collection.document(report_id)
+    doc = doc_ref.get()
+    if not doc.exists:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    doc_ref.update({
+        "status": status,
+        "investigation_notes": notes,
+        "reviewed_at": datetime.utcnow()
+    })
+    return {"message": "Report updated"}
+✅ Summary

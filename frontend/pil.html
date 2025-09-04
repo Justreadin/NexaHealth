@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Leaflets | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .health-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+        }
+        
+        .underline-animation {
+            position: relative;
+        }
+        
+        .underline-animation::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+        
+        .underline-animation:hover::after {
+            width: 100%;
+        }
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pil-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .pil-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body data-page="pil" class="font-sans bg-gray-50 text-dark">
+    <!-- Navigation -->
+    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+                        Nexa<span class="text-secondary">Health</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+                    <a href="index.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
+                    <a href="pil.html" class="nav-link underline-animation text-primary font-medium transition text-sm lg:text-base">View Drug Leaflet</a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
+                        Login
+                    </a>
+                    <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
+                        Signup
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors" aria-label="Toggle menu" aria-expanded="false">
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark transition-all"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md py-4 px-6 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="mobile-link text-dark hover:text-primary transition">Home</a>
+                <a href="verify.html" class="mobile-link text-dark hover:text-primary transition">Verify</a>
+                <a href="report.html" class="mobile-link text-dark hover:text-primary transition">Report</a>
+                <a href="pil.html" class="mobile-link text-primary transition">View Drug Leaflet</a>
+                <a href="mobile/login.html"  class="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-700 hover:shadow-xl" > Login</a>
+                <a  href="mobile/signup.html"  class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-50 hover:shadow-xl"> Signup </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 md:pt-32 health-gradient text-white relative overflow-hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row items-center gap-8">
+                <!-- Text content -->
+                <div class="lg:w-1/2 text-center lg:text-left">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold font-serif leading-tight mb-6">
+                        Drug Information<br>
+                        <span class="text-white/90">at Your Fingertips</span>
+                    </h1>
+                    
+                    <p class="text-lg text-white/80 mb-8 max-w-md mx-auto lg:mx-0">
+                        Access official product leaflets for medications. Sign up for full access to save favorites and get personalized recommendations.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <a href="#search-section" class="bg-white text-primary hover:bg-gray-100 px-6 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
+                            <i class="fas fa-search mr-2"></i> Find Leaflets
+                        </a>
+                        <a href="mobile/signup.html" class="border-2 border-white/30 hover:border-white/60 text-white hover:bg-white/10 px-6 py-3 rounded-full font-medium transition-all">
+                            <i class="fas fa-user-plus mr-2"></i> Sign Up Free
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Image -->
+                <div class="lg:w-1/2 mt-10 lg:mt-0">
+                    <div class="relative floating">
+                        <img src="images/leaflet.png" 
+                             alt="Medication leaflets"
+                             class="rounded-2xl shadow-2xl border-4 border-white/20 w-full h-auto">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Search Section -->
+    <section id="search-section" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto glass-card rounded-2xl shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold font-serif mb-2">Find Drug Leaflets</h2>
+                    <p class="text-gray-600">Search for medication information leaflets</p>
+                </div>
+                
+                <!-- Guest notice -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start">
+                    <div class="bg-blue-100 p-2 rounded-full mr-3 flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-blue-800">
+                            You're using NexaHealth in guest mode. <a href="login.html" class="font-medium underline-animation">Sign up</a> to save favorites and access full features.
+                        </p>
+                    </div>
+                </div>
+                
+                <form id="searchForm" class="space-y-6">
+                    <div>
+                        <label for="drug-search" class="block text-sm font-medium text-gray-700 mb-1">Drug Name</label>
+                        <div class="relative">
+                            <input type="text" id="drug-search" placeholder="e.g. Paracetamol 500mg" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition pl-10">
+                            <div class="absolute left-3 top-3.5 text-gray-400">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button type="submit" class="w-full health-gradient hover:opacity-90 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl">
+                            <i class="fas fa-search mr-2"></i> Search Leaflets
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Results Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold font-serif mb-6">Sample Leaflet</h2>
+                
+                <div class="pil-card bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+                    <div class="p-6">
+                        <div class="flex items-start mb-6">
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg mr-4">
+                                <i class="fas fa-pills text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold font-serif mb-1">Paracetamol 500mg Tablets</h3>
+                                <p class="text-gray-600 mb-4">GSK Pharmaceuticals | NAFDAC Reg: A4-100147</p>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Pain relief</span>
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Fever reducer</span>
+                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Tablets</span>
+                                </div>
+                                <button class="view-leaflet-btn health-gradient hover:opacity-90 text-white py-2 px-4 rounded-lg text-sm font-medium">
+                                    View Full Leaflet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-gray-600 mb-6">Sign in to access our complete database of drug leaflets</p>
+                    <a href="mobile/login.html" class="inline-block health-gradient hover:opacity-90 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:shadow-xl">
+                        Sign In Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Leaflet Modal -->
+    <div id="pil-modal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+        <div class="relative min-h-full">
+            <div class="sticky top-0 bg-white p-4 shadow-sm flex items-center z-10">
+                <button id="close-pil" class="text-gray-500 mr-4">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h2 class="font-bold text-lg font-serif text-gray-800">Product Leaflet</h2>
+                <div class="ml-auto">
+                    <button class="p-2 text-gray-500 hover:text-primary rounded-full">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <!-- Locked content notice -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-start">
+                        <i class="fas fa-lock text-blue-500 mt-1 mr-3"></i>
+                        <div>
+                            <h3 class="font-medium text-blue-800">Full Leaflet Locked</h3>
+                            <p class="text-sm text-blue-700 mt-1">
+                                To view complete drug information, please <a href="login.html" class="font-medium underline-animation">sign in</a> or <a href="register.html" class="font-medium underline-animation">create an account</a>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sample leaflet preview -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold font-serif mb-4 border-b pb-2">Paracetamol 500mg Tablets</h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                Description
+                            </h4>
+                            <p class="text-gray-600 text-sm">White, capsule-shaped tablets with 'P500' marked on one side.</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                                <i class="fas fa-list-ol text-blue-500 mr-2"></i>
+                                Composition
+                            </h4>
+                            <p class="text-gray-600 text-sm">Each tablet contains Paracetamol 500mg. Excipients: maize starch, potassium sorbate, etc.</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                            <h4 class="font-bold text-yellow-800 mb-2 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                                Warnings
+                            </h4>
+                            <ul class="text-sm text-yellow-700 list-disc pl-5 space-y-1">
+                                <li>Do not exceed recommended dose</li>
+                                <li>Contains paracetamol - check other medicines</li>
+                                <li>Consult doctor if symptoms persist</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center py-6">
+                    <a href="mobile/login.html" class="inline-block health-gradient hover:opacity-90 text-white py-3 px-8 rounded-full font-medium shadow-lg hover:shadow-xl">
+                        Sign In for Complete Information
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-2xl md:text-3xl font-bold font-serif mb-2">How To Use Drug Leaflets</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Quickly find important medication information</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Step 1 -->
+                <div class="bg-gray-50 rounded-xl p-6 feature-card">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-full inline-block mb-4 text-xl">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold font-serif mb-2">Search Medications</h3>
+                    <p class="text-gray-600">Enter the drug name or manufacturer to find official product information.</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="bg-gray-50 rounded-xl p-6 feature-card">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-full inline-block mb-4 text-xl">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold font-serif mb-2">View Leaflet</h3>
+                    <p class="text-gray-600">Access dosage instructions, side effects, warnings and other key details.</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="bg-gray-50 rounded-xl p-6 feature-card">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-full inline-block mb-4 text-xl">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold font-serif mb-2">Save Favorites</h3>
+                    <p class="text-gray-600">Sign up to bookmark frequently accessed leaflets for quick reference.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Final CTA -->
+    <section class="py-16 health-gradient text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold font-serif mb-4">Ready to Access Drug Information?</h2>
+            <p class="text-lg text-white/80 max-w-2xl mx-auto mb-8">
+                Create a free account to save leaflets and access full medication details.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="mobile/login.html" class="bg-white text-primary hover:bg-gray-100 px-8 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all">
+                    Sign In Now
+                </a>
+                <a href="mobile/signup.html" class="border-2 border-white/30 hover:border-white/60 text-white hover:bg-white/10 px-8 py-3 rounded-full font-medium transition-all">
+                    Create Account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold font-serif mb-4">Nexa<span class="text-primary">Health</span></h3>
+                    <p class="text-gray-400 text-sm">Verify, report, and protect against fake medications in Nigeria.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-primary transition text-sm">Home</a></li>
+                        <li><a href="verify.html" class="text-gray-400 hover:text-primary transition text-sm">Verify</a></li>
+                        <li><a href="report.html" class="text-gray-400 hover:text-primary transition text-sm">Report</a></li>
+                        <li><a href="pil.html" class="text-gray-400 hover:text-primary transition text-sm">Drug Leaflets</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                    <li>
+                    <a 
+                        href="https://chat.whatsapp.com/BiVg1EYmtuKHL0yKyfvIkN" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible"
+                    >
+                        Join Community
+                    </a>
+                    </li>
+
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-sm">NAFDAC Guidelines</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-sm">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                            <span>NexaHealth</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3"></i>
+                            <span>+2349041385402</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3"></i>
+                            <span>contact@nexahealth.life</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500 text-sm">
+                <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Simple demo functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            const hamburger = document.getElementById('hamburger');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (hamburger) {
+                hamburger.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    hamburger.classList.toggle('hamburger-active');
+                });
+            }
+            
+            // View leaflet button
+            const viewBtn = document.querySelector('.view-leaflet-btn');
+            const modal = document.getElementById('pil-modal');
+            const closeBtn = document.getElementById('close-pil');
+            
+            if (viewBtn) {
+                viewBtn.addEventListener('click', function() {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function() {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                });
+            }
+            
+            // Simulate search for demo
+            const searchForm = document.getElementById('searchForm');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const searchInput = document.getElementById('drug-search');
+                    if (searchInput.value.trim() === '') {
+                        searchInput.focus();
+                    } else {
+                        // In a real app, this would trigger search
+                        console.log('Searching for:', searchInput.value);
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="pil.js"></script>
+    <script src="main.js"></script>
+    <script type="module" src="./tracker.js"></script>
+</body>
+</html>

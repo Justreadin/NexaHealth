@@ -1,0 +1,119 @@
+GET
+/get-nearby
+Get Nearby
+
+Parameters
+Cancel
+Name	Description
+lat *
+number
+(query)
+Latitude of the user's location
+
+7.4402083
+lng *
+number
+(query)
+Longitude of the user's location
+
+3.9524154
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'GET' \
+  'http://127.0.0.1:2600/get-nearby?lat=7.4402083&lng=3.9524154' \
+  -H 'accept: application/json'
+Request URL
+http://127.0.0.1:2600/get-nearby?lat=7.4402083&lng=3.9524154
+Server response
+Code	Details
+200	
+Response body
+Download
+[
+  {
+    "name": "Michael Bella Memorial Hospital, General Gas-Akobo",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.427718,
+      "lng": 3.939257
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  },
+  {
+    "name": "ashi health center ( basorun)",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.4265427,
+      "lng": 3.9307596
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  },
+  {
+    "name": "Alegongo Primary Health Care Centre",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.4409871,
+      "lng": 3.952176
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  },
+  {
+    "name": "Banby Specialist Hospital",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.4337498,
+      "lng": 3.94371
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  },
+  {
+    "name": "Chrisbo Medical Centre",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.4352751,
+      "lng": 3.945517
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  },
+  {
+    "name": "The Grace Hospital",
+    "type": "Hospital",
+    "location": {
+      "lat": 7.4266121,
+      "lng": 3.9330277
+    },
+    "address": "Address not available",
+    "phone": null,
+    "website": null,
+    "opening_hours": null,
+    "distance_meters": null
+  }
+]
+Response headers
+ content-length: 1260 
+ content-type: application/json 
+ date: Thu,22 May 2025 18:06:02 GMT 
+ server: uvico

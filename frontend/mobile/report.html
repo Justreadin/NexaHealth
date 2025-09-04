@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Issues | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/report.css">
+</head>
+<body data-page="report" class="font-sans bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-10">
+        <div class="flex items-center justify-between">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <h1 class="text-xl font-bold font-serif">Report Issue</h1>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="pb-20">
+        <!-- Report Type Selection -->
+        <section class="p-4">
+            <div class="bg-white rounded-xl shadow-sm p-2 flex mb-4">
+                <button id="pqc-tab" class="tab-button flex-1 py-2 px-4 rounded-lg font-medium active">
+                    <i class="fas fa-pills mr-2"></i> Product Issue
+                </button>
+                <button id="ae-tab" class="tab-button flex-1 py-2 px-4 rounded-lg font-medium">
+                    <i class="fas fa-heartbeat mr-2"></i> Adverse Reaction
+                </button>
+            </div>
+            
+            <!-- Auto-filled drug info from verification page -->
+            <div id="scanned-drug-info" class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 hidden">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-blue-800">Reported Drug</h3>
+                        <p id="scanned-drug-name" class="text-sm font-medium"></p>
+                        <p id="scanned-drug-manufacturer" class="text-xs text-gray-600"></p>
+                        <p id="scanned-drug-nafdac" class="text-xs text-gray-600 mt-1"></p>
+                    </div>
+                    <button id="change-drug" class="text-blue-600 text-sm font-medium">
+                        Change
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PQC Form -->
+        <form id="pqc-form" class="px-4 space-y-4" enctype="multipart/form-data">
+            <!-- Drug Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Drug Information</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Drug Name *</label>
+                    <input type="text" id="pqc-drug-name" name="drug_name" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">NAFDAC No.</label>
+                        <input type="text" id="pqc-nafdac-no" name="nafdac_reg_no"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Manufacturer *</label>
+                        <input type="text" id="pqc-manufacturer" name="manufacturer" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Issue Details -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Issue Details</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Issue Type *</label>
+                    <select id="pqc-issue-type" name="issue_type" required
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select issue type</option>
+                        <option value="fake">Suspected Fake Product</option>
+                        <option value="quality">Poor Quality/Defective</option>
+                        <option value="packaging">Packaging Issue</option>
+                        <option value="expired">Expired Product</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                    <textarea id="pqc-description" name="description" rows="4" required
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Describe the issue in detail..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Pharmacy Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Where Purchased</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pharmacy Name *</label>
+                    <input type="text" id="pqc-pharmacy-name" name="pharmacy_name" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                    <div class="flex gap-2">
+                        <select id="pqc-state" name="state" required
+                                class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select state</option>
+                            <!-- States will be populated by JavaScript -->
+                        </select>
+                        <!--<button type="button" id="pqc-location-btn" class="location-btn bg-blue-100 text-blue-600 px-4 rounded-lg flex items-center">
+                            <i class="fas fa-location-arrow mr-2"></i> Detect
+                        </button>-->
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LGA *</label>
+                    <input type="text" id="pqc-lga" name="lga" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="pqc-street-address" name="street_address"
+                               class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <!---<button type="button" id="pqc-address-btn" class="location-btn bg-blue-100 text-blue-600 px-4 rounded-lg flex items-center">
+                            <i class="fas fa-location-arrow mr-2"></i> Detect
+                        </button>--->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Evidence -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Evidence (Optional)</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photos (Max 3)</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer" id="pqc-upload-container">
+                        <i class="fas fa-camera text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-500">Tap to add photos of the product</p>
+                        <input type="file" id="pqc-images" name="image" accept="image/*" multiple class="hidden" max="3">
+                    </div>
+                </div>
+                
+                <div id="pqc-image-preview" class="flex flex-wrap gap-2 hidden">
+                    <!-- Image previews will be added here -->
+                </div>
+            </div>
+            
+            <!-- Submission Options -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Submission Options</h3>
+                
+                <div class="flex items-center mb-2">
+                    <input type="radio" id="pqc-anonymous" name="is_anonymous" value="true" checked
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <label for="pqc-anonymous" class="ml-2 block text-sm text-gray-700">
+                        Submit anonymously
+                    </label>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="radio" id="pqc-logged-in" name="is_anonymous" value="false"
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <label for="pqc-logged-in" class="ml-2 block text-sm text-gray-700">
+                        Submit with my account (track status)
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium">
+                    Submit Product Issue
+                </button>
+            </div>
+        </form>
+        
+        <!-- AE Form (initially hidden) -->
+        <form id="ae-form" class="px-4 space-y-4 hidden">
+            <!-- Drug Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Drug Information</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Drug Name *</label>
+                    <input type="text" id="ae-drug-name" name="drug_name" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">NAFDAC No.</label>
+                        <input type="text" id="ae-nafdac-no" name="nafdac_reg_no"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Manufacturer *</label>
+                        <input type="text" id="ae-manufacturer" name="manufacturer" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Reaction Details -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Reaction Details</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Reaction Description *</label>
+                    <textarea id="ae-reaction" name="reaction_description" rows="4" required
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Describe the adverse reaction..."></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Symptoms *</label>
+                    <textarea id="ae-symptoms" name="symptoms" rows="2" required
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="List symptoms separated by commas"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Severity *</label>
+                        <select id="ae-severity" name="severity" required
+                                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select severity</option>
+                            <option value="mild">Mild</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                            <option value="life_threatening">Life-threatening</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Onset Date/Time *</label>
+                        <input type="datetime-local" id="ae-onset" name="onset_datetime" required
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Medical Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Medical Information</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Medical History</label>
+                    <textarea id="ae-medical-history" name="medical_history" rows="2"
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Any relevant medical history..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Medications</label>
+                    <textarea id="ae-current-meds" name="current_medications" rows="2"
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="List other medications you're taking..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Pharmacy Information -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Where Purchased</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pharmacy Name</label>
+                    <input type="text" id="ae-pharmacy-name" name="pharmacy_name"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                    <div class="flex gap-2">
+                        <select id="ae-state" name="state"
+                                class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select state</option>
+                            <!-- States will be populated by JavaScript -->
+                        </select>
+                        <button type="button" id="ae-location-btn" class="location-btn bg-blue-100 text-blue-600 px-4 rounded-lg flex items-center">
+                            <i class="fas fa-location-arrow mr-2"></i> Detect
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LGA</label>
+                    <input type="text" id="ae-lga" name="lga"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            
+            <!-- Evidence -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Evidence (Optional)</h3>
+                
+                <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photos (Max 3)</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer" id="ae-upload-container">
+                        <i class="fas fa-camera text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-500">Tap to add photos of the product</p>
+                        <input type="file" id="ae-images" name="image" accept="image/*" multiple class="hidden" max="3">
+                    </div>
+                </div>
+                
+                <div id="ae-image-preview" class="flex flex-wrap gap-2 hidden">
+                    <!-- Image previews will be added here -->
+                </div>
+            </div>
+            
+            <!-- Submission Options -->
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Submission Options</h3>
+                
+                <div class="flex items-center mb-2">
+                    <input type="radio" id="ae-anonymous" name="is_anonymous" value="true" checked
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <label for="ae-anonymous" class="ml-2 block text-sm text-gray-700">
+                        Submit anonymously
+                    </label>
+                </div>
+                
+                <div class="flex items-center">
+                    <input type="radio" id="ae-logged-in" name="is_anonymous" value="false"
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                    <label for="ae-logged-in" class="ml-2 block text-sm text-gray-700">
+                        Submit with my account (track status)
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium">
+                    Submit Adverse Reaction
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full slide-up">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <i class="fas fa-check text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold font-serif mb-2">Report Submitted!</h3>
+                <p class="text-gray-600 mb-4">Thank you for helping improve drug safety in Nigeria.</p>
+                <button id="modal-close" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+     <script src="js/login.js"></script>
+    <script src="js/report.js"></script>
+    <script type="module" src="../tracker.js"></script>
+</body>
+</html>

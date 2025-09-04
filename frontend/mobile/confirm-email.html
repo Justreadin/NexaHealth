@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Confirm Email</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '480px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .animation-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .btn-hover {
+            background-color: #2563eb;
+            background-image: linear-gradient(to right, #2563eb, #1e40af);
+        }
+        .btn-hover:hover {
+            background-image: linear-gradient(to right, #1e40af, #2563eb);
+        }
+        .code-input {
+            transition: all 0.2s ease;
+        }
+        .code-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        .code-input.filled {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .code-input {
+                width: 2.5rem !important;
+                height: 3rem !important;
+                font-size: 1.25rem !important;
+            }
+            .code-container {
+                gap: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-8 sm:py-12 px-4">
+        <div class="container mx-auto max-w-md w-full">
+            <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 md:p-10 w-full card-hover animation-fade-in">
+                <div class="text-center mb-6 sm:mb-8">
+                    <div class="mx-auto flex items-center justify-center h-14 sm:h-16 w-14 sm:w-16 rounded-full bg-green-100 mb-3 sm:mb-4 animate-pulse-slow">
+                        <i class="fas fa-envelope text-green-600 text-xl sm:text-2xl"></i>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold font-serif mb-2">Verify Your Email</h1>
+                    <p class="text-sm sm:text-base text-gray-600">Enter the 6-digit code sent to your email</p>
+                </div>
+
+                <!-- Confirmation Form -->
+                <form id="confirmationForm" class="space-y-4 sm:space-y-6">
+                    <div>
+                        <label for="codeInputs" class="block text-sm sm:text-base font-medium text-gray-700 mb-2">
+                            6-digit Verification Code
+                        </label>
+                        <div class="flex justify-center code-container space-x-2 sm:space-x-3" id="codeInputs">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <span class="flex items-center justify-center text-gray-400 text-lg sm:text-xl">-</span>
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                            <input type="text" maxlength="1" pattern="\d" inputmode="numeric"
+                                   class="code-input w-10 sm:w-12 h-12 text-xl sm:text-2xl text-center border-2 border-gray-200 rounded-lg focus:outline-none"
+                                   autocomplete="off">
+                        </div>
+                        <input type="hidden" id="confirmationCode" name="confirmationCode">
+                        <p class="mt-2 text-xs text-gray-500 text-center">Check your email for the verification code</p>
+                    </div>
+
+                    <input type="hidden" id="userEmail" name="userEmail">
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full btn-hover text-white py-2 sm:py-3 px-4 rounded-lg font-semibold text-sm sm:text-base transition-all shadow-md hover:shadow-lg">
+                        Verify Email
+                    </button>
+                </form>
+
+                <!-- Resend Code Link -->
+                <div class="mt-4 sm:mt-6 text-center text-xs sm:text-sm">
+                    <span class="text-gray-600">Didn't receive a code?</span>
+                    <button id="resendCode" class="font-medium text-primary hover:text-secondary ml-1">Resend code</button>
+                    <div id="countdown" class="text-xs text-gray-500 mt-1 hidden">
+                        Resend available in <span id="countdownSeconds">30</span>s
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 sm:py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-xs sm:text-sm">
+            <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/confirm-email.js"></script>
+</body>
+</html>

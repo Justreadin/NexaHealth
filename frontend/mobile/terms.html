@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Terms of Service</title>
+    <!-- Preload resources -->
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../tailwind.js"></script>
+    <style>
+        .health-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .prose {
+            max-width: 100%;
+        }
+        
+        .prose h2 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .prose h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            height: 1.5rem;
+            width: 0.5rem;
+            background: linear-gradient(to bottom, #2563eb, #1e40af);
+            border-radius: 0.25rem;
+        }
+        
+        .prose p {
+            margin-bottom: 1rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+        
+        .prose ul {
+            list-style-type: none;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prose li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prose li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #2563eb;
+        }
+        
+        .back-button {
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        
+        .section-highlight {
+            background: rgba(248, 250, 252, 0.5);
+            border-left: 4px solid #2563eb;
+            padding: 1.5rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin: 1.5rem 0;
+        }
+        
+        .acceptance-toggle {
+            display: flex;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .acceptance-toggle:hover {
+            background: #f1f5f9;
+        }
+        
+        .acceptance-toggle input {
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body data-page="terms" class="font-sans bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 xs:px-6 py-3 flex justify-between items-center">
+            <a href="../index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors">
+                Nexa<span class="text-secondary">Health</span>
+            </a>
+            <a href="signup.html" class="back-button flex items-center text-primary hover:text-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Sign Up
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 sm:py-12 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <!-- Header with gradient -->
+            <div class="health-gradient text-white p-6 sm:p-8 text-center">
+                <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2">NexaHealth Terms of Service</h1>
+                <p class="opacity-90">Last updated: 2025</p>
+            </div>
+            
+            <div class="p-6 sm:p-8 md:p-10">
+                <div class="prose">
+                    <div class="section-highlight">
+                        <p>By using NexaHealth, you're joining a trusted community committed to medication safety in Nigeria. These terms help us maintain that trust.</p>
+                    </div>
+                    
+                    <h2>1. Our Health Mission</h2>
+                    <p>NexaHealth provides Africa's first AI-powered health trust platform designed to:</p>
+                    <ul>
+                        <li>Verify medication authenticity using NAFDAC records</li>
+                        <li>Report suspicious drugs to protect others</li>
+                        <li>Provide access to verified drug information</li>
+                        <li>Build community-driven medication safety</li>
+                    </ul>
+                    
+                    <h2>2. Responsible Use</h2>
+                    <p>To maintain trust in our platform:</p>
+                    <ul>
+                        <li>Provide accurate information when verifying medications</li>
+                        <li>Only submit legitimate reports of suspicious drugs</li>
+                        <li>Never use our system to harass others or spread misinformation</li>
+                        <li>Understand we're a supplement to professional medical advice</li>
+                    </ul>
+                    
+                    <h2>3. Your Safety Commitments</h2>
+                    <p>When you use NexaHealth, you agree:</p>
+                    <ul>
+                        <li>You won't use our verification as sole medical decision-making</li>
+                        <li>You'll report suspected fake drugs responsibly</li>
+                        <li>You'll keep your account credentials secure</li>
+                        <li>You're at least 13 years old (our services aren't for children)</li>
+                    </ul>
+                    
+                    <h2>4. Our Promises to You</h2>
+                    <p>We commit to:</p>
+                    <ul>
+                        <li>Maintain accurate drug verification systems</li>
+                        <li>Process reports of suspicious drugs within 48 hours</li>
+                        <li>Protect your personal health data</li>
+                        <li>Be transparent about how we operate</li>
+                    </ul>
+                    
+                    <h2>5. Data Protection</h2>
+                    <p>We handle your information with care:</p>
+                    <ul>
+                        <li>Health reports are anonymized before sharing with NAFDAC</li>
+                        <li>We never sell your personal data</li>
+                        <li>You can request data deletion anytime</li>
+                    </ul>
+                    
+                    <h2>6. Nigerian Law Applies</h2>
+                    <p>These terms are governed by Nigerian law. Any disputes will be resolved through Nigerian courts.</p>
+                    
+                    <div class="section-highlight bg-blue-50 border-blue-200">
+                        <h3 class="font-bold text-lg mb-2">Building Health Trust Together</h3>
+                        <p>By using NexaHealth, you're contributing to a safer medication supply for all Nigerians. Thank you for being part of this important mission.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+    <script type="module" src="../tracker.js"></script>
+</body>
+</html>

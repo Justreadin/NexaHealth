@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Leaflets | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+        }
+        
+        .health-gradient {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+        }
+        
+        .pil-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(30, 41, 59, 0.1);
+        }
+        
+        .pil-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(30, 41, 59, 0.1);
+        }
+        
+        .search-pill {
+            transition: all 0.2s ease;
+        }
+        
+        .search-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(30, 64, 175, 0.1);
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .pill-tag {
+            transition: all 0.2s ease;
+        }
+        
+        .pill-tag:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold font-serif text-gray-800">Drug Leaflets</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto pb-20 px-4">
+        <!-- Search Section -->
+        <section class="mb-6 mt-4 slide-in">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" id="pil-search" placeholder="Search drug name, manufacturer..." 
+                       class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <!-- Search Filters -->
+            <div class="flex items-center justify-between mt-3 mb-4">
+                <div class="flex overflow-x-auto space-x-2 pb-2 scrollbar-hide">
+                    <button class="search-pill bg-white border border-blue-200 text-blue-600 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                        All Drugs
+                    </button>
+                    <button class="search-pill bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                        <i class="fas fa-bacteria mr-1"></i> Antibiotics
+                    </button>
+                    <button class="search-pill bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                        <i class="fas fa-head-side-virus mr-1"></i> Painkillers
+                    </button>
+                    <button class="search-pill bg-white border border-gray-200 text-gray-600 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                        <i class="fas fa-mosquito mr-1"></i> Malaria
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured PIL -->
+        <section class="mb-6 slide-in" style="animation-delay: 0.1s">
+            <h2 class="text-lg font-bold font-serif mb-3 text-gray-800 flex items-center">
+                <i class="fas fa-star mr-2 text-blue-600"></i>
+                Featured Leaflet
+            </h2>
+            
+            <div class="pil-card bg-white rounded-xl shadow-sm p-5 border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs px-2 py-1 rounded-bl-lg">
+                    NEW
+                </div>
+                <div class="flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-pills text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 mb-1">Coartem 20/120mg</h3>
+                        <p class="text-sm text-gray-600 mb-2">Novartis • NAFDAC: 04-2345</p>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span class="pill-tag bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">Malaria</span>
+                            <span class="pill-tag bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">Tablets</span>
+                            <span class="pill-tag bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">Antimalarial</span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-4">Artemether/Lumefantrine combination for treatment of uncomplicated malaria</p>
+                        <div class="flex space-x-2">
+                            <button class="flex-1 health-gradient hover:opacity-90 text-white py-2 rounded-lg text-sm font-medium flex items-center justify-center">
+                                <i class="fas fa-eye mr-2"></i> View
+                            </button>
+                            <button class="flex-1 bg-white border border-blue-600 text-blue-600 py-2 rounded-lg text-sm font-medium flex items-center justify-center hover:bg-blue-50">
+                                <i class="fas fa-download mr-2"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent PILs -->
+        <section class="mb-6 slide-in" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold font-serif text-gray-800 flex items-center">
+                    <i class="fas fa-clock mr-2 text-blue-600"></i>
+                    Recently Viewed
+                </h2>
+                <a href="#" class="text-sm text-blue-600 font-medium">See all</a>
+            </div>
+            
+            <div class="space-y-3">
+                <!-- PIL 1 -->
+                <div class="pil-card bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-pills text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">Paracetamol 500mg</h4>
+                        <p class="text-xs text-gray-500">Fidson Healthcare • NAFDAC: 04-0163</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <!-- PIL 2 -->
+                <div class="pil-card bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-pills text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">Amoxicillin 250mg</h4>
+                        <p class="text-xs text-gray-500">Emzor Pharmaceuticals • NAFDAC: 04-7890</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Saved PILs -->
+        <section class="mb-6 slide-in" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold font-serif text-gray-800 flex items-center">
+                    <i class="fas fa-bookmark mr-2 text-blue-600"></i>
+                    Saved Leaflets
+                </h2>
+                <a href="#" class="text-sm text-blue-600 font-medium">See all</a>
+            </div>
+            
+            <div class="space-y-3">
+                <!-- Saved PIL 1 -->
+                <div class="pil-card bg-white rounded-xl shadow-sm p-4 border border-gray-100 flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-pills text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-medium text-gray-800">Vitamin C 1000mg</h4>
+                        <p class="text-xs text-gray-500">Swiss Pharma • NAFDAC: 04-4567</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center py-8 text-gray-400">
+                <i class="fas fa-bookmark text-2xl mb-2"></i>
+                <p>No saved leaflets yet</p>
+                <p class="text-sm mt-2">Save frequently used leaflets for quick access</p>
+            </div>
+        </section>
+
+        <!-- Full PIL View Modal -->
+        <div id="pil-modal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+            <div class="relative min-h-full">
+                <div class="sticky top-0 bg-white p-4 shadow-sm flex items-center z-10">
+                    <button id="close-pil" class="text-gray-500 mr-4">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 class="font-bold text-lg font-serif text-gray-800">Product Leaflet</h2>
+                    <div class="ml-auto flex space-x-2">
+                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Drug Header -->
+                    <div class="mb-6 text-center">
+                        <div class="bg-blue-50 p-6 rounded-xl inline-block mb-4">
+                            <i class="fas fa-pills text-blue-600 text-4xl"></i>
+                        </div>
+                        <h3 class="font-bold text-2xl mb-1 text-gray-800">Coartem 20/120mg</h3>
+                        <p class="text-gray-500 mb-4">Novartis • NAFDAC: 04-2345</p>
+                        
+                        <!-- Quick Info -->
+                        <div class="grid grid-cols-3 gap-2 mb-6">
+                            <div class="bg-blue-50 p-2 rounded-lg text-center">
+                                <div class="text-blue-600 mb-1">
+                                    <i class="fas fa-capsules"></i>
+                                </div>
+                                <p class="text-xs font-medium">Tablets</p>
+                            </div>
+                            <div class="bg-blue-50 p-2 rounded-lg text-center">
+                                <div class="text-blue-600 mb-1">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <p class="text-xs font-medium">24 Tablets</p>
+                            </div>
+                            <div class="bg-blue-50 p-2 rounded-lg text-center">
+                                <div class="text-blue-600 mb-1">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <p class="text-xs font-medium">3 Years</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- PIL Tabs -->
+                    <div class="flex border-b border-gray-200 mb-4 overflow-x-auto">
+                        <button class="tab-active flex-1 py-2 text-sm font-medium text-center min-w-max px-4">
+                            Overview
+                        </button>
+                        <button class="tab flex-1 py-2 text-sm font-medium text-center text-gray-500 hover:text-gray-700 min-w-max px-4">
+                            Composition
+                        </button>
+                        <button class="tab flex-1 py-2 text-sm font-medium text-center text-gray-500 hover:text-gray-700 min-w-max px-4">
+                            Dosage
+                        </button>
+                        <button class="tab flex-1 py-2 text-sm font-medium text-center text-gray-500 hover:text-gray-700 min-w-max px-4">
+                            Side Effects
+                        </button>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div class="mb-8">
+                        <h4 class="font-bold mb-3 text-blue-800">Description</h4>
+                        <p class="text-sm text-gray-700 mb-4">Coartem 20/120mg tablets contain a fixed combination of Artemether and Lumefantrine for the treatment of uncomplicated Plasmodium falciparum malaria in adults and children weighing 5 kg and above.</p>
+                        
+                        <h4 class="font-bold mb-3 text-blue-800">Indications</h4>
+                        <ul class="text-sm text-gray-700 mb-4 list-disc pl-5 space-y-1">
+                            <li>Treatment of acute uncomplicated malaria caused by Plasmodium falciparum</li>
+                            <li>Can be used in areas with chloroquine or multi-drug resistant strains</li>
+                        </ul>
+                        
+                        <h4 class="font-bold mb-3 text-blue-800">Pharmacology</h4>
+                        <p class="text-sm text-gray-700">Artemether is rapidly metabolized into the active metabolite dihydroartemisinin. Lumefantrine has a long half-life and provides residual antimalarial activity.</p>
+                    </div>
+                    
+                    <!-- Important Safety Info -->
+                    <div class="bg-blue-50 rounded-xl p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-exclamation-triangle text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-blue-800 mb-1">Important Safety Information</p>
+                                <p class="text-xs text-blue-700">Do not use in patients with known hypersensitivity to artemether, lumefantrine or any component of the formulation. Not recommended for malaria prophylaxis.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Manufacturer Info -->
+                    <div class="border border-gray-200 rounded-xl p-4">
+                        <h4 class="font-bold mb-2 text-gray-800 flex items-center">
+                            <i class="fas fa-industry mr-2 text-blue-600"></i>
+                            Manufacturer
+                        </h4>
+                        <p class="text-sm text-gray-700 mb-1">Novartis Pharma Services AG</p>
+                        <p class="text-xs text-gray-500">Last updated: January 2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results State -->
+        <div id="no-results" class="hidden text-center py-12">
+            <div class="bg-blue-50 p-6 rounded-full inline-block mb-4">
+                <i class="fas fa-search text-blue-600 text-2xl"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-800">No Leaflets Found</h3>
+            <p class="text-gray-600 mb-6">We couldn't find any leaflets matching your search</p>
+            <button class="health-gradient hover:opacity-90 text-white py-3 px-6 rounded-lg font-medium">
+                Report Missing Drug
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Sample PIL database
+        const pilDatabase = [
+            {
+                id: 1,
+                name: "Coartem 20/120mg",
+                manufacturer: "Novartis",
+                nafdac: "04-2345",
+                type: "Antimalarial",
+                form: "Tablets",
+                description: "Artemether/Lumefantrine combination for treatment of uncomplicated malaria",
+                tags: ["Malaria", "Tablets", "Antimalarial"]
+            },
+            {
+                id: 2,
+                name: "Paracetamol 500mg",
+                manufacturer: "Fidson",
+                nafdac: "04-0163",
+                type: "Analgesic",
+                form: "Tablets",
+                description: "For the treatment of mild to moderate pain and fever",
+                tags: ["Painkiller", "Fever", "Tablets"]
+            },
+            {
+                id: 3,
+                name: "Amoxicillin 250mg",
+                manufacturer: "Emzor",
+                nafdac: "04-7890",
+                type: "Antibiotic",
+                form: "Capsules",
+                description: "Broad-spectrum penicillin antibiotic for bacterial infections",
+                tags: ["Antibiotic", "Infection", "Capsules"]
+            }
+        ];
+
+        // Open PIL modal when clicking on any PIL card
+        document.querySelectorAll('.pil-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.getElementById('pil-modal').classList.remove('hidden');
+            });
+        });
+        
+        // Close PIL modal
+        document.getElementById('close-pil').addEventListener('click', function() {
+            document.getElementById('pil-modal').classList.add('hidden');
+        });
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelector('.tab-active').classList.remove('tab-active');
+                this.classList.add('tab-active');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('pil-search').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                // In a real app, you would filter the PIL database here
+                // For demo, we'll just show the no results state if search is "xyz"
+                if (searchTerm === "xyz") {
+                    document.getElementById('no-results').classList.remove('hidden');
+                } else {
+                    document.getElementById('no-results').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('no-results').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

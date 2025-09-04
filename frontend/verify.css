@@ -1,0 +1,33 @@
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOutUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+.animate__fadeInDown {
+    animation: fadeInDown 0.5s ease-out;
+}
+
+.animate__fadeOutUp {
+    animation: fadeOutUp 0.5s ease-out;
+}
+
+html {
+  scroll-behavior: smooth;
+}

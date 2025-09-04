@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Suspicious Drugs | NexaHealth</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom Tailwind Config -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        lowRisk: '#10b981',
+                        mediumRisk: '#f59e0b',
+                        highRisk: '#ef4444'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'heartbeat': 'heartbeat 1.5s ease infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        },
+                        heartbeat: {
+                            '0%': { transform: 'scale(1)' },
+                            '25%': { transform: 'scale(1.1)' },
+                            '50%': { transform: 'scale(1)' },
+                            '75%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hamburger-line {
+            transition: all 0.3s;
+        }
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .risk-badge {
+            transition: all 0.3s;
+        }
+        .risk-badge:hover {
+            transform: scale(1.05);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .symptom-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .symptom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: currentColor;
+            opacity: 0.6;
+            animation: pulse 2s ease-out infinite;
+        }
+        .dropzone {
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dropzone:hover {
+            border-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .dz-message {
+            color: #6b7280;
+        }
+        .flagged-container {
+            height: 300px;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            position: relative;
+        }
+        @media (min-width: 768px) {
+            .flagged-container {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body data-page="report" class="font-sans text-dark bg-light">
+    <!-- Navigation -->
+     <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+                        Nexa<span class="text-secondary">Health</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+                    <a href="index.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link underline-animation text-primary font-medium transition text-sm lg:text-base">Report</a>
+                    <a href="pil.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">View Drug Leaflet</a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
+                        Login
+                    </a>
+                    <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
+                        Signup
+                    </a>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors" aria-label="Toggle menu" aria-expanded="false">
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
+                        <div class="hamburger-line w-6 h-0.5 bg-dark transition-all"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md py-4 px-6 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="mobile-link text-dark hover:text-primary transition">Home</a>
+                <a href="verify.html" class="mobile-link text-dark hover:text-primary transition">Verify</a>
+                <a href="report.html" class="mobile-link text-primary transition">Report</a>
+                <a href="pil.html" class="mobile-link text-dark hover:text-primary transition">View Drug Leaflet</a>
+                <a href="mobile/login.html"  class="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-700 hover:shadow-xl" > Login</a>
+                <a  href="mobile/signup.html"  class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-50 hover:shadow-xl"> Signup </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-6 lg:mb-0 animate__animated animate__fadeInLeft">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold font-serif mb-4 sm:mb-6 leading-tight">
+                        Report <br>
+                        <span class="text-white">Suspicious Drugs</span>
+                    </h1>
+                    <p class="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
+                        Help protect others by reporting medications that seem fake, ineffective, or dangerous. Your report could save lives.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="#report-form" class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                            Report Now <i class="fas fa-flag ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="lg:w-1/2 mt-8 lg:mt-0 animate__animated animate__fadeInRight">
+                    <div class="relative floating">
+                        <img src="images/Nexahealth_image.jpg"
+                             alt="Reporting suspicious drugs"
+                             class="rounded-xl shadow-2xl w-full h-auto max-w-md mx-auto">
+                        <div class="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-xl shadow-lg hidden sm:block animate__animated animate__pulse animate__infinite">
+                            <div class="text-center">
+                                <div class="text-2xl sm:text-3xl font-bold text-primary">500+</div>
+                                <div class="text-xs sm:text-sm text-gray-600">Reports Submitted</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Form Section -->
+    <section id="report-form" class="py-12 sm:py-16 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 md:p-10">
+                <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-2 text-center">Drug Report Form</h2>
+                <p class="text-gray-600 text-center mb-6 sm:mb-8">Fill in details about the suspicious drug you encountered</p>
+
+                <form id="reportForm" class="space-y-6" enctype="multipart/form-data">
+                    <!-- Drug Information -->
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200">
+                        <h3 class="text-xl font-bold font-serif mb-4 border-b pb-2">Drug Information</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div>
+                                <label for="drug-name" class="block text-sm font-medium text-gray-700 mb-1">Drug Name *</label>
+                                <div class="relative">
+                                    <input type="text" id="drug-name" name="drug_name" required
+                                           placeholder="e.g. Coartem 20mg"
+                                           class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 text-sm sm:text-base">
+                                    <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                        <i class="fas fa-pills"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="nafdac-number" class="block text-sm font-medium text-gray-700 mb-1">NAFDAC Number</label>
+                                <div class="relative">
+                                    <input type="text" id="nafdac-number" name="nafdac_reg_no"
+                                           placeholder="e.g. A4-100147"
+                                           class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 text-sm sm:text-base">
+                                    <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                        <i class="fas fa-barcode"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 sm:mt-6">
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description of Issue *</label>
+                            <textarea id="description" name="description" rows="4" required
+                                      placeholder="Describe what makes you suspect this drug might be fake or dangerous..."
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Pharmacy Information -->
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200">
+                        <h3 class="text-xl font-bold font-serif mb-4 border-b pb-2">Pharmacy Information</h3>
+
+                        <div class="mb-4 sm:mb-6">
+                            <label for="pharmacy-name" class="block text-sm font-medium text-gray-700 mb-1">Pharmacy Name *</label>
+                            <div class="relative">
+                                <input type="text" id="pharmacy-name" name="pharmacy_name" required
+                                       placeholder="e.g. Jaka Pharmacy"
+                                       class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 text-sm sm:text-base">
+                                <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                            <div>
+                                <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                                <div class="relative">
+                                    <select id="state" name="state" required
+                                            class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition pl-10 appearance-none text-sm sm:text-base">
+                                        <option value="">Select State</option>
+                                        <option value="Abia">Abia</option>
+                                        <option value="Adamawa">Adamawa</option>
+                                        <option value="Akwa Ibom">Akwa Ibom</option>
+                                        <option value="Anambra">Anambra</option>
+                                        <option value="Bauchi">Bauchi</option>
+                                        <option value="Bayelsa">Bayelsa</option>
+                                        <option value="Benue">Benue</option>
+                                        <option value="Borno">Borno</option>
+                                        <option value="Cross River">Cross River</option>
+                                        <option value="Delta">Delta</option>
+                                        <option value="Ebonyi">Ebonyi</option>
+                                        <option value="Edo">Edo</option>
+                                        <option value="Ekiti">Ekiti</option>
+                                        <option value="Enugu">Enugu</option>
+                                        <option value="FCT">Federal Capital Territory</option>
+                                        <option value="Gombe">Gombe</option>
+                                        <option value="Imo">Imo</option>
+                                        <option value="Jigawa">Jigawa</option>
+                                        <option value="Kaduna">Kaduna</option>
+                                        <option value="Kano">Kano</option>
+                                        <option value="Katsina">Katsina</option>
+                                        <option value="Kebbi">Kebbi</option>
+                                        <option value="Kogi">Kogi</option>
+                                        <option value="Kwara">Kwara</option>
+                                        <option value="Lagos">Lagos</option>
+                                        <option value="Nasarawa">Nasarawa</option>
+                                        <option value="Niger">Niger</option>
+                                        <option value="Ogun">Ogun</option>
+                                        <option value="Ondo">Ondo</option>
+                                        <option value="Osun">Osun</option>
+                                        <option value="Oyo">Oyo</option>
+                                        <option value="Plateau">Plateau</option>
+                                        <option value="Rivers">Rivers</option>
+                                        <option value="Sokoto">Sokoto</option>
+                                        <option value="Taraba">Taraba</option>
+                                        <option value="Yobe">Yobe</option>
+                                        <option value="Zamfara">Zamfara</option>
+                                    </select>
+                                    <div class="absolute left-3 top-2.5 sm:top-3.5 text-gray-400">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="lga" class="block text-sm font-medium text-gray-700 mb-1">LGA *</label>
+                                <input type="text" id="lga" name="lga" required
+                                       placeholder="e.g. Ikeja"
+                                       class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base">
+                            </div>
+                            <div>
+                                <label for="street-address" class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                                <input type="text" id="street-address" name="street_address"
+                                       placeholder="e.g. No 10, Main Street"
+                                       class="w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base">
+                            </div>
+                        </div>
+
+                    <!-- Image Upload -->
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200">
+                        <h3 class="text-xl font-bold font-serif mb-4 border-b pb-2">Upload Evidence (Optional)</h3>
+                        <p class="text-gray-600 mb-4">Upload photos of the drug packaging or other evidence to support your report.</p>
+
+                        <div class="dropzone" id="image-upload">
+                            <div class="dz-message" data-dz-message>
+                                <i class="fas fa-cloud-upload-alt text-3xl sm:text-4xl mb-2"></i>
+                                <div class="text-sm sm:text-base">Drag & drop files here or click to browse</div>
+                                <div class="text-xs sm:text-sm text-gray-500 mt-2">(Maximum file size: 5MB)</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="image-data" name="image">
+                    </div>
+
+                    <!-- Privacy Notice -->
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-lock text-blue-500 mt-1 mr-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-blue-800 text-sm sm:text-base">Privacy Notice</h4>
+                                <p class="text-blue-700 text-xs sm:text-sm mt-1">
+                                    Your report will be anonymous by default. Personal information is not required and will not be shared publicly.
+                                    Reports help protect the community by identifying potentially dangerous medications.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" id="submit-button" class="w-full bg-primary hover:bg-secondary text-white px-6 py-3 sm:py-4 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center text-sm sm:text-base">
+                            <span id="button-text">Submit Report</span>
+                            <span id="button-spinner" class="ml-2 hidden">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full animate__animated animate__zoomIn">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-green-100">
+                    <i class="fas fa-check text-green-600 text-xl sm:text-2xl"></i>
+                </div>
+                <h3 class="text-xl sm:text-2xl font-bold font-serif mt-4 text-gray-900">Report Submitted!</h3>
+                <div class="mt-2 sm:mt-4">
+                    <p class="text-gray-600 text-sm sm:text-base">Thank you for helping make Nigeria's drug supply safer. Your report has been received.</p>
+                </div>
+                <div class="mt-6 sm:mt-8">
+                    <button id="modal-close" type="button" class="inline-flex justify-center rounded-xl border border-transparent bg-primary px-6 py-2 text-sm sm:text-base font-medium text-white shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Why Report Section -->
+    <section class="py-12 sm:py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12 sm:mb-16">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4">Why Report Suspicious Drugs?</h2>
+                <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Your reports help protect the community</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 hover:border-primary transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-3">Protect Others</h3>
+                    <p class="text-gray-600 text-sm sm:text-base">Your report could prevent someone else from taking a dangerous medication.</p>
+                </div>
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 hover:border-primary transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-3">Identify Patterns</h3>
+                    <p class="text-gray-600 text-sm sm:text-base">Multiple reports help authorities track counterfeit drug distribution networks.</p>
+                </div>
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-sm border border-gray-200 hover:border-primary transition-all duration-300 card-hover">
+                    <div class="text-primary text-3xl sm:text-4xl mb-4">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-bold font-serif mb-3">Support Enforcement</h3>
+                    <p class="text-gray-600 text-sm sm:text-base">Reports provide evidence for NAFDAC to take action against illegal pharmacies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 sm:py-20 hero-gradient text-white">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Together We Can Fight Fake Drugs</h2>
+            <p class="text-lg sm:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 opacity-90">
+                Your report makes a difference. Help create a safer Nigeria.
+            </p>
+            <a href="#report-form" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
+                Report a Drug Now <i class="fas fa-flag ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-8 sm:py-12">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+                <div>
+                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-3 sm:mb-4">Nexa<span class="text-primary">Health</span></h3>
+                    <p class="text-gray-400 text-xs sm:text-sm">Verify, report, and protect against fake medications in Nigeria.</p>
+                    <div class="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Quick Links</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li><a href="index.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Home</a></li>
+                        <li><a href="verify.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Verify Drugs</a></li>
+                        <li><a href="report.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Report Drugs</a></li>
+                        <li><a href="flagged.html" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Flagged Pharmacies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Resources</h4>
+                    <ul class="space-y-1 sm:space-y-2">
+                        <li>
+                            <a 
+                                href="https://chat.whatsapp.com/BiVg1EYmtuKHL0yKyfvIkN" 
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible"
+                            >
+                                Join Community
+                            </a>
+                            </li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">Drug Safety Tips</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition text-xs sm:text-sm">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-base sm:text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
+                            <span class="text-xs sm:text-sm">Team NexaHealth</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3"></i>
+                            <span class="text-xs sm:text-sm">+2349041385402</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3"></i>
+                            <span class="text-xs sm:text-sm">dave.400g@gmail.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 sm:mt-12 pt-8 text-center text-gray-500 text-xs sm:text-sm">
+                <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+            </div>
+        </div>
+        <!-- Feedback Modal -->
+      <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl overflow-hidden w-full max-w-md mx-4 animate__animated animate__fadeInUp">
+          <!-- Header with African-inspired pattern -->
+          <div class="bg-gradient-to-r from-primary to-secondary p-4 relative">
+            <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJhZnJpY2FuLXBhdHRlcm4iIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMEg0MFY0MEgweiIgZmlsbD0iIzI1NjNlYiIvPjxwYXRoIGQ9Ik0wIDBMNDAgNDBNNDAgMEwwIDQwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3QgZmlsbD0idXJsKCNhZnJpY2FuLXBhdHRlcm4pIiB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIi8+PC9zdmc+')"></div>
+            <h3 class="text-xl font-bold text-white relative z-10 font-serif">Share Your Feedback</h3>
+            <p class="text-white text-opacity-90 text-sm mt-1 relative z-10">We value your African perspective</p>
+            <button id="close-feedback" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Feedback Form -->
+          <div class="p-6">
+            <!-- Rating -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">How would you rate your experience?</label>
+              <div class="flex justify-center space-x-2">
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="1">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="2">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="3">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="4">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="5">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback Type -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3">What type of feedback is this?</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="feedback-type bg-gray-100 hover:bg-blue-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="suggestion">
+                  <i class="fas fa-lightbulb text-blue-500 mr-2"></i>
+                  <span>Suggestion</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-green-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="bug">
+                  <i class="fas fa-bug text-green-500 mr-2"></i>
+                  <span>Bug Report</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-purple-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="praise">
+                  <i class="fas fa-hands-clapping text-purple-500 mr-2"></i>
+                  <span>Praise</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-red-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center" data-type="question">
+                  <i class="fas fa-question-circle text-red-500 mr-2"></i>
+                  <span>Question</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-6">
+              <label for="feedback-message" class="block text-gray-700 mb-2">Your feedback (optional)</label>
+              <textarea id="feedback-message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Tell us what's on your mind..."></textarea>
+            </div>
+
+            <!-- Language Selection -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-2">Preferred response language</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                <option>English</option>
+                <option>Pidgin</option>
+                <option>Yoruba</option>
+                <option>Hausa</option>
+                <option>French</option>
+                <option>Swahili</option>
+              </select>
+            </div>
+
+            <!-- Submit Button -->
+            <button id="submit-feedback" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2"></i>
+              Send Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div id="feedback-success" class="fixed bottom-6 left-6 z-50 hidden">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-start animate__animated animate__fadeInUp">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <div>
+            <p class="font-medium">Thank you!</p>
+            <p class="text-sm">Your feedback has been received.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+
+    <!-- JavaScript -->
+    <script src="report.js"></script>
+    <script src="main.js"></script>
+    <script src="feedback.js"></script>
+    <script type="module" src="./tracker.js"></script>
+</body>
+</html>

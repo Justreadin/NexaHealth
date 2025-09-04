@@ -1,0 +1,84 @@
+:root {
+    --primary: #2563eb;
+    --secondary: #1e40af;
+    --accent: #3b82f6;
+    --dark: #1e293b;
+    --light: #f8fafc;
+}
+
+/* Feedback Page Styles */
+.feedback-gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+}
+
+.feedback-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-card:hover {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feedback-type-option input:checked + div {
+    box-shadow: 0 0 0 2px currentColor;
+}
+
+/* Animations */
+.slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* File Upload Styling */
+#screenshot-upload {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+#screenshot-upload:hover {
+    border-color: #9ca3af;
+}
+
+/* Preview Image Styling */
+#preview-image {
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    .feedback-type-option {
+        grid-column: span 2;
+    }
+    
+    .feedback-card {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Leaflets | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Loading indicator CSS -->
+    <style>
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .search-tab {
+            transition: all 0.3s ease;
+        }
+        
+        .search-tab.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .health-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold font-serif text-gray-800">Drug Leaflets</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto pb-20 px-4">
+        <!-- Search Tabs -->
+        <section class="mb-4 mt-4">
+            <div class="flex bg-gray-100 p-1 rounded-lg">
+                <button id="drug-search-tab" class="search-tab active flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                    Drug Name
+                </button>
+                <button id="nafdac-search-tab" class="search-tab flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors">
+                    NAFDAC No
+                </button>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section id="search-section" class="mb-6 slide-in">
+            <!-- Drug Name Search -->
+            <div id="drug-search-container">
+                <div class="relative mb-3">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-pills text-gray-400"></i>
+                    </div>
+                    <input type="text" id="pil-search" placeholder="Search drug name..." 
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-industry text-gray-400"></i>
+                    </div>
+                    <input type="text" id="manufacturer-search" placeholder="Filter by manufacturer (optional)" 
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- NAFDAC Search -->
+            <div id="nafdac-search-container" class="hidden">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-barcode text-gray-400"></i>
+                    </div>
+                    <input type="text" id="nafdac-search" placeholder="Enter NAFDAC Reg. No" 
+                        class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div id="search-loader" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2 ml-1">Example: A4-1234</p>
+            </div>
+            
+            <!-- Filter Controls Row -->
+            <div class="flex items-center justify-between mt-4">
+                <div id="category-filters" class="flex space-x-2 overflow-x-auto pb-2">
+                    <!-- Category filters will be added here dynamically -->
+                </div>
+                <button id="advanced-filters-btn" class="ml-2 text-blue-600 text-sm font-medium whitespace-nowrap flex items-center">
+                    <i class="fas fa-sliders-h mr-1"></i> More
+                </button>
+            </div>
+
+            <!-- Advanced Filters Panel -->
+            <div id="advanced-filters" class="hidden bg-white p-4 rounded-lg shadow-sm mt-2 border border-gray-200">
+                <div class="grid grid-cols-1 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Dosage Form</label>
+                        <select id="dosage-form-filter" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Forms</option>
+                            <option value="tablet">Tablets</option>
+                            <option value="capsule">Capsules</option>
+                            <option value="syrup">Syrup</option>
+                            <option value="injection">Injection</option>
+                            <option value="solution">Solution</option>
+                            <option value="cream">Cream</option>
+                            <option value="ointment">Ointment</option>
+                            <option value="drops">Drops</option>
+                            <option value="powder">Powder</option>
+                            <option value="suspension">Suspension</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-between">
+                    <button id="reset-filters" class="text-gray-600 hover:text-gray-800 text-sm font-medium flex items-center">
+                        <i class="fas fa-undo mr-1"></i> Reset
+                    </button>
+                    <button id="apply-filters" class="health-gradient hover:opacity-90 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Results Section (Hidden by default) -->
+        <section id="search-results-section" class="hidden mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold font-serif text-gray-800 flex items-center">
+                    <i class="fas fa-search mr-2 text-blue-600"></i>
+                    Search Results
+                </h2>
+                <span id="results-count" class="text-sm text-gray-500">0 results</span>
+            </div>
+            
+            <div id="search-results" class="space-y-3">
+                <!-- Results will be loaded here dynamically -->
+            </div>
+            
+            <div id="search-suggestions" class="mt-4 hidden">
+                <p class="text-sm text-gray-600 mb-2">Did you mean:</p>
+                <div class="flex flex-wrap gap-2">
+                    <!-- Suggestions will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured PIL -->
+        <section id="featured-section" class="mb-6 slide-in" style="animation-delay: 0.1s">
+            <h2 class="text-lg font-bold font-serif mb-3 text-gray-800 flex items-center">
+                <i class="fas fa-star mr-2 text-blue-600"></i>
+                Featured Leaflet
+            </h2>
+            
+            <div id="featured-pil" class="pil-card bg-white rounded-xl shadow-sm p-5 border border-gray-100 relative overflow-hidden">
+                <!-- Content will be loaded dynamically -->
+                <div class="flex justify-center items-center h-40">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent PILs -->
+        <section id="recent-section" class="mb-6 slide-in" style="animation-delay: 0.2s">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold font-serif text-gray-800 flex items-center">
+                    <i class="fas fa-clock mr-2 text-blue-600"></i>
+                    Recently Viewed
+                </h2>
+                <a href="#" class="text-sm text-blue-600 font-medium">See all</a>
+            </div>
+            
+            <div id="recent-pils" class="space-y-3">
+                <!-- Content will be loaded dynamically -->
+                <div class="flex justify-center items-center h-20">
+                    <div class="loader"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Saved PILs -->
+        <section id="saved-section" class="mb-6 slide-in" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-bold font-serif text-gray-800 flex items-center">
+                    <i class="fas fa-bookmark mr-2 text-blue-600"></i>
+                    Saved Leaflets
+                </h2>
+                <a href="#" class="text-sm text-blue-600 font-medium">See all</a>
+            </div>
+            
+            <div id="saved-pils" class="space-y-3">
+                <!-- Content will be loaded dynamically -->
+                <div class="text-center py-8 text-gray-400">
+                    <i class="fas fa-bookmark text-2xl mb-2"></i>
+                    <p>No saved leaflets yet</p>
+                    <p class="text-sm mt-2">Save frequently used leaflets for quick access</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full PIL View Modal -->
+        <div id="pil-modal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+            <div class="relative min-h-full">
+                <div class="sticky top-0 bg-white p-4 shadow-sm flex items-center z-10">
+                    <button id="close-pil" class="text-gray-500 mr-4">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 class="font-bold text-lg font-serif text-gray-800">Product Leaflet</h2>
+                    <div class="ml-auto flex space-x-2">
+                        <button id="download-pil" class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button id="save-pil" class="p-2 text-blue-600 hover:bg-blue-50 rounded-full">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6" id="pil-modal-content">
+                    <!-- Content will be loaded dynamically -->
+                    <div class="flex justify-center items-center h-64">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Results State -->
+        <div id="no-results" class="hidden text-center py-12">
+            <div class="bg-blue-50 p-6 rounded-full inline-block mb-4">
+                <i class="fas fa-search text-blue-600 text-2xl"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-800">No Leaflets Found</h3>
+            <p class="text-gray-600 mb-6">We couldn't find any leaflets matching your search</p>
+            <button id="report-missing" class="health-gradient hover:opacity-90 text-white py-3 px-6 rounded-lg font-medium">
+                Report Missing Drug
+            </button>
+        </div>
+    </main>
+    
+    <!-- JavaScript -->
+     <script src="js/login.js"></script>
+     <script src="js/pil_verify.js"></script>
+     <script src="js/verify.js"></script>
+    <script src="js/pils.js"></script>
+    <script src="js/product.js"></script>
+</body>
+</html>

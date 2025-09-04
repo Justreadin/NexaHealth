@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Checker | NexaHealth</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="main.js"></script>
+    <!-- Google Fonts -->
+     <link rel="stylesheet" href="main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="symptoms.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        lowRisk: '#10b981',
+                        mediumRisk: '#f59e0b',
+                        highRisk: '#ef4444'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 1s ease-in-out',
+                        'slide-up': 'slideUp 0.8s ease-out',
+                        'pulse-slow': 'pulse 3s infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'heartbeat': 'heartbeat 1.5s ease infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pulse: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.5' },
+                        },
+                        heartbeat: {
+                            '0%': { transform: 'scale(1)' },
+                            '25%': { transform: 'scale(1.1)' },
+                            '50%': { transform: 'scale(1)' },
+                            '75%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .hamburger-line {
+            transition: all 0.3s;
+        }
+        .hamburger-active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        .hamburger-active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        .risk-badge {
+            transition: all 0.3s;
+        }
+        .risk-badge:hover {
+            transform: scale(1.05);
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        .symptom-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .symptom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .pulse-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: currentColor;
+            opacity: 0.6;
+            animation: pulse 2s ease-out infinite;
+        }
+    </style>
+</head>
+<body class="font-sans text-dark bg-light">
+    <nav class="fixed w-full bg-white shadow-md z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif transition-colors hover:text-secondary">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
+                    <a href="index.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Home</a>
+                    <a href="verify.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
+                    <a href="report.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
+                    <a href="flagged.html" class="nav-link text-dark hover:text-primary font-medium text-sm lg:text-base">Flagged</a>
+                    <a href="symptoms.html" class="nav-link text-primary font-medium transition text-sm lg:text-base">Symptom Check</a>
+                </div>
+
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="ai_companion.html" class="btn-primary">
+                        AI Companion
+                    </a>
+
+                    <!-- Auth Dropdown (will be populated by JS) -->
+                    <div class="auth-dropdown"></div>
+                </div>
+
+                <!-- Mobile Hamburger -->
+                <div class="md:hidden">
+                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors">
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                        <div class="hamburger-line"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white py-4 px-6 absolute w-full left-0 shadow-lg">
+            <div class="flex flex-col space-y-4">
+                <a href="index.html" class="mobile-link">Home</a>
+                <a href="verify.html" class="mobile-link">Verify</a>
+                <a href="report.html" class="mobile-link">Report</a>
+                <a href="flagged.html" class="mobile-link">Flagged</a>
+                <a href="symptoms.html" class="mobile-link text-primary transition">Symptoms Check</a>
+                <a href="ai_companion.html" class="btn-primary text-center">AI Companion</a>
+
+                <!-- Mobile Auth Buttons (will be populated by JS) -->
+                <div class="mobile-auth-section"></div>
+            </div>
+        </div>
+    </nav>
+
+
+<!-- Hero Section -->
+<section class="pt-24 pb-16 md:pt-32 md:pb-20 lg:pt-40 lg:pb-28 hero-gradient text-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="flex flex-col lg:flex-row items-center">
+            <div class="lg:w-1/2 mb-6 lg:mb-0 animate__animated animate__fadeInLeft">
+                <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-bold font-serif mb-4 sm:mb-6 leading-tight">
+                    Symptom Check <br>
+                    <span class="text-white">& Drug Advisor</span>
+                </h1>
+                <p class="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">
+                    Describe your symptoms to get risk assessment and personalized medication recommendations.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                    <a href="#checker-section" class="w-full sm:w-auto bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                        Check Symptoms <i class="fas fa-stethoscope ml-2"></i>
+                    </a>
+                    <a href="#common-symptoms" class="w-full sm:w-auto text-white hover:text-gray-200 border border-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-medium transition-all flex items-center justify-center">
+                        <i class="fas fa-list-ul mr-2"></i> Common Symptoms
+                    </a>
+                </div>
+            </div>
+            <div class="lg:w-1/2 mt-8 lg:mt-0 animate__animated animate__fadeInRight">
+                <div class="relative floating">
+                    <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+                         alt="Doctor checking symptoms"
+                         class="rounded-xl shadow-2xl w-full h-auto max-w-md mx-auto">
+                    <div class="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-white p-3 sm:p-4 rounded-xl shadow-lg hidden sm:block animate__animated animate__pulse animate__infinite">
+                        <div class="text-center">
+                            <div class="text-2xl sm:text-3xl font-bold text-primary">97%</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Accuracy Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Symptom Checker Section -->
+<section id="checker-section" class="py-12 sm:py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="max-w-4xl mx-auto bg-gray-50 rounded-xl sm:rounded-2xl shadow-lg sm:shadow-xl p-6 sm:p-8 md:p-10">
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-2 sm:mb-4 text-center">Describe Your Symptoms</h2>
+            <p class="text-gray-600 text-center mb-6 sm:mb-8 text-sm sm:text-base">Our AI will analyze your symptoms and suggest appropriate medications</p>
+
+            <form id="symptomForm" class="space-y-6">
+                <div>
+                    <label for="symptoms" class="block text-sm font-medium text-gray-700 mb-1">Your Symptoms *</label>
+                    <textarea id="symptoms" name="symptoms" rows="4" required
+                              placeholder="e.g. I've had a headache and mild fever for two days, along with some body aches..."
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-sm sm:text-base"></textarea>
+                    <p class="mt-1 text-xs sm:text-sm text-gray-500">Be as detailed as possible about your symptoms and their duration</p>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="analyze-button" class="w-full bg-primary hover:bg-secondary text-white px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl flex items-center justify-center text-sm sm:text-base">
+                        <span id="button-text">Analyze Symptoms</span>
+                        <span id="button-spinner" class="ml-2 hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Results Section -->
+            <div id="results-section" class="mt-6 sm:mt-8 hidden">
+                <div class="border-t border-gray-200 pt-6">
+                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-4 sm:mb-6">Analysis Results</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                        <!-- Matched Keywords -->
+                        <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 symptom-card">
+                            <div class="flex items-center mb-3 sm:mb-4">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                    <i class="fas fa-search text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-700 text-sm sm:text-base">Matched Symptoms</h4>
+                            </div>
+                            <div id="matched-keywords" class="flex flex-wrap gap-2">
+                                <!-- Keywords will be inserted here -->
+                            </div>
+                        </div>
+
+                        <!-- Risk Level -->
+                        <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 symptom-card">
+                            <div class="flex items-center mb-3 sm:mb-4">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                    <i class="fas fa-exclamation-triangle text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-700 text-sm sm:text-base">Risk Assessment</h4>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="relative mr-3 sm:mr-4">
+                                    <div id="risk-badge" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold risk-badge bg-lowRisk">
+                                        <span id="risk-level" class="text-xs sm:text-sm">Low</span>
+                                    </div>
+                                    <div class="pulse-ring"></div>
+                                </div>
+                                <div>
+                                    <div id="risk-score" class="text-xs sm:text-sm text-gray-500">Score: <span class="font-bold">10/100</span></div>
+                                    <div id="risk-message" class="text-xs sm:text-sm text-gray-700 mt-1">Low risk condition</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendation -->
+                        <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 symptom-card">
+                            <div class="flex items-center mb-3 sm:mb-4">
+                                <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                    <i class="fas fa-comment-medical text-primary text-sm sm:text-base"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-700 text-sm sm:text-base">Recommendation</h4>
+                            </div>
+                            <div id="recommendation" class="text-gray-700 text-xs sm:text-sm">
+                                Based on your symptoms, you may consider the following medications. If symptoms persist or worsen, consult a healthcare professional.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Drugs -->
+                    <div class="bg-white p-4 sm:p-6 rounded-xl border border-gray-200 symptom-card">
+                        <div class="flex items-center mb-4 sm:mb-6">
+                            <div class="bg-primary bg-opacity-10 p-2 sm:p-3 rounded-full mr-3 sm:mr-4">
+                                <i class="fas fa-pills text-primary text-sm sm:text-base"></i>
+                            </div>
+                            <h3 class="text-lg sm:text-xl font-bold font-serif">Suggested Medications</h3>
+                        </div>
+
+                        <div id="suggested-drugs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <!-- Drug cards will be inserted here -->
+                        </div>
+
+                        <div class="mt-4 sm:mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-3 sm:p-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-circle text-yellow-400 mt-0.5 sm:mt-1"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-xs sm:text-sm text-yellow-700">
+                                        <strong>Important:</strong> These suggestions are based on your reported symptoms and should not replace professional medical advice. Always verify medications before use and consult a doctor if symptoms persist.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Guest Limit Modal -->
+<div id="guest-limit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <h3 class="text-xl font-bold mb-4">Continue Your Health Journey</h3>
+    <p class="mb-6">You've reached the limit for guest usage. Sign up or log in to continue using our symptom checker and save your history.</p>
+    
+    <div class="flex flex-col space-y-3">
+      <button id="signup-btn" class="bg-primary hover:bg-secondary text-white py-2 px-4 rounded-lg transition-colors">
+        Sign Up
+      </button>
+      <button id="login-btn" class="border border-primary text-primary hover:bg-blue-50 py-2 px-4 rounded-lg transition-colors">
+        Log In
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Common Symptoms Section -->
+<section id="common-symptoms" class="py-12 sm:py-16 bg-gray-50">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-3 sm:mb-4">Common Symptoms</h2>
+            <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Quickly check medications for these frequently reported symptoms</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-head-side-cough mr-1 sm:mr-2 text-primary text-xs sm:text-sm"></i> Cough
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-temperature-high mr-1 sm:mr-2 text-red-500 text-xs sm:text-sm"></i> Fever
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-head-side-virus mr-1 sm:mr-2 text-yellow-500 text-xs sm:text-sm"></i> Headache
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-lungs-virus mr-1 sm:mr-2 text-blue-500 text-xs sm:text-sm"></i> Cold
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-tooth mr-1 sm:mr-2 text-purple-500 text-xs sm:text-sm"></i> Toothache
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-user-injured mr-1 sm:mr-2 text-red-500 text-xs sm:text-sm"></i> Stomach ache
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-allergies mr-1 sm:mr-2 text-pink-500 text-xs sm:text-sm"></i> Allergies
+            </button>
+            <button class="symptom-chip bg-white hover:bg-gray-100 text-gray-800 font-medium py-2 sm:py-3 px-3 sm:px-4 rounded-full border border-gray-300 transition-all shadow-sm hover:shadow-md text-xs sm:text-sm">
+                <i class="fas fa-band-aid mr-1 sm:mr-2 text-indigo-500 text-xs sm:text-sm"></i> Pain
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-12 sm:py-16 bg-white">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif mb-3 sm:mb-4">How Symptom Analysis Works</h2>
+            <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">Our three-step process helps you find appropriate medications</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8">
+            <div class="bg-gray-50 p-6 sm:p-8 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 card-hover">
+                <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">1</div>
+                <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">Describe Symptoms</h3>
+                <p class="text-gray-600 hover:text-white text-sm sm:text-base">Provide details about your symptoms, their duration, and any other relevant information.</p>
+            </div>
+            <div class="bg-gray-50 p-6 sm:p-8 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 card-hover">
+                <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">2</div>
+                <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">AI Analysis</h3>
+                <p class="text-gray-600 hover:text-white text-sm sm:text-base">Our advanced algorithm analyzes your symptoms and matches them with known conditions.</p>
+            </div>
+            <div class="bg-gray-50 p-6 sm:p-8 rounded-xl hover:bg-primary hover:text-white transition-all duration-300 card-hover">
+                <div class="text-primary text-3xl sm:text-4xl mb-3 sm:mb-4 hover:text-white">3</div>
+                <h3 class="text-lg sm:text-xl font-bold font-serif mb-2 sm:mb-3">Get Recommendations</h3>
+                <p class="text-gray-600 hover:text-white text-sm sm:text-base">Receive personalized medication suggestions with usage information and safety tips.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 sm:py-20 hero-gradient text-white">
+    <div class="container mx-auto px-4 sm:px-6 text-center">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold font-serif mb-4 sm:mb-6">Need Medication Advice?</h2>
+        <p class="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 opacity-90">
+            Describe your symptoms and get personalized drug recommendations in seconds.
+        </p>
+        <a href="#checker-section" class="inline-block bg-white text-primary hover:bg-gray-100 px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold transition-all shadow-lg hover:shadow-xl text-sm sm:text-base">
+            Check Symptoms Now <i class="fas fa-stethoscope ml-2"></i>
+        </a>
+    </div>
+</section>
+
+
+        <!-- Guest Mode Banner -->
+    <div class="bg-blue-50 border-t border-b border-blue-100 py-3">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-2 rounded-lg mr-3">
+                        <i class="fas fa-user-circle text-blue-600"></i>
+                    </div>
+                    <p class="text-sm text-gray-700">
+                        You're browsing in <span class="font-medium">Guest Mode</span>.
+                        <a href="signup.html" class="text-primary font-medium hover:underline ml-1">Sign up</a> to save your symptom history and preferences.
+                    </p>
+                </div>
+                <a href="signup.html" class="hidden sm:block text-sm bg-gradient-to-r from-primary to-secondary text-white px-4 py-1 rounded-full font-medium hover:shadow-md transition-all">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+
+<footer class="bg-dark text-white py-8 sm:py-12">
+    <div class="container mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <div>
+                <h3 class="text-xl sm:text-2xl font-bold font-serif mb-3 sm:mb-4">Nexa<span class="text-primary">Health</span></h3>
+                <p class="text-xs sm:text-sm text-gray-400">Verify, report, and protect against fake medications in Nigeria.</p>
+                <div class="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
+                    <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Quick Links</h4>
+                <ul class="space-y-1 sm:space-y-2">
+                    <li><a href="index.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Home</a></li>
+                    <li><a href="verify.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Verify</a></li>
+                    <li><a href="report.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Report</a></li>
+                    <li><a href="flagged.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Flagged</a></li>
+                    <li><a href="symptoms.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Symptoms Check</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Resources</h4>
+                <ul class="space-y-1 sm:space-y-2">
+                    <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">NAFDAC Guidelines</a></li>
+                    <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">Drug Safety Tips</a></li>
+                    <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition">FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Contact</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li class="flex items-start">
+                        <i class="fas fa-map-marker-alt mt-1 mr-3 text-xs sm:text-sm"></i>
+                        <span class="text-xs sm:text-sm">Team NexaHealth</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-phone-alt mt-1 mr-3 text-xs sm:text-sm"></i>
+                        <span class="text-xs sm:text-sm">+2349041385402</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-envelope mt-1 mr-3 text-xs sm:text-sm"></i>
+                        <span class="text-xs sm:text-sm">dave.400g@gmail.com</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
+            <p class="text-xs sm:text-sm">&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </div>
+    <!-- Add this just before the closing </body> tag -->
+    <div id="feedback-system">
+      <!-- Floating Feedback Button -->
+    <button id="feedback-button" class="fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-secondary shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center animate-pulse-slow">
+        <i class="fas fa-comment-medical text-white text-xl"></i>
+    </button>
+
+      <!-- Feedback Modal -->
+      <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl overflow-hidden w-full max-w-md max-h-[70vh] flex flex-col animate__animated animate__fadeInUp">
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-primary to-secondary p-4 relative">
+            <h3 class="text-xl font-bold text-white font-serif">Share Your Feedback</h3>
+            <p class="text-white text-opacity-90 text-sm mt-1">Help us improve our symptom checker</p>
+            <button id="close-feedback" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Scrollable Content -->
+          <div class="overflow-y-auto flex-1 p-6">
+            <!-- Rating -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3 font-medium">How would you rate your experience?</label>
+              <div class="flex justify-center space-x-2">
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="1">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="2">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="3">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="4">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+                <button class="rating-star w-10 h-10 rounded-full bg-gray-100 hover:bg-yellow-100 flex items-center justify-center transition-colors" data-rating="5">
+                  <i class="far fa-star text-gray-400 text-xl"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback Type -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-3 font-medium">What type of feedback is this?</label>
+              <div class="grid grid-cols-2 gap-3">
+                <button class="feedback-type bg-gray-100 hover:bg-blue-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center text-gray-800" data-type="suggestion">
+                  <i class="fas fa-lightbulb text-blue-500 mr-2"></i>
+                  <span class="text-sm font-medium">Suggestion</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-green-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center text-gray-800" data-type="bug">
+                  <i class="fas fa-bug text-green-500 mr-2"></i>
+                  <span class="text-sm font-medium">Bug Report</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-purple-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center text-gray-800" data-type="praise">
+                  <i class="fas fa-hands-clapping text-purple-500 mr-2"></i>
+                  <span class="text-sm font-medium">Praise</span>
+                </button>
+                <button class="feedback-type bg-gray-100 hover:bg-red-50 border border-gray-200 rounded-lg py-2 px-3 transition-colors flex items-center text-gray-800" data-type="question">
+                  <i class="fas fa-question-circle text-red-500 mr-2"></i>
+                  <span class="text-sm font-medium">Question</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-6">
+              <label for="feedback-message" class="block text-gray-700 mb-2 font-medium">Your feedback (optional)</label>
+              <textarea id="feedback-message" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-700" placeholder="Tell us about your experience with the symptom checker..."></textarea>
+            </div>
+
+            <!-- Language Selection -->
+            <div class="mb-6">
+              <label class="block text-gray-700 mb-2 font-medium">Preferred response language</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-gray-700 bg-white">
+                <option class="text-gray-700">English</option>
+                <option class="text-gray-700">Pidgin</option>
+                <option class="text-gray-700">Yoruba</option>
+                <option class="text-gray-700">Hausa</option>
+                <option class="text-gray-700">Igbo</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Fixed Footer with Submit Button -->
+          <div class="p-4 border-t border-gray-200 bg-white">
+            <button id="submit-feedback" class="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center">
+              <i class="fas fa-paper-plane mr-2"></i>
+              Send Feedback
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success Message -->
+      <div id="feedback-success" class="fixed bottom-6 right-6 z-50 hidden">
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg flex items-start animate__animated animate__fadeInUp">
+          <i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i>
+          <div>
+            <p class="font-medium">Thank you!</p>
+            <p class="text-sm">Your feedback has been received.</p>
+          </div>
+          <button id="close-success" class="ml-4 text-green-700 hover:text-green-900">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="symptoms.js"></script>
+<script src="feedback.js"></script>
+<script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+nexahealth-backend/
+│
+├── app/
+│   ├── main.py
+│   ├── routers/
+|   |   |---guest.py
+|   |   |---auth.py
+│   │   ├── verify.py
+│   │   ├── report.py
+│   │   ├── map.py
+│   │   ├── nearby.py
+│   │   ├── diagnosis.py
+│   │   ├── ai_companion.py
+│   │   └── pils.py              # ✅ New: PILs router
+│   ├── models/
+│   │   ├── report_model.py
+│   │   ├── diagnosis_model.py
+│   │   ├── chat_model.py
+│   │   └── pils_model.py        # ✅ New: Pydantic models for PILs
+│   ├── core/
+|   |   |---auth.py
+│   │   ├── db.py
+│   │   ├── ml.py
+│   │   ├── symptom_matcher.py
+│   │   ├── openrouter_ai.py
+│   │   └── pils_manager.py      # ✅ New: PILs database operations
+│   |└── data/
+│   |   ├── verified_drugs.json
+│   |   ├── symptom_data.csv
+│   |   └── mental_health_prompts.json
+│   |----dependencies/
+|       |--auth.py
+|
+|
+|
+|
+├── ml/
+│   ├── train_model.py
+│   ├── dataset.csv
+│   └── risk_classifier.joblib
+│
+├── requirements.txt
+└── README.md

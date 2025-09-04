@@ -1,0 +1,8 @@
+/.venv
+.env
+/app/core/firebase_key.json
+/app/data/datasets
+/app/data/converters
+/app/data/OpenFDA
+/app/data/pils
+/app/data/smpc_pdfs

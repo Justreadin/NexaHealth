@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Sign Up</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/signup.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '640px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body data-page="signup" class="font-sans bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm z-50">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="../index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif">Nexa<span class="text-secondary">Health</span></a>
+                </div>
+                <div class="hidden md:block">
+                    <a href="login.html" class="text-primary hover:text-secondary font-medium transition-colors">Already have an account? <span class="font-semibold">Log in</span></a>
+                </div>
+                <div class="md:hidden">
+                    <a href="login.html" class="text-sm bg-primary hover:bg-secondary text-white px-4 py-2 rounded-full font-medium transition-all">Log in</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center py-8 sm:py-12 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Column - Illustration -->
+                <div class="hidden lg:block relative">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -z-10"></div>
+                    <div class="absolute bottom-0 right-0 w-40 h-40 bg-blue-100 rounded-full opacity-20 -z-10"></div>
+                    <div class="relative animation-float">
+                        <img src="/frontend/images/nexahealthhero.jpeg"
+                             alt="Health illustration"
+                             class="rounded-2xl shadow-xl w-full max-w-lg mx-auto">
+                        <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-3">
+                                    <i class="fas fa-shield-alt text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Secure Health Data</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-pills text-blue-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Drug Verification</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-flag text-red-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Report Drugs</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover">
+                            <i class="fas fa-robot text-purple-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">AI Companion</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Form -->
+                <div class="bg-white rounded-2xl shadow-sm p-8 sm:p-10 max-w-lg mx-auto w-full card-hover">
+                    <div class="text-center mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2">Create Your Account</h1>
+                        <p class="text-gray-600">Join NexaHealth to access all health features</p>
+                    </div>
+
+                    <!-- Google Signup Button 
+                    <button id="googleSignup" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 ripple">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5">
+                        <span>Sign up with Google</span>
+                    </button>
+
+                    -- Divider 
+                    <div class="divider text-sm mb-6">OR</div>
+
+                     Signup Form -->
+                    <form id="signupForm" class="space-y-5">
+                        <!-- Name Field -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                <div class="relative">
+                                    <input type="text" id="firstName" name="firstName" required
+                                           class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
+                                           placeholder="John">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                        <i class="fas fa-user text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                <div class="relative">
+                                    <input type="text" id="lastName" name="lastName" required
+                                           class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
+                                           placeholder="Doe">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                        <i class="fas fa-user text-sm"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <div class="relative">
+                                <input type="email" id="email" name="email" required
+                                       class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
+                                       placeholder="your@email.com">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                    <i class="fas fa-envelope text-sm"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="password" name="password" required
+                                       class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus pr-10"
+                                       placeholder="••••••••">
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle">
+                                    <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
+                                </button>
+                            </div>
+                            <div class="mt-1 text-xs text-gray-500">
+                                Must be at least 8 characters
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div>
+                            <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                            <div class="relative">
+                                <input type="password" id="confirmPassword" name="confirmPassword" required
+                                       class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus pr-10"
+                                       placeholder="••••••••">
+                                <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle">
+                                    <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Terms Checkbox -->
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="terms" name="terms" type="checkbox" required
+                                       class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded checkbox">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="terms" class="font-medium text-gray-700">
+                                I agree to the 
+                                <a href="terms.html" target="_blank" class="text-primary hover:text-secondary underline">Terms of Service</a> 
+                                and 
+                                <a href="privacy.html" target="_blank" class="text-primary hover:text-secondary underline">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all ripple">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <!-- Login Link -->
+                    <div class="mt-6 text-center text-sm">
+                        <span class="text-gray-600">Already have an account?</span>
+                        <a href="login.html" class="font-medium text-primary hover:text-secondary ml-1">Log in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/signup.js"></script>
+    <script type="module" src="../tracker.js"></script>
+</body>
+</html>

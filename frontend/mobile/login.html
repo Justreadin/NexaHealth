@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Log In</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                screens: {
+                    'xs': '375px',
+                    'sm': '480px',
+                    'md': '768px',
+                    'lg': '1024px',
+                    'xl': '1280px',
+                    '2xl': '1536px',
+                },
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#3b82f6',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-in-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                        'pulse-slow': 'pulse 4s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'ripple': 'ripple 0.6s linear',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        ripple: {
+                            'to': { transform: 'scale(4)', opacity: '0' }
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 25px -5px rgba(0, 0, 0, 0.08)',
+                        'soft-md': '0 15px 30px -5px rgba(0, 0, 0, 0.12)',
+                        'soft-lg': '0 20px 40px -5px rgba(0, 0, 0, 0.15)',
+                        'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/css">
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+        .input-focus:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+        .btn-hover {
+            transition: all 0.3s ease;
+            background-size: 200% auto;
+            background-image: linear-gradient(to right, #2563eb 0%, #1e40af 51%, #2563eb 100%);
+        }
+        .btn-hover:hover {
+            background-position: right center;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+        .google-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px 0 rgba(66, 133, 244, 0.1);
+        }
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px 0 rgba(66, 133, 244, 0.2);
+            border-color: #d1d5db;
+        }
+        .form-input {
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .form-input:hover {
+            border-color: #bfdbfe;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+        }
+        .password-toggle {
+            transition: all 0.3s ease;
+        }
+        .password-toggle:hover {
+            color: #3b82f6;
+        }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #64748b;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .divider::before {
+            margin-right: 1rem;
+        }
+        .divider::after {
+            margin-left: 1rem;
+        }
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        .remember-checkbox:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+        .remember-checkbox:focus {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+        }
+        .forgot-link {
+            transition: all 0.2s ease;
+        }
+        .forgot-link:hover {
+            color: #1e40af;
+            text-decoration: underline;
+        }
+        .floating-label {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            pointer-events: none;
+            padding: 0 4px;
+            background: white;
+        }
+        .form-input:focus + .floating-label,
+        .form-input:not(:placeholder-shown) + .floating-label {
+            top: 0;
+            transform: translateY(-50%) scale(0.85);
+            color: #3b82f6;
+        }
+        .animate-delay-100 {
+            animation-delay: 0.1s;
+        }
+        .animate-delay-200 {
+            animation-delay: 0.2s;
+        }
+        .animate-delay-300 {
+            animation-delay: 0.3s;
+        }
+        @media (max-width: 768px) {
+            .mobile-px-4 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+            .mobile-py-8 {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body data-page="login" class="font-sans bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm z-50 fixed top-0">
+        <div class="container mx-auto px-4 xs:px-6 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="../index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif flex items-center">
+                        <span>Nexa<span class="text-primary-800">Health</span></span>
+                    </a>
+                </div>
+                <div class="hidden md:block">
+                    <a href="signup.html" class="text-gray-700 hover:text-primary-800 font-medium transition-colors">
+                        Don't have an account? <span class="font-semibold text-primary-600">Sign up</span>
+                    </a>
+                </div>
+                <div class="md:hidden">
+                    <a href="signup.html" class="text-sm bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-full font-medium transition-all shadow-sm hover:shadow-md">
+                        Sign up
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center pt-20 pb-8 sm:py-12 px-4 mobile-px-4 mobile-py-8">
+        <div class="container mx-auto max-w-6xl">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <!-- Left Column - Illustration (Hidden on mobile) -->
+                <div class="hidden lg:block relative animation-slide-up">
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -z-10 animate-pulse-slow"></div>
+                    <div class="absolute bottom-0 right-0 w-40 h-40 bg-blue-100 rounded-full opacity-20 -z-10 animate-pulse-slow animate-delay-200"></div>
+                    <div class="relative animate-float">
+                        <div class="overflow-hidden rounded-2xl shadow-xl">
+                            <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
+                                 alt="Health illustration"
+                                 class="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
+                                 loading="lazy">
+                        </div>
+                        <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg animate-fade-in animate-delay-300">
+                            <div class="flex items-center">
+                                <div class="bg-blue-100 p-3 rounded-lg mr-3">
+                                    <i class="fas fa-user-shield text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm">Secure Login</div>
+                                    <div class="text-xs text-gray-500">End-to-End Encrypted</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-10 grid grid-cols-3 gap-4 max-w-lg mx-auto">
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover animate-fade-in animate-delay-100">
+                            <i class="fas fa-heartbeat text-red-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Health Tracking</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover animate-fade-in animate-delay-200">
+                            <i class="fas fa-bell text-yellow-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Medication Alerts</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 text-center card-hover animate-fade-in animate-delay-300">
+                            <i class="fas fa-chart-line text-green-500 text-xl mb-2"></i>
+                            <div class="font-medium text-sm">Health Insights</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Form -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 md:p-10 max-w-lg mx-auto w-full card-hover animate-slide-up">
+                    <div class="text-center mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2 text-gray-800">Welcome</h1>
+                        <p class="text-gray-600">Log in to access your health dashboard</p>
+                    </div>
+
+                    <!-- Google Login Button 
+                    <button id="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 ripple relative overflow-hidden">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5" loading="lazy">
+                        <span>Continue with Google</span>
+                    </button>
+
+                    <div class="divider text-sm text-gray-400 mb-6">OR</div>
+
+                    Login Form -->
+                    <form id="loginForm" class="space-y-5">
+                        <!-- Email Field -->
+                        <div class="relative">
+                            <input type="email" id="loginEmail" name="email" required
+                                   class="w-full form-input py-3 px-4 rounded-lg focus:outline-none input-focus"
+                                   placeholder=" " autocomplete="email">
+                            <label for="loginEmail" class="floating-label">Email Address</label>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                <i class="fas fa-envelope text-sm"></i>
+                            </div>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="relative">
+                            <input type="password" id="loginPassword" name="password" required
+                                   class="w-full form-input py-3 px-4 rounded-lg focus:outline-none input-focus pr-10"
+                                   placeholder=" " autocomplete="current-password">
+                            <label for="loginPassword" class="floating-label">Password</label>
+                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle"
+                                    onclick="togglePassword('loginPassword', this)">
+                                <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
+                            </button>
+                        </div>
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="rememberMe" name="rememberMe" type="checkbox"
+                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded remember-checkbox">
+                                <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                            </div>
+                            <div>
+                                <a href="forgot-password.html" class="text-sm text-primary-600 hover:text-primary-800 forgot-link">
+                                    Forgot password?
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all ripple relative overflow-hidden shadow-md hover:shadow-lg">
+                            Log In
+                        </button>
+                    </form>
+
+                    <!-- Signup Link -->
+                    <div class="mt-6 text-center text-sm text-gray-600">
+                        <span>Don't have an account?</span>
+                        <a href="signup.html" class="font-medium text-primary-600 hover:text-primary-800 ml-1 transition-colors">
+                            Sign up now
+                        </a> <span> OR </span>
+                        <a href="/index.html" class="font-medium text-primary-600 hover:text-primary-800 ml-1 transition-colors">
+                            Return to Guestmode
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-auto">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-500">
+                <!---<a href="#" class="hover:text-primary-600 transition-colors">Terms of Service</a>
+                <span class="hidden md:block">•</span>
+                <a href="#" class="hover:text-primary-600 transition-colors">Privacy Policy</a>
+                <span class="hidden md:block">•</span>--->
+                <a href="" class="hover:text-primary-600 transition-colors">Contact Us</a>
+            </div>
+            <p class="mt-3 text-sm text-gray-500">&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/login.js"></script>
+    <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDz4vI2Vfm6oYDsU0-UL0G-GO-emT8y0QM",
+    authDomain: "nexa-health.firebaseapp.com",
+    projectId: "nexa-health",
+    storageBucket: "nexa-health.firebasestorage.app",
+    messagingSenderId: "616215979591",
+    appId: "1:616215979591:web:6bcf62880219a2e9a83362"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+<script type="module" src="../tracker.js"></script>
+</body>
+</html>
