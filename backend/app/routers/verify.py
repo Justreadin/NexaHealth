@@ -9,7 +9,8 @@ from app.core.verify_engine import DrugVerificationEngine
 from app.routers.count import increment_stat_counter
 import logging
 from functools import lru_cache
-import ijson
+import json
+import hashlib
 
 router = APIRouter(
     prefix="/api/verify",
@@ -21,31 +22,29 @@ logger = logging.getLogger(__name__)
 DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_v3.json"
 
 # Global engine
-verification_engine = None
+verification_engine: DrugVerificationEngine = None
 
-def stream_drugs(file_path: Path):
-    """Stream drugs one by one from JSON using ijson."""
-    with open(file_path, 'r', encoding='utf-8') as f:
-        for drug in ijson.items(f, 'item'):
-            yield drug
-
-def get_verification_engine():
-    """Initialize or return the existing engine (lazy load)."""
+def get_verification_engine() -> DrugVerificationEngine:
+    """Initialize or return the existing engine (singleton)."""
     global verification_engine
     if verification_engine is None:
-        logger.info("Loading drug database (streaming)...")
-        drug_iter = stream_drugs(DRUG_DB_FILE)
-        verification_engine = DrugVerificationEngine(drug_iter)
-        logger.info("DrugVerificationEngine initialized.")
+        logger.info("Loading drug database into memory...")
+        with open(DRUG_DB_FILE, 'r', encoding='utf-8') as f:
+            drug_db = json.load(f)  # Load once at startup
+        verification_engine = DrugVerificationEngine(drug_db)
+        logger.info("DrugVerificationEngine initialized with all records.")
     return verification_engine
 
-# LRU cache for repeated lookups by request dict
+def make_cache_key(request_dict: Dict) -> str:
+    """Create a consistent hash key for LRU cache."""
+    request_str = json.dumps(request_dict, sort_keys=True)
+    return hashlib.sha256(request_str.encode("utf-8")).hexdigest()
+
+# LRU cache for repeated lookups
 @lru_cache(maxsize=10000)
-def cached_verify_drug(request_key: str) -> Dict:
-    """Cache results for repeated queries."""
+def cached_verify_drug(request_hash: str, request_dict: Dict) -> Dict:
     engine = get_verification_engine()
-    # Use eval safely because we control the input (string from str(dict))
-    return engine.verify_drug(eval(request_key))
+    return engine.verify_drug(request_dict)
 
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
@@ -56,13 +55,16 @@ async def verify_drug(
         logger.info(f"Drug verification request by user: {current_user.email}")
         request_dict = request.dict()
 
-        # Convert dict to string for caching
-        request_key = str(request_dict)
-        result = cached_verify_drug(request_key)
+        # Generate cache key
+        cache_key = make_cache_key(request_dict)
+        result = cached_verify_drug(cache_key, request_dict)
 
         await increment_stat_counter("verifications")
         return DrugVerificationResponse(**result)
-        
+
     except Exception as e:
         logger.exception("Verification error")
-        raise HTTPException(status_code=500, detail=f"Drug verification failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Drug verification failed: {str(e)}"
+        )
