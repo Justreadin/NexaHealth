@@ -20,6 +20,5 @@ COPY . .
 # Expose port Cloud Run expects
 EXPOSE 8080
 
-# Run FastAPI app
-# app/main.py contains "app = FastAPI()"
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run FastAPI app using PORT environment variable
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
