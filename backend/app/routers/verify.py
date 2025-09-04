@@ -1,3 +1,4 @@
+# app/routers/verify.py
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, List, Dict
 import json
@@ -17,13 +18,19 @@ router = APIRouter(
 
 logger = logging.getLogger(__name__)
 
-# Load drug database
 DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_v3.json"
-with open(DRUG_DB_FILE, encoding="utf-8") as f:
-    drug_db = json.load(f)
 
-# Initialize verification engine
-verification_engine = DrugVerificationEngine(drug_db)
+# Initialize verification_engine as None
+verification_engine = None
+
+def get_verification_engine():
+    global verification_engine
+    if verification_engine is None:
+        logger.info("Loading drug database...")
+        with open(DRUG_DB_FILE, encoding="utf-8") as f:
+            drug_db = json.load(f)
+        verification_engine = DrugVerificationEngine(drug_db)
+    return verification_engine
 
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
@@ -32,14 +39,10 @@ async def verify_drug(
 ):
     try:
         logger.info(f"Drug verification request by user: {current_user.email}")
-        
-        # Convert Pydantic model to dict
         request_dict = request.dict()
-        
-        # Perform verification
-        result = verification_engine.verify_drug(request_dict)
-        
-        # Track statistics
+
+        engine = get_verification_engine()
+        result = engine.verify_drug(request_dict)
         await increment_stat_counter("verifications")
         
         return DrugVerificationResponse(**result)
