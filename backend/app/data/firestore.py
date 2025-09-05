@@ -76,4 +76,8 @@ if count > 0:
     if safe_commit(batch):
         total_uploaded += count
         msg = f"✅ Final commit of {count} docs (total {total_uploaded}/{len(drugs)})"
-        prin
+        print(msg)
+        logging.info(msg)
+
+print("🎉 Upload complete")
+logging.info("🎉 Upload complete")
