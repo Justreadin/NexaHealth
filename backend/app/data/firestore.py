@@ -4,7 +4,7 @@ import sys
 import logging
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.api_core.exceptions import DeadlineExceeded, ServiceUnavailable
+from google.api_core.exceptions import DeadlineExceeded, ServiceUnavailable, AlreadyExists
 
 # --- Logging ---
 logging.basicConfig(
@@ -29,7 +29,7 @@ with open(
     drugs = json.load(f)
 
 # --- Config ---
-MAX_BATCH_DOCS = 500       # Firestore doc limit
+MAX_BATCH_DOCS = 250       # Firestore doc limit
 MAX_BATCH_SIZE = 9 * 1024 * 1024  # 9 MiB safety margin
 RETRY_LIMIT = 5
 
@@ -46,14 +46,29 @@ def safe_commit(batch, attempt=1):
             return safe_commit(batch, attempt + 1)
         else:
             print(f"❌ Failed after {RETRY_LIMIT} retries: {e}")
+            logging.error(f"Failed after retries: {e}")
             return False
+
+# --- Resume Support ---
+def already_uploaded(doc_id: str) -> bool:
+    """Check if a doc already exists in Firestore"""
+    doc_ref = db.collection("drugs").document(doc_id)
+    return doc_ref.get().exists
 
 # --- Upload ---
 batch = db.batch()
 count, total_uploaded, current_size = 0, 0, 0
 
 for i, drug in enumerate(drugs, start=1):
-    doc_ref = db.collection("drugs").document(str(drug["unified_id"]))
+    doc_id = str(drug["unified_id"])
+
+    # Skip if already uploaded
+    if already_uploaded(doc_id):
+        if i % 1000 == 0:  # Only log every 1000 skips
+            print(f"⏩ Skipped {i} (already exists)")
+        continue
+
+    doc_ref = db.collection("drugs").document(doc_id)
     batch.set(doc_ref, drug)
 
     # Roughly estimate size in bytes
@@ -69,7 +84,7 @@ for i, drug in enumerate(drugs, start=1):
             logging.info(msg)
         batch = db.batch()
         count, current_size = 0, 0
-        time.sleep(0.2)
+        time.sleep(0.2)  # throttle to avoid rate limit
 
 # Commit remaining
 if count > 0:
@@ -79,5 +94,5 @@ if count > 0:
         print(msg)
         logging.info(msg)
 
-print("🎉 Upload complete")
-logging.info("🎉 Upload complete")
+print(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
+logging.info(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
