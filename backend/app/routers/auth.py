@@ -542,6 +542,36 @@ async def firebase_login(request: Request):
         raise HTTPException(status_code=401, detail=f"Invalid Firebase token: {str(e)}")
     
     
+@router.post("/request-password-reset")
+async def request_password_reset(reset_request: PasswordResetRequest):
+    try:
+        # Generate password reset link
+        reset_link = auth.generate_password_reset_link(reset_request.email)
+        
+        # Send email with reset link (in production)
+        email_sent = await email_service.send_password_reset_email(
+            email=reset_request.email,
+            reset_link=reset_link
+        )
+        
+        if not email_sent:
+            logger.error(f"Failed to send password reset email to {reset_request.email}")
+            
+        return {"message": "Password reset link generated", "reset_link": reset_link}
+    except auth.UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    except Exception as e:
+        logger.error(f"Password reset error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error generating reset link: {str(e)}"
+        )
+
+
+# In your auth.py file
 
 @router.post("/reset-password")
 async def reset_password(reset_data: PasswordReset):
@@ -594,41 +624,6 @@ async def reset_password(reset_data: PasswordReset):
         
     except HTTPException:
         raise
-    except Exception as e:
-        logger.error(f"Password reset error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error resetting password: {str(e)}"
-        )
-
-
-@router.post("/reset-password")
-async def reset_password(reset_data: PasswordReset):
-    try:
-        # Verify the reset token
-        email = auth.verify_password_reset_token(reset_data.token)
-
-        # Get the user
-        user = auth.get_user_by_email(email)
-
-        # Update password in Firebase Auth
-        auth.update_user(
-            user.uid,
-            password=reset_data.new_password
-        )
-
-        # Update hashed password in 
-        hashed_password = get_password_hash(reset_data.new_password)
-        db.collection("users").document(user.uid).update({
-            "hashed_password": hashed_password
-        })
-
-        return {"message": "Password updated successfully"}
-    except auth.InvalidIdTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid or expired reset token"
-        )
     except Exception as e:
         logger.error(f"Password reset error: {str(e)}")
         raise HTTPException(
