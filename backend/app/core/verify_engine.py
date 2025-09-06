@@ -8,13 +8,25 @@ import jellyfish
 from collections import defaultdict
 import heapq
 
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize Firestore (once globally)
+cred = credentials.Certificate(
+    r"C:\Users\USER\PycharmProjects\NexaHealth_Live\backend\app\core\firebase_key.json"
+)
+firebase_admin.initialize_app(cred)
+fs_db = firestore.client()
+ 
 logger = logging.getLogger(__name__)
+
 
 class DrugVerificationEngine:
     def __init__(self, drug_db: List[Dict]):
+        # Initialize DB and indexes
         self.drug_db = drug_db
         self.indexes = self._build_indexes()
-        
+
         # Scoring configuration
         self.SCORES = {
             "exact_match": 100,
@@ -35,7 +47,7 @@ class DrugVerificationEngine:
             "conflict_penalty": 25,
             "partial_match_bonus": 5
         }
-        
+
         # Common corporate suffixes for manufacturer matching
         self.CORP_SUFFIXES = [
             r"\bltd\b", r"\blimited\b", r"\bplc\b", r"\binc\b", r"\bincorporated\b",
@@ -48,7 +60,7 @@ class DrugVerificationEngine:
             r"\bsciences\b", r"\bformulations\b",
             r"\bnigeria\b", r"\bnig\.?\b", r"\bng\b"
         ]
-        
+
         # Common drug name variations
         self.DRUG_VARIANTS = {
             "paracetamol": ["panadol", "acetaminophen", "tylenol"],
@@ -58,6 +70,49 @@ class DrugVerificationEngine:
             "diclofenac": ["voltaren", "cataflam"],
             "omeprazole": ["prilosec", "losec"],
         }
+
+    @lru_cache(maxsize=1024)
+    def _cached_find_candidates(self, product_name: str, manufacturer: str, nafdac: str):
+        inputs = {
+            "product_name": product_name,
+            "manufacturer": manufacturer,
+            "nafdac": nafdac
+        }
+        return self._find_candidates(inputs)
+
+    @lru_cache(maxsize=1024)
+    def _get_drug_by_id(self, drug_id: int) -> Optional[Dict]:
+        """Fetch full drug record by ID with caching"""
+        return self.indexes["by_id"].get(drug_id)
+
+    def find_candidates_local(self, product_name: str = "", manufacturer: str = "", nafdac: str = "") -> Set[int]:
+        """
+        Optional local candidate search using built indexes.
+        This is safe to cache and avoids repeated Firestore queries.
+        """
+        candidate_ids = set()
+        
+        # NAFDAC exact match
+        if nafdac:
+            norm_nafdac = self._normalize_nafdac(nafdac)
+            if norm_nafdac in self.indexes["by_nafdac"]:
+                candidate_ids.add(self.indexes["by_nafdac"][norm_nafdac])
+
+        # Product name
+        if product_name:
+            norm_name = self._normalize_text(product_name)
+            candidate_ids.update(self.indexes["by_product_name"].get(norm_name, []))
+
+        # Manufacturer
+        if manufacturer:
+            norm_manu = self._normalize_manufacturer(manufacturer)
+            candidate_ids.update(self.indexes["by_manufacturer"].get(norm_manu, []))
+
+        # Fallback: all drugs if nothing matches
+        if not candidate_ids:
+            candidate_ids.update(self.indexes["by_id"].keys())
+
+        return candidate_ids
 
     def _build_indexes(self) -> Dict[str, Any]:
         """Build comprehensive search indexes"""
@@ -304,44 +359,54 @@ class DrugVerificationEngine:
         )
 
     def _find_candidates(self, inputs: Dict) -> Set[int]:
-        """Find potential candidate drugs based on inputs"""
+        """
+        Find potential candidate drugs based on inputs using:
+        1. Local in-memory indexes first
+        2. Firestore as fallback if nothing is found locally
+        """
         candidate_ids = set()
-        
-        # Priority 1: NAFDAC exact match
-        if inputs["nafdac"]:
-            norm_nafdac = self._normalize_nafdac(inputs["nafdac"])
-            if norm_nafdac in self.indexes["by_nafdac"]:
-                candidate_ids.add(self.indexes["by_nafdac"][norm_nafdac])
-        
-        # Priority 2: Product name matches
-        if inputs["product_name"]:
-            norm_name = self._normalize_text(inputs["product_name"])
-            for name in self.indexes["by_product_name"]:
-                if norm_name in name or name in norm_name:
-                    candidate_ids.update(self.indexes["by_product_name"][name])
-        
-        # Priority 3: Generic name matches
-        if inputs["generic_name"]:
-            norm_generic = self._normalize_text(inputs["generic_name"])
-            for generic in self.indexes["by_generic_name"]:
-                if norm_generic in generic or generic in norm_generic:
-                    candidate_ids.update(self.indexes["by_generic_name"][generic])
-        
-        # Priority 4: Manufacturer matches
-        if inputs["manufacturer"]:
-            norm_manu = self._normalize_manufacturer(inputs["manufacturer"])
-            for manu in self.indexes["by_manufacturer"]:
-                if norm_manu in manu or manu in norm_manu:
-                    candidate_ids.update(self.indexes["by_manufacturer"][manu])
-        
-        # Fallback: Fuzzy search across all texts
+
+        # --- 1. Search local indexes ---
+        candidate_ids.update(self.find_candidates_local(
+            product_name=inputs.get("product_name", ""),
+            manufacturer=inputs.get("manufacturer", ""),
+            nafdac=inputs.get("nafdac", "")
+        ))
+
+        # --- 2. Fallback to Firestore if no candidates found locally ---
         if not candidate_ids:
-            search_terms = " ".join(filter(None, inputs.values()))
-            for search_text, drug_id in self.indexes["search_texts"]:
-                if fuzz.partial_ratio(search_terms, search_text) > 50:
-                    candidate_ids.add(drug_id)
-        
+            drugs_ref = fs_db.collection("drugs")
+
+            # Priority 1: NAFDAC exact match
+            if inputs["nafdac"]:
+                norm_nafdac = self._normalize_nafdac(inputs["nafdac"])
+                docs = drugs_ref.where("identifiers.nafdac_reg_no", "==", norm_nafdac).stream()
+                for doc in docs:
+                    drug = doc.to_dict()
+                    if drug.get("nexahealth_id"):
+                        candidate_ids.add(drug["nexahealth_id"])
+
+            # Priority 2: Manufacturer match (Firestore can't do fuzzy search)
+            if inputs["manufacturer"]:
+                norm_manu = self._normalize_manufacturer(inputs["manufacturer"])
+                docs = drugs_ref.stream()
+                for doc in docs:
+                    drug = doc.to_dict()
+                    manu_name = (drug.get("manufacturer") or {}).get("name", "")
+                    if norm_manu in self._normalize_manufacturer(manu_name):
+                        if drug.get("nexahealth_id"):
+                            candidate_ids.add(drug["nexahealth_id"])
+
+            # Fallback: fetch all if still empty
+            if not candidate_ids:
+                docs = drugs_ref.stream()
+                for doc in docs:
+                    drug = doc.to_dict()
+                    if drug.get("nexahealth_id"):
+                        candidate_ids.add(drug["nexahealth_id"])
+
         return candidate_ids
+
 
     def _score_drug(self, drug: Dict, inputs: Dict) -> Tuple[float, List[Dict], List[str]]:
         """Score a drug against input criteria"""

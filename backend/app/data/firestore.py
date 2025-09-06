@@ -1,10 +1,11 @@
 import json
 import time
-import sys
+import os
 import logging
+import multiprocessing as mp
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.api_core.exceptions import DeadlineExceeded, ServiceUnavailable, AlreadyExists
+from google.api_core.exceptions import DeadlineExceeded, ServiceUnavailable
 
 # --- Logging ---
 logging.basicConfig(
@@ -13,25 +14,22 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 
-# --- Firebase Init ---
+# --- Firebase Init (done once per worker) ---
 cred = credentials.Certificate(
     r"C:\Users\USER\PycharmProjects\NexaHealth_Live\backend\app\core\firebase_key.json"
 )
-firebase_admin.initialize_app(cred)
-db = firestore.client()
 
-# --- Load JSON ---
-with open(
-    r"C:\Users\USER\PycharmProjects\NexaHealth_Live\backend\app\data\unified_drugs_with_pils_v.json",
-    "r",
-    encoding="utf-8",
-) as f:
-    drugs = json.load(f)
+def init_worker():
+    if not firebase_admin._apps:  # prevent re-init
+        firebase_admin.initialize_app(cred)
+    global db
+    db = firestore.client()
 
 # --- Config ---
 MAX_BATCH_DOCS = 250       # Firestore doc limit
 MAX_BATCH_SIZE = 9 * 1024 * 1024  # 9 MiB safety margin
 RETRY_LIMIT = 5
+CHECKPOINT_FILE = "checkpoint.txt"
 
 def safe_commit(batch, attempt=1):
     """Commit with retry on transient errors"""
@@ -49,50 +47,78 @@ def safe_commit(batch, attempt=1):
             logging.error(f"Failed after retries: {e}")
             return False
 
-# --- Resume Support ---
-def already_uploaded(doc_id: str) -> bool:
-    """Check if a doc already exists in Firestore"""
-    doc_ref = db.collection("drugs").document(doc_id)
-    return doc_ref.get().exists
+def upload_chunk(chunk, start_index, total_docs):
+    """Upload one chunk of documents to Firestore"""
+    batch = db.batch()
+    count, current_size, uploaded = 0, 0, 0
 
-# --- Upload ---
-batch = db.batch()
-count, total_uploaded, current_size = 0, 0, 0
+    for idx, drug in enumerate(chunk, start=start_index):
+        doc_id = str(drug["unified_id"])
+        doc_ref = db.collection("drugs").document(doc_id)
+        batch.set(doc_ref, drug)
 
-for i, drug in enumerate(drugs, start=1):
-    doc_id = str(drug["unified_id"])
+        doc_size = len(json.dumps(drug).encode("utf-8"))
+        current_size += doc_size
+        count += 1
 
-    # Skip if already uploaded
-    if already_uploaded(doc_id):
-        if i % 1000 == 0:  # Only log every 1000 skips
-            print(f"⏩ Skipped {i} (already exists)")
-        continue
+        if count >= MAX_BATCH_DOCS or current_size >= MAX_BATCH_SIZE:
+            if safe_commit(batch):
+                uploaded += count
+                msg = f"✅ Committed {count} docs (total {idx+1}/{total_docs})"
+                print(msg)
+                logging.info(msg)
+                # Save checkpoint
+                with open(CHECKPOINT_FILE, "w") as cp:
+                    cp.write(str(idx+1))
+            batch = db.batch()
+            count, current_size = 0, 0
+            time.sleep(0.1)
 
-    doc_ref = db.collection("drugs").document(doc_id)
-    batch.set(doc_ref, drug)
-
-    # Roughly estimate size in bytes
-    doc_size = len(json.dumps(drug).encode("utf-8"))
-    current_size += doc_size
-    count += 1
-
-    if count >= MAX_BATCH_DOCS or current_size >= MAX_BATCH_SIZE:
+    if count > 0:
         if safe_commit(batch):
-            total_uploaded += count
-            msg = f"✅ Committed {count} docs (total {total_uploaded}/{len(drugs)})"
+            uploaded += count
+            msg = f"✅ Final commit of {count} docs (total {start_index+len(chunk)}/{total_docs})"
             print(msg)
             logging.info(msg)
-        batch = db.batch()
-        count, current_size = 0, 0
-        time.sleep(0.2)  # throttle to avoid rate limit
+            with open(CHECKPOINT_FILE, "w") as cp:
+                cp.write(str(start_index+len(chunk)))
+    return uploaded
 
-# Commit remaining
-if count > 0:
-    if safe_commit(batch):
-        total_uploaded += count
-        msg = f"✅ Final commit of {count} docs (total {total_uploaded}/{len(drugs)})"
-        print(msg)
-        logging.info(msg)
+if __name__ == "__main__":
+    # --- Load JSON ---
+    with open(
+        r"C:\Users\USER\PycharmProjects\NexaHealth_Live\backend\app\data\unified_drugs_with_pils_v.json",
+        "r",
+        encoding="utf-8",
+    ) as f:
+        drugs = json.load(f)
 
-print(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
-logging.info(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
+    total_docs = len(drugs)
+    print(f"📦 Total docs to upload: {total_docs}")
+
+    # --- Resume ---
+    start_index = 0
+    if os.path.exists(CHECKPOINT_FILE):
+        with open(CHECKPOINT_FILE, "r") as cp:
+            start_index = int(cp.read().strip())
+        print(f"⏩ Resuming from index {start_index}")
+
+    # Slice docs to upload
+    docs_to_upload = drugs[start_index:]
+
+    # --- Parallel Upload ---
+    workers = 4  # adjust based on CPU + Firestore limits
+    chunk_size = len(docs_to_upload) // workers
+    chunks = [
+        docs_to_upload[i:i+chunk_size] for i in range(0, len(docs_to_upload), chunk_size)
+    ]
+
+    with mp.get_context("spawn").Pool(workers, initializer=init_worker) as pool:
+        results = [
+            pool.apply_async(upload_chunk, (chunk, start_index + i*chunk_size, total_docs))
+            for i, chunk in enumerate(chunks)
+        ]
+        total_uploaded = sum(r.get() for r in results)
+
+    print(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
+    logging.info(f"🎉 Upload complete: {total_uploaded} docs uploaded.")
