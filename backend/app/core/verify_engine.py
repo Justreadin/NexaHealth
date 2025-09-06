@@ -10,14 +10,6 @@ import heapq
 
 import firebase_admin
 from firebase_admin import credentials, firestore
-
-# Initialize Firestore (once globally)
-cred = credentials.Certificate(
-    r"C:\Users\USER\PycharmProjects\NexaHealth_Live\backend\app\core\firebase_key.json"
-)
-firebase_admin.initialize_app(cred)
-fs_db = firestore.client()
- 
 logger = logging.getLogger(__name__)
 
 
