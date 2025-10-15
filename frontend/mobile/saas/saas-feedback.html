@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexaHealth - Feedback & Issues</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-blue': '#003F88',
+                        'primary-blue': '#1E40AF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #1E40AF 0%, #003F88 100%) border-box;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2);
+        }
+        .feedback-type-option {
+            transition: all 0.2s ease;
+        }
+        .feedback-type-option:hover {
+            transform: translateY(-2px);
+        }
+        .file-upload-area {
+            transition: all 0.3s ease;
+        }
+        .file-upload-area.dragover {
+            border-color: #1E40AF;
+            background-color: #f0f7ff;
+        }
+        .radio-option {
+            transition: all 0.2s ease;
+        }
+        .radio-option:hover {
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Page Wrapper -->
+    <div class="min-h-screen bg-gray-50">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="saas-dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold font-serif text-gray-800">Feedback</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+        <!-- Main Content -->
+        <main class="max-w-lg mx-auto px-4 py-6">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Feedback & Issues</h2>
+                <p class="text-gray-600 text-sm mt-2">
+                    Tell us what's working, what's not, or what you'd like improved.
+                </p>
+            </div>
+
+            <form id="feedback-form" class="space-y-6">
+                <!-- Feedback Type -->
+                <div class="bg-white rounded-xl shadow-sm p-5 gradient-border">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-tag text-primary-blue mr-2"></i>
+                        Feedback Type *
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="feedback-type-option cursor-pointer">
+                            <input type="radio" name="feedback_type" value="feature" class="hidden peer">
+                            <div class="p-3 border-2 border-blue-100 rounded-xl text-center peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                <i class="fas fa-lightbulb text-blue-500 text-lg mb-1"></i>
+                                <p class="text-sm font-medium text-gray-700">Feature Request</p>
+                            </div>
+                        </label>
+                        
+                        <label class="feedback-type-option cursor-pointer">
+                            <input type="radio" name="feedback_type" value="bug" class="hidden peer">
+                            <div class="p-3 border-2 border-red-100 rounded-xl text-center peer-checked:border-red-500 peer-checked:bg-red-50">
+                                <i class="fas fa-bug text-red-500 text-lg mb-1"></i>
+                                <p class="text-sm font-medium text-gray-700">Bug / Issue</p>
+                            </div>
+                        </label>
+                        
+                        <label class="feedback-type-option cursor-pointer">
+                            <input type="radio" name="feedback_type" value="general" class="hidden peer">
+                            <div class="p-3 border-2 border-yellow-100 rounded-xl text-center peer-checked:border-yellow-500 peer-checked:bg-yellow-50">
+                                <i class="fas fa-comment text-yellow-500 text-lg mb-1"></i>
+                                <p class="text-sm font-medium text-gray-700">General Feedback</p>
+                            </div>
+                        </label>
+                        
+                        <label class="feedback-type-option cursor-pointer">
+                            <input type="radio" name="feedback_type" value="performance" class="hidden peer">
+                            <div class="p-3 border-2 border-green-100 rounded-xl text-center peer-checked:border-green-500 peer-checked:bg-green-50">
+                                <i class="fas fa-tachometer-alt text-green-500 text-lg mb-1"></i>
+                                <p class="text-sm font-medium text-gray-700">Performance</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div class="bg-white rounded-xl shadow-sm p-5 gradient-border">
+                    <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-heading text-primary-blue mr-2"></i>
+                        Subject *
+                    </label>
+                    <input type="text" name="subject" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                           placeholder="Brief title e.g. Unable to update pharmacy details">
+                </div>
+
+                <!-- Description -->
+                <div class="bg-white rounded-xl shadow-sm p-5 gradient-border">
+                    <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-align-left text-primary-blue mr-2"></i>
+                        Description *
+                    </label>
+                    <textarea name="description" rows="4" required
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                              placeholder="Describe the issue or suggestion in detail..."></textarea>
+                    <p class="text-xs text-gray-500 mt-2">
+                        Please include specific details about what you were doing when the issue occurred or what improvement you'd like to see.
+                    </p>
+                </div>
+
+                <!-- Evidence Upload -->
+                <div class="bg-white rounded-xl shadow-sm p-5 gradient-border">
+                    <label class="block text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-paperclip text-primary-blue mr-2"></i>
+                        Attach Evidence (Optional)
+                    </label>
+                    
+                    <div id="file-upload-area" class="file-upload-area border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer transition">
+                        <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl mb-2"></i>
+                        <p class="text-sm text-gray-600 font-medium">Drag & drop files or click to browse</p>
+                        <p class="text-xs text-gray-500 mt-1">Supports JPG, PNG, PDF (Max 3 files, 5MB each)</p>
+                        <input type="file" id="file-input" name="evidence" accept="image/*,.pdf" multiple class="hidden">
+                    </div>
+                    
+                    <div id="file-preview" class="mt-4 space-y-2 hidden">
+                        <!-- File previews will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Contact Preference -->
+                <div class="bg-white rounded-xl shadow-sm p-5 gradient-border">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-envelope text-primary-blue mr-2"></i>
+                        Follow-up Preference
+                    </h3>
+                    
+                    <div class="space-y-2">
+                        <label class="radio-option flex items-center p-3 rounded-lg border border-gray-200 cursor-pointer">
+                            <input type="radio" name="contact_preference" value="email" checked
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                            <div class="ml-3">
+                                <span class="text-sm font-medium text-gray-800">Use my account email for follow-up</span>
+                                <p class="text-xs text-gray-500 mt-1">contact@lifelinepharmacy.com</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-option flex items-center p-3 rounded-lg border border-gray-200 cursor-pointer">
+                            <input type="radio" name="contact_preference" value="anonymous"
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500">
+                            <div class="ml-3">
+                                <span class="text-sm font-medium text-gray-800">Submit without follow-up</span>
+                                <p class="text-xs text-gray-500 mt-1">We won't contact you about this feedback</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit"
+                        class="w-full gradient-bg hover:shadow-lg text-white py-4 rounded-xl font-semibold text-lg transition-all flex items-center justify-center">
+                    <i class="fas fa-paper-plane mr-2"></i> Send Feedback
+                </button>
+
+                <p class="text-xs text-gray-500 text-center">
+                    We typically respond to feedback within 2-3 business days. For urgent issues, please contact support directly.
+                </p>
+            </form>
+
+            <!-- Support Information -->
+            <div class="mt-8 bg-blue-50 rounded-xl p-4 border border-blue-200">
+                <div class="flex items-start">
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fas fa-life-ring text-primary-blue"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-800 mb-1">Need Immediate Help?</h3>
+                        <p class="text-xs text-gray-600 mb-2">
+                            For urgent issues affecting your pharmacy operations, contact our support team directly.
+                        </p>
+                        <div class="flex space-x-3">
+                            <a href="mailto:support@nexahealth.com" class="text-xs text-primary-blue font-medium hover:underline">
+                                <i class="fas fa-envelope mr-1"></i> Email Support
+                            </a>
+                            <a href="tel:+2348001234567" class="text-xs text-primary-blue font-medium hover:underline">
+                                <i class="fas fa-phone mr-1"></i> Call Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // File upload functionality
+        const fileUploadArea = document.getElementById('file-upload-area');
+        const fileInput = document.getElementById('file-input');
+        const filePreview = document.getElementById('file-preview');
+        let fileCount = 0;
+
+        fileUploadArea.addEventListener('click', () => {
+            if (fileCount < 3) {
+                fileInput.click();
+            } else {
+                alert('Maximum 3 files allowed');
+            }
+        });
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                if (fileCount + e.dataTransfer.files.length > 3) {
+                    alert('Maximum 3 files allowed. Please select fewer files.');
+                    return;
+                }
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (fileCount + e.target.files.length > 3) {
+                alert('Maximum 3 files allowed. Please select fewer files.');
+                return;
+            }
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            filePreview.classList.remove('hidden');
+            
+            for (let i = 0; i < files.length; i++) {
+                if (fileCount >= 3) break;
+                
+                const file = files[i];
+                const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                
+                if (fileSizeMB > 5) {
+                    alert(`File "${file.name}" is too large. Maximum size is 5MB.`);
+                    continue;
+                }
+                
+                fileCount++;
+                
+                const previewItem = document.createElement('div');
+                previewItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded-lg';
+                
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewItem.innerHTML = `
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded flex items-center justify-center mr-2">
+                                    <i class="fas fa-image text-blue-500 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-700 truncate max-w-[150px]">${file.name}</p>
+                                    <p class="text-xs text-gray-500">${fileSizeMB} MB</p>
+                                </div>
+                            </div>
+                            <button type="button" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        previewItem.querySelector('button').addEventListener('click', () => {
+                            previewItem.remove();
+                            fileCount--;
+                            if (fileCount === 0) {
+                                filePreview.classList.add('hidden');
+                            }
+                        });
+                        filePreview.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewItem.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-red-100 rounded flex items-center justify-center mr-2">
+                                <i class="fas fa-file-pdf text-red-500 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-gray-700 truncate max-w-[150px]">${file.name}</p>
+                                <p class="text-xs text-gray-500">${fileSizeMB} MB</p>
+                            </div>
+                        </div>
+                        <button type="button" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    previewItem.querySelector('button').addEventListener('click', () => {
+                        previewItem.remove();
+                        fileCount--;
+                        if (fileCount === 0) {
+                            filePreview.classList.add('hidden');
+                        }
+                    });
+                    filePreview.appendChild(previewItem);
+                }
+            }
+        }
+
+        // Form submission
+        document.getElementById('feedback-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(e.target);
+            const feedbackType = formData.get('feedback_type');
+            
+            if (!feedbackType) {
+                alert('Please select a feedback type');
+                return;
+            }
+            
+            // Show success message
+            alert('Thank you for your feedback! We appreciate you helping us improve NexaHealth.');
+            
+            // Reset form
+            e.target.reset();
+            filePreview.classList.add('hidden');
+            filePreview.innerHTML = '';
+            fileCount = 0;
+            
+            // Reset feedback type selection
+            document.querySelectorAll('input[name="feedback_type"]').forEach(radio => {
+                radio.checked = false;
+            });
+        });
+
+        // Add interactivity to feedback type options
+        document.querySelectorAll('.feedback-type-option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove any existing checked styles from siblings
+                this.parentElement.querySelectorAll('.feedback-type-option').forEach(sibling => {
+                    if (sibling !== this) {
+                        const div = sibling.querySelector('div');
+                        div.classList.remove('border-blue-500', 'bg-blue-50', 'border-red-500', 'bg-red-50', 'border-yellow-500', 'bg-yellow-50', 'border-green-500', 'bg-green-50');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

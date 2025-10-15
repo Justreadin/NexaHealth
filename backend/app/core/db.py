@@ -95,7 +95,7 @@ db = firebase_manager.get_firestore_client()
 def get_server_timestamp():
     return firestore.SERVER_TIMESTAMP
 
-# Firestore Collections
+
 users_collection = db.collection("users")
 reports_collection = db.collection("reports")
 stats_collection = db.collection("stats")
@@ -105,25 +105,59 @@ stats_collection = db.collection("stats")
 # -------------------------------
 
 def get_user_role(user_id: str) -> Optional[str]:
-    """Fetch the role of a user from Firestore 'users' collection"""
+    """
+    Returns the **primary** role. If multiple exist, pick the highest.
+    """
+    print("🔥 USING get_user_role FROM db.py ✅")
     doc = users_collection.document(user_id).get()
     if doc.exists:
-        return doc.to_dict().get("role", "user")
+        data = doc.to_dict()
+        roles = data.get("roles", [])
+
+        if not roles:
+            return "user"  # default fallback
+
+        # Order of priority
+        priority = ["admin", "pharmacy", "user"]
+        for role in priority:
+            if role in roles:
+                return role
+
     return None
+
+def user_has_role(user_id: str, role: str) -> bool:
+    doc = users_collection.document(user_id).get()
+    if doc.exists:
+        roles = doc.to_dict().get("roles", [])
+        return role in roles
+    return False
+
 
 def is_admin(user: dict) -> bool:
     return user and user.get("role") == "admin"
 
 def is_pharmacist(user: dict) -> bool:
-    return user and user.get("role") == "pharmacist"
+    return user and user.get("role") == "pharmacy"
 
 def is_user(user: dict) -> bool:
     return user and user.get("role") == "user"
 
-# Optional: Attach role to user (on sign-up or auth)
 def set_user_role(user_id: str, role: str):
-    """Set or update the role for a user"""
-    users_collection.document(user_id).set({"role": role}, merge=True)
+    """Assign role inside 'roles' array instead of old 'role' field"""
+    if role not in ["user", "pharmacy", "admin"]:
+        raise ValueError("Invalid role")
+    
+    doc_ref = users_collection.document(user_id)
+    doc = doc_ref.get()
+    
+    if doc.exists:
+        data = doc.to_dict()
+        roles = data.get("roles", [])
+        if role not in roles:
+            roles.append(role)
+        doc_ref.set({"roles": roles}, merge=True)
+    else:
+        doc_ref.set({"roles": [role]}, merge=True)
 
 # Optional: Fetch full user data
 def get_user_profile(user_id: str) -> Optional[dict]:
@@ -159,5 +193,5 @@ __all__ = [
     'firebase_manager',
     'get_user_role', 'set_user_role',
     'get_user_profile',
-    'is_admin', 'is_pharmacist', 'is_user'
+    'is_admin', 'is_pharmacy', 'is_user'
 ]

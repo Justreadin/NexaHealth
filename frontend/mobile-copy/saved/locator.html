@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nigeria Health Facilities | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#2563eb',
+                        'primary-dark': '#1d4ed8',
+                        'secondary': '#7c3aed',
+                        'danger': '#dc2626',
+                        'success': '#16a34a',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="locator.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="dashboard.html" class="text-primary font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <h1 class="text-xl font-bold font-serif">Nigeria Health Facilities</h1>
+            <div class="w-10"></div> <!-- Spacer for balance -->
+        </div>
+    </header>
+
+    <main class="pb-6">
+        <!-- Search and Filter Section -->
+        <div class="bg-white shadow-sm p-4 sticky top-16 z-20">
+            <div class="container mx-auto">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search Input -->
+                    <div class="flex-grow relative">
+                        <input type="text" id="search-input" 
+                               class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                               placeholder="Search clinics, pharmacies...">
+                        <div class="absolute left-3 top-3.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                    </div>
+                    <div id="location-details" class="text-sm text-gray-600 px-4 py-2 hidden"></div>
+                    
+                    <!-- Filter Button -->
+                    <button id="filter-toggle" class="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Filters</span>
+                    </button>
+                    
+                    <!-- Location Button -->
+                    <button id="location-btn" class="flex items-center justify-center gap-2 bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary-dark transition-colors text-sm">
+                        <i class="fas fa-location-arrow"></i>
+                        <span>Near Me</span>
+                    </button>
+                </div>
+                
+                <!-- Filter Panel (Hidden by default) -->
+                <div id="filter-panel" class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Facility Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Facility Type</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-type" value="pharmacy" class="rounded text-primary" checked>
+                                    <span class="ml-2 text-sm">Pharmacies</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-type" value="clinic" class="rounded text-primary" checked>
+                                    <span class="ml-2 text-sm">Clinics</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-type" value="hospital" class="rounded text-primary" checked>
+                                    <span class="ml-2 text-sm">Hospitals</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-type" value="maternity" class="rounded text-primary">
+                                    <span class="ml-2 text-sm">Maternity</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-type" value="primary_health" class="rounded text-primary">
+                                    <span class="ml-2 text-sm">Primary Health</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Verification Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Verification</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-status" value="verified" class="rounded text-primary" checked>
+                                    <span class="ml-2 text-sm flex items-center">
+                                        <span class="verified-badge w-2 h-2 rounded-full mr-2"></span>
+                                        Verified
+                                    </span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="facility-status" value="flagged" class="rounded text-primary">
+                                    <span class="ml-2 text-sm flex items-center">
+                                        <span class="flagged-badge w-2 h-2 rounded-full mr-2"></span>
+                                        Flagged
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Distance -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Distance</label>
+                            <select id="distance-filter" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm">
+                                <option value="1">Within 1 km</option>
+                                <option value="5">Within 5 km</option>
+                                <option value="10" selected>Within 10 km</option>
+                                <option value="20">Within 20 km</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button id="reset-filters" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                            Reset
+                        </button>
+                        <button id="apply-filters" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary-dark">
+                            Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="container mx-auto px-4 mt-4">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Map Column -->
+                <div class="lg:w-2/3 relative z-0">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="map-container" id="facility-map"></div>
+                    </div>
+                </div>
+                
+                <!-- List Column -->
+                <div class="lg:w-1/3">
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- List Header -->
+                        <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="font-medium">Nearby Facilities</h3>
+                            <div class="flex items-center gap-2">
+                                <button id="list-view-btn" class="p-2 text-gray-500 hover:text-primary">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                                <button id="grid-view-btn" class="p-2 text-primary">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Facility List -->
+                        <div id="facility-list" class="p-4 overflow-y-auto max-h-[500px] custom-scrollbar">
+                            <!-- Loading State -->
+                            <div id="loading-state" class="flex flex-col items-center justify-center py-12">
+                                <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <p class="text-gray-500">Finding nearby facilities...</p>
+                            </div>
+                            
+                            <!-- Empty State -->
+                            <div id="empty-state" class="hidden flex-col items-center justify-center py-12 text-center">
+                                <i class="fas fa-map-marker-alt text-3xl text-gray-400 mb-3"></i>
+                                <h4 class="font-medium text-gray-700 mb-1">No facilities found</h4>
+                                <p class="text-sm text-gray-500 max-w-xs">Try adjusting your filters or search location</p>
+                            </div>
+                            
+                            <!-- Grid View -->
+                            <div id="grid-view" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                                <!-- Facility cards will be inserted here -->
+                            </div>
+                            
+                            <!-- List View -->
+                            <div id="list-view" class="hidden space-y-3">
+                                <!-- Facility list items will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Facility Detail Modal -->
+    <div id="facility-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto slide-up">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-gray-200 sticky top-0 bg-white z-10 flex justify-between items-center">
+                <h3 class="font-medium text-lg">Facility Details</h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Facility Header -->
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="flex-shrink-0">
+                        <div id="facility-icon" class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-primary">
+                            <i class="fas fa-clinic-medical text-2xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 id="facility-name" class="font-bold text-xl"></h2>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span id="facility-type" class="bg-blue-100 text-primary text-xs px-2 py-1 rounded-full"></span>
+                            <span id="facility-status" class="verified-badge text-white text-xs px-2 py-1 rounded-full flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                <span id="status-text">Verified</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Facility Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Contact Information</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-start">
+                                    <i class="fas fa-map-marker-alt text-gray-500 mt-1 mr-3"></i>
+                                    <p id="facility-address"></p>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-phone-alt text-gray-500 mr-3"></i>
+                                    <a id="facility-phone" href="#" class="text-primary hover:underline"></a>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-envelope text-gray-500 mr-3"></i>
+                                    <a id="facility-email" href="#" class="text-primary hover:underline"></a>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-globe text-gray-500 mr-3"></i>
+                                    <a id="facility-website" href="#" target="_blank" class="text-primary hover:underline"></a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Opening Hours</h4>
+                            <div id="facility-hours" class="space-y-1">
+                                <!-- Hours will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Services</h4>
+                            <div id="facility-services" class="flex flex-wrap gap-2">
+                                <!-- Services will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Distance</h4>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-walking text-gray-500"></i>
+                                <span id="facility-distance"></span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-700 mb-2">Last Verified</h4>
+                            <p id="facility-verified"></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-8 grid grid-cols-2 gap-3">
+                    <button id="get-directions" class="bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-medium flex items-center justify-center gap-2">
+                        <i class="fas fa-directions"></i>
+                        <span>Get Directions</span>
+                    </button>
+                    <button id="call-now" class="bg-white border border-primary text-primary py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center justify-center gap-2">
+                        <i class="fas fa-phone-alt"></i>
+                        <span>Call Now</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Permission Modal -->
+    <div id="location-permission-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 slide-up">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-location-arrow text-primary text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-lg mb-2">Enable Location Services</h3>
+                <p class="text-gray-600">To find facilities near you, we need access to your location. We only use your location for this search.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button id="deny-location" class="bg-white border border-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-50">
+                    Not Now
+                </button>
+                <button id="allow-location" class="bg-primary hover:bg-primary-dark text-white py-2 rounded-lg font-medium">
+                    Allow Location
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="locator.js"></script>
+</body>
+</html>

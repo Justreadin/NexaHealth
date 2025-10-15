@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request, Depends
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Request, Depends, logger
 from typing import Optional, Literal
 from datetime import datetime
 import os
@@ -10,7 +10,8 @@ from app.utils.alerts import create_alert_for_ae
 from google.cloud.firestore_v1.base_query import FieldFilter
 from app.models.auth_model import UserInDB
 from app.core.auth import get_current_active_user
-from app.routers.count import increment_stat_counter
+
+from app.routers.count import increment_user_stat 
 
 router = APIRouter(prefix="/reports", tags=["Drug Safety Reports"])
 
@@ -85,13 +86,17 @@ async def submit_pqc_report(
         doc_ref = reports_collection.document()
         doc_ref.set(report_data)
 
-        await increment_stat_counter("reports")
-
+        try:
+            increment_user_stat(current_user.id if not is_anonymous else None, "reports")
+        except Exception:
+            logger.exception("Failed to increment report stat")
+            
         return ReportResponse(
             message="PQC report submitted successfully",
             report_id=doc_ref.id,
             status="success"
         )
+
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -152,7 +157,11 @@ async def submit_ae_report(
         if report_data["follow_up_required"]:
             await create_alert_for_ae(report_data)
 
-        await increment_stat_counter("reports")
+        try:
+            increment_user_stat(current_user.id if not is_anonymous else None, "reports")
+        except Exception:
+            logger.exception("Failed to increment report stat")
+
 
         return ReportResponse(
             message="AE report submitted successfully",

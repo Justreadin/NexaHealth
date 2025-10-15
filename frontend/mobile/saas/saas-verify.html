@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexaHealth - medication Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-blue': '#2563eb',
+                        'primary-blue': '#1E40AF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #2563eb 0%, #2563eb 100%) border-box;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #2563eb 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2);
+        }
+        .scan-animation {
+            animation: scan 2s ease-in-out infinite;
+        }
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0.7; }
+            50% { transform: translateY(20px); opacity: 1; }
+            100% { transform: translateY(0); opacity: 0.7; }
+        }
+        .verified-badge {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        .warning-badge {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+        }
+        .danger-badge {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="saas-dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold font-serif text-gray-800">Verify</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <!-- Page Container -->
+    <div class="px-4 py-6 space-y-6">
+        <!-- Hero Section -->
+        <section class="gradient-bg text-white rounded-2xl p-5 shadow-lg">
+            <h2 class="text-xl font-bold mb-2">Medication Safety Check</h2>
+            <p class="text-sm opacity-90">
+                Verify the authenticity and safety of a medication before dispensing.
+            </p>
+        </section>
+
+        <!-- Scan Option 
+        <section class="bg-white rounded-2xl p-5 shadow-sm gradient-border">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-camera text-primary-blue mr-2"></i>
+                Quick Scan
+            </h3>
+            <div class="text-center">
+                <div class="relative mx-auto w-48 h-48 bg-gray-100 rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-300 mb-4">
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-primary-blue scan-animation rounded-full"></div>
+                    <i class="fas fa-barcode text-4xl text-gray-400"></i>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">Scan medication barcode for instant verification</p>
+                <button id="scan-btn" class="w-full gradient-border text-primary-blue hover:text-white gradient-hover py-3 rounded-xl font-semibold transition-all duration-300">
+                    <i class="fas fa-camera mr-2"></i> Scan Barcode
+                </button>
+            </div>
+        </section>---->
+
+        <!-- Manual Entry Section -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm gradient-border">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-keyboard text-primary-blue mr-2"></i>
+                Manual Entry
+            </h3>
+
+            <form id="verification-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        medication Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="drug-name"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                           placeholder="e.g., Amoxicillin 500mg">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <!---<div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Batch Number
+                        </label>
+                        <input type="text" id="batch-number"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                               placeholder="e.g., BX25478">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Expiry Date
+                        </label>
+                        <input type="date" id="expiry-date"
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    </div>
+                </div>--->
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        NAFDAC Number
+                    </label>
+                    <input type="text" id="nafdac-number"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                           placeholder="e.g., 04-1234">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Manufacturer
+                    </label>
+                    <input type="text" id="manufacturer"
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                           placeholder="e.g., GSK Pharmaceuticals">
+                </div>
+
+                <button type="submit"
+                        class="w-full gradient-bg hover:shadow-lg text-white py-3 rounded-xl font-semibold transition-all flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i> Verify medication
+                </button>
+            </form>
+        </section>
+
+        <!-- Result Section -->
+        <section id="result-section" class="bg-white rounded-2xl p-5 shadow-sm gradient-border hidden">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-clipboard-check text-primary-blue mr-2"></i>
+                Verification Result
+            </h3>
+            
+            <div id="result-content">
+                <!-- Results will be dynamically inserted here -->
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <button id="new-verification" class="w-full gradient-border text-primary-blue hover:text-white gradient-hover py-2 rounded-lg font-medium transition-all duration-300">
+                    <i class="fas fa-redo mr-2"></i> Verify Another medication
+                </button>
+            </div>
+        </section>
+
+<script src="js/saas-verify.js"></script>
+</body>
+</html>

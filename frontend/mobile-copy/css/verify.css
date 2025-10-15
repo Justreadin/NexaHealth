@@ -1,0 +1,230 @@
+:root {
+    --primary: #2563eb;
+    --secondary: #1e40af;
+    --accent: #3b82f6;
+    --dark: #1e293b;
+    --light: #f8fafc;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light);
+}
+
+.health-gradient {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+}
+
+.drug-card {
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(30, 41, 59, 0.1);
+}
+
+.drug-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 15px rgba(30, 41, 59, 0.1);
+}
+
+.nav-tab {
+    position: relative;
+}
+
+.nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--accent);
+    border-radius: 3px;
+}
+
+.autocomplete-item:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+.scan-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Status colors */
+.error-status {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+}
+
+.verified-status {
+    background-color: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+}
+
+.warning-status {
+    background-color: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+}
+
+/* Trust score colors */
+.trust-score-high {
+    background-color: #10B981;
+}
+
+.trust-score-medium {
+    background-color: #F59E0B;
+}
+
+.trust-score-low {
+    background-color: #EF4444;
+}
+
+.text-green-600 { color: #059669; }
+.text-yellow-600 { color: #D97706; }
+.text-red-600 { color: #DC2626; }
+
+/* Status colors */
+.bg-green-50 { background-color: #ECFDF5; border-color: #D1FAE5; }
+.text-green-800 { color: #065F46; }
+.text-green-700 { color: #047857; }
+.bg-yellow-50 { background-color: #FFFBEB; border-color: #FEF3C7; }
+.text-yellow-800 { color: #92400E; }
+.text-yellow-700 { color: #B45309; }
+.bg-red-50 { background-color: #FEF2F2; border-color: #FEE2E2; }
+.text-red-800 { color: #991B1B; }
+.text-red-700 { color: #B91C1C; }
+
+/* Drug image container */
+.bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to));
+}
+
+/* Animation for verification status */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+/* Verification Results */
+#results-modal {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Status Colors */
+.verified-status {
+    border-color: #10B981;
+    background-color: #ECFDF5;
+}
+.verified-status #status-icon {
+    background-color: #D1FAE5;
+    color: #10B981;
+}
+.verified-status #status-title {
+    color: #065F46;
+}
+.verified-status #status-message {
+    color: #047857;
+}
+
+.warning-status {
+    border-color: #F59E0B;
+    background-color: #FFFBEB;
+}
+.warning-status #status-icon {
+    background-color: #FEF3C7;
+    color: #F59E0B;
+}
+.warning-status #status-title {
+    color: #92400E;
+}
+.warning-status #status-message {
+    color: #B45309;
+}
+
+.error-status {
+    border-color: #EF4444;
+    background-color: #FEF2F2;
+}
+.error-status #status-icon {
+    background-color: #FEE2E2;
+    color: #EF4444;
+}
+.error-status #status-title {
+    color: #991B1B;
+}
+.error-status #status-message {
+    color: #B91C1C;
+}
+
+/* Action Buttons */
+.action-btn {
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Possible Matches */
+.possible-match-card {
+    transition: all 0.2s ease;
+}
+
+.possible-match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Crowd reports styling */
+#crowd-reports-container {
+    transition: all 0.3s ease;
+}
+
+#crowd-report-text {
+    font-weight: 500;
+}
+
+/* Verification info styling */
+#verification-info-container {
+    transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .drug-card {
+        padding: 1rem;
+    }
+    
+    #results-modal .p-6 {
+        padding: 1rem;
+    }
+    
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.text-green-600 { color: #16a34a; }
+.text-yellow-600 { color: #ca8a04; }
+.text-red-600 { color: #dc2626; }

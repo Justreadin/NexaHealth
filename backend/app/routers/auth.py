@@ -221,8 +221,13 @@ async def confirm_email(confirmation: EmailConfirmation):
                 "created_at":  get_server_timestamp(),
                 "last_login": None,
                 "ip_address": pending_data.get("ip_address", ""),
-                "firebase_uid": firebase_user.uid
+                "firebase_uid": firebase_user.uid,
+                "role": "user",     
+                "status": "active" 
             })
+
+            from app.core.db import set_user_role
+            set_user_role(firebase_user.uid, "user")
 
             # Migrate guest data if exists
             if guest_session_id := pending_data.get("guest_session_id"):
@@ -388,17 +393,6 @@ async def login(
         except Exception as update_error:
             logger.error(f"Failed to update login record: {str(update_error)}")
             # Non-critical error, continue
-
-        # 4. Migrate Guest Data (if applicable) with transaction
-        if guest_session_id:
-            try:
-                logger.info(f"Migrating guest data for session: {guest_session_id}")
-                async with await db.transaction() as transaction:
-                    await migrate_guest_data(user.id, guest_session_id, transaction)
-                logger.info("Guest data migration successful")
-            except Exception as migration_error:
-                logger.error(f"Guest data migration failed: {str(migration_error)}")
-                # Non-critical error, continue
 
         # 5. Generate Tokens with enhanced security claims
         token_payload = {
@@ -630,7 +624,6 @@ async def reset_password(reset_data: PasswordReset):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error resetting password: {str(e)}"
         )
-
 
 @router.get("/me", response_model=UserPublic)
 async def read_users_me(

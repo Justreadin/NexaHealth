@@ -1,50 +1,54 @@
 # app/routers/verify.py
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict
-from pathlib import Path
 from app.models.verify_model import DrugVerificationRequest, DrugVerificationResponse
 from app.models.auth_model import UserInDB
 from app.core.auth import get_current_active_user
+from app.routers.count import increment_user_stat
+from app.core.db import db
 from app.core.verify_engine import DrugVerificationEngine
-from app.routers.count import increment_stat_counter
 import logging
-from functools import lru_cache
-import json
-import hashlib
-
-router = APIRouter(
-    prefix="/api/verify",
-    tags=["Drug Verification"],
-    responses={404: {"description": "Not found"}}
-)
 
 logger = logging.getLogger(__name__)
-DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_v3.json"
+router = APIRouter(prefix="/api/verify", tags=["Drug Verification"])
 
-# Global engine
-verification_engine: DrugVerificationEngine = None
+# Lazy-initialized engine
+engine: DrugVerificationEngine = None
 
-def get_verification_engine() -> DrugVerificationEngine:
-    """Initialize or return the existing engine (singleton)."""
-    global verification_engine
-    if verification_engine is None:
-        logger.info("Loading drug database into memory...")
-        with open(DRUG_DB_FILE, 'r', encoding='utf-8') as f:
-            drug_db = json.load(f)  # Load once at startup
-        verification_engine = DrugVerificationEngine(drug_db)
-        logger.info("DrugVerificationEngine initialized with all records.")
-    return verification_engine
+async def get_engine() -> DrugVerificationEngine:
+    """
+    Lazy-load the DrugVerificationEngine to avoid long startup times
+    and Firestore timeouts for large datasets.
+    """
+    global engine
+    if engine is None:
+        logger.info("Initializing DrugVerificationEngine with Firestore drugs (lazy load)...")
+        drugs = []
+        batch_size = 1000  # smaller batches for large collections
+        last_doc = None
 
-def make_cache_key(request_dict: Dict) -> str:
-    """Create a consistent hash key for LRU cache."""
-    request_str = json.dumps(request_dict, sort_keys=True)
-    return hashlib.sha256(request_str.encode("utf-8")).hexdigest()
+        while True:
+            query = db.collection("drugs").order_by("nexahealth_id").limit(batch_size)
+            if last_doc:
+                query = query.start_after(last_doc)
+            docs = list(query.stream())
 
-# LRU cache for repeated lookups
-@lru_cache(maxsize=10000)
-def cached_verify_drug(request_hash: str, request_dict: Dict) -> Dict:
-    engine = get_verification_engine()
-    return engine.verify_drug(request_dict)
+            if not docs:
+                break
+
+            for doc in docs:
+                drugs.append(doc.to_dict())
+
+            last_doc = docs[-1]
+
+            # Avoid memory overload if dataset is huge
+            if len(drugs) >= 10000:  # configurable max
+                logger.warning("Loaded 10k drugs, stopping batch load to prevent memory issues")
+                break
+
+        engine = DrugVerificationEngine(drug_db=drugs)
+        logger.info(f"Loaded {len(drugs)} drugs into engine.")
+    return engine
 
 @router.post("/drug", response_model=DrugVerificationResponse)
 async def verify_drug(
@@ -55,13 +59,21 @@ async def verify_drug(
         logger.info(f"Drug verification request by user: {current_user.email}")
         request_dict = request.dict()
 
-        # Generate cache key
-        cache_key = make_cache_key(request_dict)
-        result = cached_verify_drug(cache_key, request_dict)
+        # Lazy-load engine
+        engine_instance = await get_engine()
 
-        await increment_stat_counter("verifications")
-        return DrugVerificationResponse(**result)
+        # Run verification
+        result = engine_instance.verify_drug(request_dict)
 
+        try:
+            increment_user_stat(current_user.id, "verifications")
+        except Exception:
+            logger.exception("Failed to increment verification stat")
+
+        return result
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("Verification error")
         raise HTTPException(

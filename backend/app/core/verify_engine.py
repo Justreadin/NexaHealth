@@ -6,10 +6,9 @@ from rapidfuzz import fuzz, process
 from functools import lru_cache
 import jellyfish
 from collections import defaultdict
+from app.core.db import db
 import heapq
 
-import firebase_admin
-from firebase_admin import credentials, firestore
 logger = logging.getLogger(__name__)
 
 

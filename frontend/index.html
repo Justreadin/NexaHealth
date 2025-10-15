@@ -3,102 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NexaHealth - Verify medications with our drug safety scanner, get AI health advice, report product quality issues, access digital leaflets, and find verified health facilities in Nigeria.">
-    <meta name="keywords" content="drug verification, NAFDAC, symptom checker, mental health AI, report fake drugs, pharmacy locator, Nigeria medication safety">
-    <meta name="author" content="NexaHealth">
-    <meta property="og:title" content="NexaHealth | Your Complete Health Companion">
-    <meta property="og:description" content="Verify medications, check symptoms, and get AI health advice with NexaHealth - Nigeria's trusted health platform.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://nexahealth.vercel.app">
-    <meta property="og:image" content="https://nexahealth.vercel.app/images/og-image.jpg">
-    <meta name="twitter:card" content="summary_large_image">
+    <title>NexaHealth | Reject Fake Drugs. Protect Yourself and Your Community.</title>
     
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://www.nexahealth.life">
-    
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    
-    <title>NexaHealth | Your Complete Health Companion for Drug Verification & Health Advice</title>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style">
-    
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
-                screens: {
-                    'xs': '375px',
-                    'sm': '640px',
-                    'md': '768px',
-                    'lg': '1024px',
-                    'xl': '1280px',
-                    '2xl': '1536px',
-                },
                 extend: {
                     colors: {
                         primary: '#2563eb',
                         secondary: '#1e40af',
-                        accent: '#3b82f6',
-                        dark: '#1e293b',
-                        darker: '#020617',
+                        accent: '#10b981',
+                        dark: '#0f172a',
                         light: '#f8fafc',
-                        health: {
-                            gradient: {
-                                start: '#2563eb',
-                                end: '#1e40af'
-                            }
+                        elegant: {
+                            dark: '#0a0f1c',
+                            light: '#f8fafc',
+                            black: '#94a3b8'
                         }
                     },
                     fontFamily: {
-                        sans: ['Poppins', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
                     },
                     animation: {
-                        'fade-in': 'fadeIn 1s ease-in-out',
-                        'slide-up': 'slideUp 0.8s ease-out',
-                        'pulse-slow': 'pulse 3s infinite',
-                        'ripple': 'ripple 2s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out',
+                        'fade-in': 'fadeIn 1s ease-in',
                         'float': 'float 6s ease-in-out infinite',
-                        'wave': 'wave 8s linear infinite',
+                        'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
                     },
                     keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
                         fadeIn: {
                             '0%': { opacity: '0' },
                             '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        ripple: {
-                            '0%': { transform: 'scale(0.8)', opacity: '1' },
-                            '100%': { transform: 'scale(2.4)', opacity: '0' },
                         },
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-10px)' },
                         },
-                        wave: {
-                            '0%': { transform: 'translateX(0)' },
-                            '100%': { transform: 'translateX(-50%)' },
+                        pulseSoft: {
+                            '0%, 100%': { opacity: '1' },
+                            '50%': { opacity: '0.8' },
                         }
                     }
                 }
@@ -106,609 +65,818 @@
         }
     </script>
     
-    <style type="text/css">
-        :root {
-            --primary: #2563eb;
-            --secondary: #1e40af;
-            --accent: #3b82f6;
-            --dark: #1e293b;
-            --light: #f8fafc;
+    <style>
+        html {
+            scroll-behavior: smooth;
         }
         
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
             overflow-x: hidden;
         }
         
-        /* Hero Gradient */
-        .hero-gradient {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
-        }
-        
-        /* Health Gradient (from verify.html) */
-        .health-gradient {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
-        }
-        
-        /* Modern card style with glass effect */
-        .feature-card {
-            background: rgba(255, 255, 255, 0.9);
+        /* Premium glass effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
         }
         
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent), var(--secondary));
+        .glass-card-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Elegant gradients */
+        .hero-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .accent-gradient {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .dark-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        
+        /* Premium button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #2563eb;
+        }
+            @keyframes pulse-slow {
+                0%, 100% { opacity: 0.4; }
+                50% { opacity: 0.8; }
+            }
+            .animate-pulse-slow {
+                animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .animation-delay-1000 {
+                animation-delay: 1s;
+            }
+            .animation-delay-2000 {
+                animation-delay: 2s;
+            }
+            .animation-delay-3000 {
+                animation-delay: 3s;
+            }
+            .animation-delay-1500 {
+                animation-delay: 1.5s;
+            }
+            .rounded-4xl {
+                border-radius: 2.5rem;
+            }
+                    
+        /* Elegant section dividers */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+        }
+        
+        /* Premium animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+        
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Elegant stats */
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Premium feature cards */
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 16px;
+            overflow: hidden;
         }
         
         .feature-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
-        /* Techy pulse animation */
-        @keyframes pulse-tech {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        /* Elegant typography */
+        .display-text {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            line-height: 1.1;
         }
         
-        .pulse-tech {
-            animation: pulse-tech 2s infinite;
+        /* Psychological engagement elements */
+        .trust-badge {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
         
-        /* Ripple effect */
-        .ripple-container {
-            position: relative;
-            overflow: hidden;
+        .urgency-badge {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
         
-        .ripple-effect {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0);
-            animation: ripple 2s linear;
-            pointer-events: none;
+        /* Neurological engagement - subtle animations */
+        .engagement-pulse {
+            animation: engagementPulse 4s ease-in-out infinite;
         }
         
-        /* Floating animation */
-        .floating {
-            animation: float 6s ease-in-out infinite;
+        @keyframes engagementPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
-        /* Wave background pattern */
-        .wave-pattern {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 100px;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1200 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z' fill='%23ffffff' opacity='.1'/%3E%3Cpath d='M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z' fill='%23ffffff' opacity='.1'/%3E%3Cpath d='M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z' fill='%23ffffff' opacity='.1'/%3E%3C/svg%3E");
-            background-size: 1200px 100px;
-            animation: wave 8s linear infinite;
+        /* Premium spacing */
+        .section-padding {
+            padding-top: 6rem;
+            padding-bottom: 6rem;
         }
         
-        /* African-inspired accent elements */
-        .african-pattern {
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzFmMjkzYiIvPjxwYXRoIGQ9Ik0wIDUwaDEwME01MCAwdjEwMCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==');
-            opacity: 0.03;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        
-        /* Sophisticated hover effects */
-        .hover-scale {
-            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        
-        .hover-scale:hover {
-            transform: scale(1.03);
-        }
-        
-        /* Glow effect */
-        .glow-effect {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-            transition: box-shadow 0.3s ease;
-        }
-        
-        .glow-effect:hover {
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
-        }
-        
-        /* Underline animation */
-        .underline-animation {
-            position: relative;
-        }
-        
-        .underline-animation::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: currentColor;
-            transition: width 0.3s ease;
-        }
-        
-        .underline-animation:hover::after {
-            width: 100%;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(241, 245, 249, 0.5);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.5);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(59, 130, 246, 0.7);
-        }
-        
-        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .feature-card {
-                backdrop-filter: none;
-                background: white;
+            .section-padding {
+                padding-top: 4rem;
+                padding-bottom: 4rem;
             }
         }
     </style>
 </head>
-<body class="font-sans text-dark bg-light">
-    <!-- Skip to content link for accessibility -->
-    <a href="#main-content" class="sr-only focus:not-sr-only">Skip to main content</a>
-    
-    <!-- Navigation -->
-    <nav class="fixed w-full bg-white/90 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
-        <div class="container mx-auto px-4 xs:px-6 py-3">
+<body class="font-sans antialiased">
+    <!-- Premium Navigation -->
+    <nav class="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md z-50 border-b border-black-100">
+        <div class="max-w-7xl mx-auto px-6 py-4">
             <div class="flex justify-between items-center">
+                <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+                    <a href="#" class="text-2xl font-bold text-primary font-serif">
                         Nexa<span class="text-secondary">Health</span>
                     </a>
                 </div>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden md:flex space-x-4 lg:space-x-6 xl:space-x-8">
-                    <a href="index.html" class="nav-link underline-animation text-primary font-medium transition text-sm lg:text-base">Home</a>
-                    <a href="verify.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Verify</a>
-                    <a href="report.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">Report</a>
-                    <a href="pil.html" class="nav-link underline-animation text-dark hover:text-primary font-medium text-sm lg:text-base">View Drug Leaflet</a>
+                <div class="hidden md:flex items-center space-x-8">
+                    <div class="flex items-center space-x-4">
+                        <a href="mobile/login.html" class="btn-primary text-white px-6 py-2.5 rounded-full font-medium text-sm">
+                            Login
+                        </a>
+                        <a href="mobile/signup.html" class="btn-secondary text-dark px-6 py-2.5 rounded-full font-medium text-sm">
+                            Sign Up
+                        </a>
+                    </div>
                 </div>
 
-                <div class="hidden md:flex items-center space-x-4">
-                    <a href="mobile/login.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
-                        Login
-                    </a>
-                    <a href="mobile/signup.html" class="btn-primary health-gradient hover:opacity-90 text-white px-6 py-2 rounded-full font-semibold text-sm sm:text-base transition-all shadow-lg hover:shadow-xl glow-effect">
-                        Signup
-                    </a>
-                </div>
-
-                <!-- Mobile Hamburger -->
-                <div class="md:hidden">
-                    <button id="hamburger" class="text-dark focus:outline-none p-2 rounded-md hover:bg-gray-100 transition-colors" aria-label="Toggle menu" aria-expanded="false">
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark mb-1.5 transition-all"></div>
-                        <div class="hamburger-line w-6 h-0.5 bg-dark transition-all"></div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-black-700 hover:text-primary hover:bg-black-100 focus:outline-none">
+                        <span class="sr-only">Open menu</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-md py-4 px-6 absolute w-full left-0 shadow-lg">
-            <div class="flex flex-col space-y-4">
-                <a href="index.html" class="mobile-link text-primary transition">Home</a>
-                <a href="verify.html" class="mobile-link text-dark hover:text-primary transition">Verify</a>
-                <a href="report.html" class="mobile-link text-dark hover:text-primary transition">Report</a>
-                <a href="pil.html" class="mobile-link text-dark hover:text-primary transition">View Drug Leaflet</a>
-                <a href="mobile/login.html"  class="bg-blue-600 text-white px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-700 hover:shadow-xl" > Login</a>
-                <a  href="mobile/signup.html"  class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-full font-semibold text-center transition-all shadow-lg hover:bg-blue-50 hover:shadow-xl"> Signup </a>
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="md:hidden hidden absolute top-16 left-0 w-full bg-white shadow-lg z-40">
+            <div class="px-6 pt-4 pb-6 space-y-4 bg-white border-t border-black-100">
+                <div class="pt-4 border-t border-black-200 space-y-3">
+                    <a href="mobile/login.html" class="block btn-primary text-white px-4 py-2.5 rounded-full font-medium text-sm text-center">Login</a>
+                    <a href="mobile/signup.html" class="block btn-secondary text-dark px-4 py-2.5 rounded-full font-medium text-sm text-center">Sign Up</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main id="main-content">
-        <!-- ===== HERO SECTION ===== -->
-        <section class="pt-24 pb-16 md:pt-32 hero-gradient text-white relative overflow-hidden min-h-[80vh] flex items-center">
-            <!-- Floating circles background -->
-            <div class="absolute inset-0 overflow-hidden">
-                <div class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-white/5 animate-float animation-delay-2000"></div>
-                <div class="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-white/10 animate-float animation-delay-3000"></div>
-                <div class="absolute bottom-1/4 right-1/3 w-32 h-32 rounded-full bg-white/15 animate-float"></div>
+    <!-- Elite Hero Section -->
+    <section class="pt-24 pb-16 md:pt-32 hero-gradient text-white relative overflow-hidden min-h-[90vh] flex items-center">
+        <!-- Premium background elements -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-white/5 animate-float"></div>
+            <div class="absolute top-1/3 right-1/4 w-48 h-48 rounded-full bg-white/10 animate-float animation-delay-2000"></div>
+            <div class="absolute bottom-1/4 right-1/3 w-32 h-32 rounded-full bg-white/15 animate-float animation-delay-3000"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="max-w-4xl mx-auto text-center animate-fade-in-up">
+                <!-- Urgency Badge -->
+                <div class="inline-flex items-center urgency-badge px-4 py-1.5 rounded-full text-sm font-medium mb-8 animate-pulse">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Urgent Health Crisis
+                </div>
+                
+                <!-- Hero Headline -->
+                <h1 class="display-text text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight">
+                    Report Fake Medications.<br>
+                    <span class="text-white/90">Protect Yourself and Your Community.</span>
+                </h1>
+                
+                <!-- Hero Subheadline -->
+                <div class="max-w-3xl mx-auto space-y-4 mb-8">
+                    <p class="text-lg md:text-xl text-white/90 leading-relaxed">
+                        Every year, up to <span class="font-semibold">500,000 people</span> die in sub-Saharan Africa from counterfeit medicines.
+                    </p>
+                    <p class="text-lg md:text-xl text-white/90 leading-relaxed">
+                        In Nigeria, <span class="font-semibold">1 in 5 drugs</span> may be fake.¹
+                    </p>
+                </div>
+                
+                <!-- Value Proposition -->
+                <p class="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
+                    With NexaHealth, you can verify, report, and access digital health tools in seconds.
+                </p>
+                
+                <!-- Hero CTAs -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-up animation-delay-300">
+                    <a href="mobile/login.html" class="btn-primary text-white px-8 py-4 rounded-full font-semibold flex items-center justify-center engagement-pulse">
+                        <i class="fas fa-barcode mr-3"></i> Verify a Medicine
+                    </a>
+                 <a href="mobile/login.html" 
+                    class="btn-secondary bg-white text-gray-900 px-4 py-3 rounded-full font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all duration-300">
+                        <i class="fas fa-map-marker-alt text-indigo-600 text-lg"></i>
+                        <span>Find Trusted Pharmacies</span>
+                    </a>
+
+                </div>
             </div>
-            
-            <!-- Ripple effect container -->
-            <div class="ripple-container absolute inset-0">
-                <div class="ripple-effect" style="top: 30%; left: 20%;"></div>
-                <div class="ripple-effect" style="top: 60%; left: 70%; animation-delay: 0.5s;"></div>
-                <div class="ripple-effect" style="top: 20%; left: 50%; animation-delay: 1s;"></div>
+        </div>
+        
+        <!-- Elegant wave divider -->
+        <div class="absolute bottom-0 left-0 right-0 h-24 overflow-hidden">
+            <div class="absolute bottom-0 left-0 right-0 h-24 bg-white/10" style="clip-path: polygon(0 70%, 100% 30%, 100% 100%, 0% 100%);"></div>
+        </div>
+    </section>
+
+<!-- Premium Take Control Section -->
+<section id="take-control" class="py-28 bg-gradient-to-br from-slate-50 via-white to-blue-50/40 relative overflow-hidden">
+    <!-- Premium Glowing Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-20 left-20 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-indigo-500/8 rounded-full blur-3xl animate-pulse-slow animation-delay-1000"></div>
+        <div class="absolute top-1/3 left-1/4 w-72 h-72 bg-sky-400/12 rounded-full blur-3xl animate-pulse-slow animation-delay-2000"></div>
+        <!-- Animated floating particles -->
+        <div class="absolute top-1/4 right-1/3 w-4 h-4 bg-blue-400/40 rounded-full animate-float"></div>
+        <div class="absolute bottom-1/3 left-1/2 w-3 h-3 bg-indigo-400/30 rounded-full animate-float animation-delay-1500"></div>
+        <div class="absolute top-2/3 right-1/4 w-2 h-2 bg-sky-400/50 rounded-full animate-float animation-delay-3000"></div>
+    </div>
+
+    <div class="container mx-auto px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <!-- Premium Section Header -->
+            <div class="text-center mb-20">
+                <div class="inline-flex items-center bg-gradient-to-r from-blue-500/10 to-blue-600/10 border border-blue-200/50 text-blue-700 px-6 py-3 rounded-2xl text-sm font-semibold mb-8 backdrop-blur-sm">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-3 animate-pulse"></div>
+                    Your Health, Your Control
+                </div>
+                
+                <h2 class="display-text text-5xl md:text-6xl lg:text-7xl font-bold text-black-900 mb-8 leading-tight">
+                    Take Control of Your<br>
+                    <span class="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 bg-clip-text text-transparent">Health Safety</span>
+                </h2>
+                
+                <p class="text-xl md:text-2xl text-black-600 max-w-4xl mx-auto leading-relaxed font-light">
+                    NexaHealth empowers you to make informed decisions, protect your community, and support your favourite pharmacies
+                </p>
             </div>
-            
-            <div class="container mx-auto px-4 sm:px-6 relative z-10">
-                <div class="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
-                    <!-- Text content -->
-                    <div class="lg:w-1/2 text-center lg:text-left">
-                        <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold font-serif leading-tight mb-6 animate-fade-in">
-                            Safe medications<br>
-                            <span class="text-white/90">at your fingertips</span>
-                        </h1>
-                        
-                        <p class="text-lg text-white/80 mb-8 max-w-md mx-auto lg:mx-0 animate-fade-in animation-delay-100">
-                            Verify authenticity, report concerns, and access drug information instantly with Nigeria's most trusted health companion.
+
+            <!-- Premium Features Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-16 mb-20">
+                <!-- Left Column - Consumer Protection -->
+                <div class="space-y-10">
+                    <!-- Column Header -->
+                    <div class="text-center lg:text-left">
+                        <div class="flex items-center justify-center lg:justify-start space-x-4 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                                <i class="fas fa-shield-alt text-white text-xl"></i>
+                            </div>
+                            <h3 class="text-3xl md:text-4xl font-bold text-black-900">
+                                Protect Your Community
+                            </h3>
+                        </div>
+                        <p class="text-lg text-black-600 font-light max-w-md lg:max-w-full">
+                            Use powerful tools to verify medications and report safety concerns
                         </p>
-                        
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in animation-delay-200">
-                            <a 
-                                href="verify.html" 
-                                class="bg-white text-blue-600 border border-blue-600 px-8 py-4 rounded-full font-medium shadow-lg hover:shadow-xl hover:bg-blue-50 transition-all flex items-center justify-center"
-                            >
-                                <i class="fas fa-barcode mr-3"></i> Scan Medication
-                            </a>
+                    </div>
 
-                            <a href="#features" class="border-2 border-white/30 hover:border-white/60 text-white hover:bg-white/10 px-8 py-4 rounded-full font-medium transition-all flex items-center justify-center">
-                                Learn How It Works
-                            </a>
+                    <!-- Protection Features -->
+                    <div class="space-y-6">
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-blue-100/60 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-user-shield text-white text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Verify Trusted Pharmacies</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Access verified information to make safe choices about your health providers</p>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <!-- Trust indicators -->
-                        <div class="mt-12 flex flex-wrap justify-center lg:justify-start gap-6 animate-fade-in animation-delay-300">
-                            <div class="flex items-center">
-                                <div class="bg-white/10 p-2 rounded-full mr-3">
-                                    <i class="fas fa-shield-alt text-white"></i>
+
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-blue-100/60 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
                                 </div>
-                                <span class="text-sm font-medium">NAFDAC Verified</span>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Report Safety Concerns</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Expose counterfeit medications and protect your community from harm</p>
+                                </div>
                             </div>
-                            <div class="flex items-center">
-                                <div class="bg-white/10 p-2 rounded-full mr-3">
-                                    <i class="fas fa-user-md text-white"></i>
+                        </div>
+
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-blue-100/60 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-shield-alt text-white text-2xl"></i>
                                 </div>
-                                <span class="text-sm font-medium">Doctor Approved</span>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="bg-white/10 p-2 rounded-full mr-3">
-                                    <i class="fas fa-lock text-white"></i>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Verify Medications</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Scan barcodes to check authenticity and access safety information</p>
                                 </div>
-                                <span class="text-sm font-medium">Secure & Private</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Image -->
-                    <div class="lg:w-1/2 mt-12 lg:mt-0 animate-fade-in animation-delay-100">
-                        <div class="relative hover-scale">
-                            <div class="rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20">
-                                <img src="images/nexahealthhero.jpeg" 
-                                    alt="Young African woman scanning medication package with her phone"
-                                    class="w-full h-auto"
-                                    width="600"
-                                    height="400"
-                                    loading="eager">
+                </div>
+
+                <!-- Right Column - Community Support -->
+                <div class="space-y-10">
+                    <!-- Column Header -->
+                    <div class="text-center lg:text-left">
+                        <div class="flex items-center justify-center lg:justify-start space-x-4 mb-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                                <i class="fas fa-hands-helping text-white text-xl"></i>
                             </div>
-                            <div class="absolute -bottom-4 -right-4 bg-white text-primary px-6 py-3 rounded-xl shadow-xl font-medium text-sm flex items-center">
-                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                                Verification in progress...
+                            <h3 class="text-3xl md:text-4xl font-bold text-black-900">
+                                Support Trusted Pharmacies
+                            </h3>
+                        </div>
+                        <p class="text-lg text-black-600 font-light max-w-md lg:max-w-full">
+                            Help legitimate pharmacies grow and distinguish them from unsafe vendors
+                        </p>
+                    </div>
+
+                    <!-- Support Features -->
+                    <div class="space-y-6">
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-indigo-100/60 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/20 hover:border-indigo-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-star text-white text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Rate & Review</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Share experiences to help pharmacies earn trust badges and grow</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-indigo-100/60 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/20 hover:border-indigo-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-network-wired text-white text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Grow the Network</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Invite friends and help build a trusted healthcare community</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group bg-white/90 backdrop-blur-md p-8 rounded-3xl border border-indigo-100/60 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/20 hover:border-indigo-200 transition-all duration-500 hover:-translate-y-2">
+                            <div class="flex items-start space-x-6">
+                                <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/40 group-hover:scale-110 transition-transform duration-300">
+                                    <i class="fas fa-bullseye text-white text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-black-800 mb-3 text-xl">Differentiate Quality</h4>
+                                    <p class="text-black-500 leading-relaxed font-light">Highlight trusted pharmacies and distinguish them from ordinary vendors</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Premium Impact Quote -->
+            <div class="bg-gradient-to-r from-blue-50/80 to-indigo-50/70 backdrop-blur-md rounded-4xl p-12 md:p-16 text-center max-w-5xl mx-auto border border-blue-200/40 shadow-xl relative overflow-hidden">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-5">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500 rounded-full -translate-y-16 translate-x-16"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-500 rounded-full translate-y-12 -translate-x-12"></div>
+                </div>
+                
+                <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
+                        <div class="flex-shrink-0">
+                            <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/40">
+                                <i class="fas fa-quote-left text-white text-2xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-2xl md:text-3xl font-light text-black-800 italic leading-relaxed">
+                                "Every scan, report, and review helps stop fake drugs in Nigeria and supports trusted pharmacies."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <section id="for-pharmacies" class="py-24 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 relative overflow-hidden">
+    <!-- Premium Background Elements -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-10 left-10 w-72 h-72 bg-blue-100/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-indigo-100/10 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/3 w-64 h-64 bg-sky-100/15 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="container mx-auto px-6 max-w-7xl relative z-10">
+        <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+        
+        <!-- LEFT CONTENT -->
+        <div class="lg:w-1/2">
+            <!-- Premium Badge -->
+            <div class="inline-flex items-center bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-5 py-3 rounded-2xl text-sm font-semibold mb-6 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5">
+            <div class="w-6 h-6 bg-white/20 rounded-lg flex items-center justify-center mr-3">
+                <i class="fas fa-users text-white text-xs"></i>
+            </div>
+            Pharmacies
+            </div>
+
+            <!-- Elegant Heading -->
+            <h2 class="text-4xl lg:text-5xl xl:text-6xl font-bold text-black-900 leading-tight mb-6 font-serif">
+            Get Discovered.<br>
+            <span class="bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">Earn Trust. Grow Your Pharmacy.</span>
+            </h2>
+
+            <!-- Refined Description -->
+            <p class="text-xl text-black-600 leading-relaxed mb-12 max-w-2xl">
+            Create a verified digital profile, get discovered by new customers, and build a trusted reputation. 
+            Collect reviews, gain trust badges, and turn every report and feedback into growth.
+            </p>
+
+            <!-- Premium Feature Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <!-- Feature 1 -->
+            <div class="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-black-100/80 shadow-sm hover:shadow-xl hover:border-blue-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-star text-white text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-black-800 mb-2 text-lg">Trust Badges & Ranking</h4>
+                    <p class="text-black-500 text-sm leading-relaxed">Earn digital badges, increase ranking in search results, and gain credibility among users.</p>
+                </div>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-black-100/80 shadow-sm hover:shadow-xl hover:border-green-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-users text-white text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-black-800 mb-2 text-lg">Customer Access</h4>
+                    <p class="text-black-500 text-sm leading-relaxed">Connect with a wider network of consumers, get discovered, and increase foot traffic to your pharmacy.</p>
+                </div>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-black-100/80 shadow-sm hover:shadow-xl hover:border-purple-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-comment-alt text-white text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-black-800 mb-2 text-lg">Consumer Ratings & Reviews</h4>
+                    <p class="text-black-500 text-sm leading-relaxed">Receive feedback from users to improve service quality and build a trustworthy reputation.</p>
+                </div>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-black-100/80 shadow-sm hover:shadow-xl hover:border-orange-200/50 transition-all duration-500 hover:-translate-y-2">
+                <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-black-800 mb-2 text-lg">Customer Acquisition Tools</h4>
+                    <p class="text-black-500 text-sm leading-relaxed">Track engagement, follow reports, and convert reviews into loyal customers.</p>
+                </div>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-black-100/80 shadow-sm hover:shadow-xl hover:border-cyan-200/50 transition-all duration-500 hover:-translate-y-2 md:col-span-2">
+                <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-tasks text-white text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-semibold text-black-800 mb-2 text-lg">Real-Time Feedback & Reports</h4>
+                    <p class="text-black-500 text-sm leading-relaxed">View and resolve user reports instantly to maintain safety, trust, and compliance in your network.</p>
+                </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Premium CTA Button -->
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <a href="mobile/signup.html" class="group inline-flex items-center px-8 py-4 rounded-2xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
+                <span>Join as Pharmacy</span>
+                <i class="fas fa-arrow-right ml-3 group-hover:translate-x-1 transition-transform duration-300"></i>
+            </a>
+            </div>
+        </div>
+
+        <!-- RIGHT VISUAL - Premium Dashboard Mockup -->
+        <div class="lg:w-1/2 flex justify-center">
+            <div class="relative w-full max-w-lg">
+            <!-- Floating Elements -->
+            <div class="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 rounded-3xl blur-xl"></div>
+            <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-pink-600/10 rounded-3xl blur-xl"></div>
             
-            <!-- Wave pattern at bottom -->
-            <div class="wave-pattern"></div>
-        </section>
-
-        <!-- ===== FEATURE GRID ===== -->
-        <section id="features" class="py-20 bg-white relative">
-            <div class="african-pattern"></div>
-            <div class="container mx-auto px-4 sm:px-6">
-                <div class="text-center mb-16">
-                    <span class="inline-block health-gradient text-white px-4 py-1.5 rounded-full text-sm font-medium mb-4">Core Features</span>
-                    <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4">Your Health Safety Toolkit</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Essential tools to protect you and your family from counterfeit medications</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Drug Checker -->
-                    <a href="verify.html" class="feature-card hover-scale">
-                        <div class="p-8">
-                            <div class="flex items-start mb-6">
-                                <div class="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center mr-6 text-blue-600 text-2xl">
-                                    <i class="fas fa-barcode"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold font-serif mb-2">Drug Checker</h3>
-                                    <p class="text-gray-600">Scan barcode or type drug name to verify safety status with NAFDAC records.</p>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <img src="images/verify.png" 
-                                     alt="Mobile interface showing drug verification process"
-                                     class="rounded-lg w-full h-auto border border-gray-100 group-hover:border-blue-200 transition"
-                                     loading="lazy">
-                            </div>
-                        </div>
-                    </a>
-                    
-                    <!-- PIL Library -->
-                    <a href="pil.html" class="feature-card hover-scale">
-                        <div class="p-8">
-                            <div class="flex items-start mb-6">
-                                <div class="w-16 h-16 bg-green-50 rounded-xl flex items-center justify-center mr-6 text-green-600 text-2xl">
-                                    <i class="fas fa-book-medical"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold font-serif mb-2">PIL Library</h3>
-                                    <p class="text-gray-600">Understand dosage, side effects and warnings for Nigerian medications.</p>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <img src="images/leaflet.png" 
-                                     alt="Mobile interface showing drug information"
-                                     class="rounded-lg w-full h-auto border border-gray-100 group-hover:border-green-200 transition"
-                                     loading="lazy">
-                            </div>
-                        </div>
-                    </a>
-                    
-                    <!-- Fake Drug Reporting -->
-                    <a href="report.html" class="feature-card hover-scale">
-                        <div class="p-8">
-                            <div class="flex items-start mb-6">
-                                <div class="w-16 h-16 bg-red-50 rounded-xl flex items-center justify-center mr-6 text-red-600 text-2xl">
-                                    <i class="fas fa-flag"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold font-serif mb-2">Fake Drug Reporting</h3>
-                                    <p class="text-gray-600">Report suspicious medications anonymously to protect others.</p>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <img src="images/pqc.png" 
-                                     alt="Mobile interface for reporting fake drugs"
-                                     class="rounded-lg w-full h-auto border border-gray-100 group-hover:border-red-200 transition"
-                                     loading="lazy">
-                            </div>
-                        </div>
-                    </a>
-                    
-                    <!-- User Dashboard -->
-                    <a href="mobile/login.html" class="feature-card hover-scale">
-                        <div class="p-8">
-                            <div class="flex items-start mb-6">
-                                <div class="w-16 h-16 bg-purple-50 rounded-xl flex items-center justify-center mr-6 text-purple-600 text-2xl">
-                                    <i class="fas fa-user-shield"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-2xl font-bold font-serif mb-2">Safety Dashboard</h3>
-                                    <p class="text-gray-600">Track your verifications, reports and saved medications.</p>
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <img src="images/dashboard.png" 
-                                     alt="Mobile dashboard interface"
-                                     class="rounded-lg w-full h-auto border border-gray-100 group-hover:border-purple-200 transition"
-                                     loading="lazy">
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== COMING SOON SECTION ===== -->
-        <section class="py-20 bg-gray-50 relative overflow-hidden">
-            <div class="african-pattern"></div>
-            <div class="container mx-auto px-4 sm:px-6">
-                <div class="text-center mb-16">
-                    <span class="inline-block health-gradient text-white px-4 py-1.5 rounded-full text-sm font-medium mb-4">Coming Soon</span>
-                    <h2 class="text-3xl md:text-4xl font-bold font-serif mb-4">Next-Gen Health Tools</h2>
-                    <p class="text-gray-600 max-w-2xl mx-auto">Innovative features we're building to enhance your health safety</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- AI Companion -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden hover-scale">
-                        <div class="absolute top-4 right-4 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full animate-pulse">
-                            Coming Soon
-                        </div>
-                        <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center mb-4 text-blue-600 text-2xl">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <h3 class="text-xl font-bold font-serif mb-3">AI Health Companion</h3>
-                        <p class="text-gray-600 text-sm mb-4">Get instant risk analysis for symptoms and basic mental health support.</p>
-                        <div class="bg-gray-100 p-3 rounded-lg">
-                            <img src="images/aicompanion.png" 
-                                 alt="AI chat interface mockup"
-                                 class="rounded w-full h-auto opacity-90"
-                                 loading="lazy">
-                        </div>
-                    </div>
-                    
-                    <!-- Clinic Map -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden hover-scale">
-                        <div class="absolute top-4 right-4 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full animate-pulse">
-                            Coming Soon
-                        </div>
-                        <div class="w-14 h-14 bg-green-50 rounded-xl flex items-center justify-center mb-4 text-green-600 text-2xl">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </div>
-                        <h3 class="text-xl font-bold font-serif mb-3">Verified Clinics Map</h3>
-                        <p class="text-gray-600 text-sm mb-4">Find trusted pharmacies and clinics near you with safety ratings.</p>
-                        <div class="bg-gray-100 p-3 rounded-lg">
-                            <img src="images/facilties.png" 
-                                 alt="Map interface mockup"
-                                 class="rounded w-full h-auto opacity-90"
-                                 loading="lazy">
-                        </div>
-                    </div>
-                    
-                    <!-- Recall Alerts -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden hover-scale">
-                        <div class="absolute top-4 right-4 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full animate-pulse">
-                            Coming Soon
-                        </div>
-                        <div class="w-14 h-14 bg-yellow-50 rounded-xl flex items-center justify-center mb-4 text-yellow-600 text-2xl">
-                            <i class="fas fa-bell"></i>
-                        </div>
-                        <h3 class="text-xl font-bold font-serif mb-3">Drug Recall Alerts</h3>
-                        <p class="text-gray-600 text-sm mb-4">State-specific notifications when medications are flagged.</p>
-                        <div class="bg-gray-100 p-3 rounded-lg">
-                            <img src="images/activities.png" 
-                                 alt="Alert interface mockup"
-                                 class="rounded w-full h-auto opacity-90"
-                                 loading="lazy">
-                        </div>
-                    </div>
-                    
-                    <!-- Visual Scanner -->
-                    <div class="bg-white p-6 rounded-xl border border-gray-200 relative overflow-hidden hover-scale">
-                        <div class="absolute top-4 right-4 bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full animate-pulse">
-                            Coming Soon
-                        </div>
-                        <div class="w-14 h-14 bg-purple-50 rounded-xl flex items-center justify-center mb-4 text-purple-600 text-2xl">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <h3 class="text-xl font-bold font-serif mb-3">AI Visual Scanner</h3>
-                        <p class="text-gray-600 text-sm mb-4">Snap drug packaging - we detect signs of counterfeits.</p>
-                        <div class="bg-gray-100 p-3 rounded-lg">
-                            <img src="images/ai scan.png" 
-                                 alt="Camera scan interface mockup"
-                                 class="rounded w-full h-auto opacity-90"
-                                 loading="lazy">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===== FINAL CTA ===== -->
-        <section class="py-16 bg-dark text-white">
-            <div class="container mx-auto px-4 sm:px-6 text-center">
-                <div class="max-w-3xl mx-auto">
-                    <h2 class="text-3xl sm:text-4xl font-bold font-serif mb-6">We're live with core features</h2>
-                    <p class="text-xl text-gray-300 mb-8">Explore now. More safety tools dropping soon.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="verify.html" class="bg-primary hover:bg-blue-700 px-8 py-4 rounded-full font-semibold text-center transition-all shadow-lg flex items-center justify-center">
-                            <i class="fas fa-barcode mr-2"></i> Check a drug now
-                        </a>
-                        <li>
-                        <a 
-                            href="https://chat.whatsapp.com/BiVg1EYmtuKHL0yKyfvIkN" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            class="border-2 border-gray-600 text-white hover:bg-gray-800 px-8 py-4 rounded-full font-semibold text-center transition-all flex items-center justify-center"
-                        >
-                            Join Community
-                        </a>
-                        </li>
-
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-8 sm:py-12">
-        <div class="container mx-auto px-4 sm:px-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+            <!-- Main Dashboard Card -->
+            <div class="relative bg-gradient-to-br from-white to-black-50/80 backdrop-blur-sm p-8 rounded-3xl shadow-2xl shadow-black-400/10 border border-black-200/60">
+                <!-- Status Header -->
+                <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h3 class="text-xl sm:text-2xl font-bold font-serif mb-3 sm:mb-4">Nexa<span class="text-primary">Health</span></h3>
-                    <p class="text-xs sm:text-sm text-gray-400">Verify, report, and protect against fake medications in Nigeria.</p>
-                    <div class="flex space-x-3 sm:space-x-4 mt-4 sm:mt-6">
-                        <a href="#" class="text-gray-400 hover:text-primary transition focus-visible" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-primary transition focus-visible" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-primary transition focus-visible" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.linkedin.com/company/107964971/" class="text-gray-400 hover:text-primary transition focus-visible" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <h3 class="text-2xl font-bold text-black-800 mb-2">Pharmacy Dashboard</h3>
+                    <p class="text-black-500">Consumer access, ratings, and growth metrics</p>
+                </div>
+                <span class="flex items-center bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-2.5 rounded-2xl text-sm font-semibold shadow-lg shadow-green-500/30">
+                    <i class="fas fa-shield-check mr-2"></i> Verified Partner
+                </span>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white/60 p-4 rounded-2xl border border-black-200/60 shadow-sm">
+                    <div class="text-2xl font-bold text-black-800 mb-1">124</div>
+                    <div class="text-sm text-black-500">Verifications</div>
+                </div>
+                <div class="bg-white/60 p-4 rounded-2xl border border-black-200/60 shadow-sm">
+                    <div class="text-2xl font-bold text-black-800 mb-1">98%</div>
+                    <div class="text-sm text-black-500">Success Rate</div>
+                </div>
+                <div class="bg-white/60 p-4 rounded-2xl border border-black-200/60 shadow-sm">
+                    <div class="text-2xl font-bold text-black-800 mb-1">42</div>
+                    <div class="text-sm text-black-500">Active Reports</div>
+                </div>
+                <div class="bg-white/60 p-4 rounded-2xl border border-black-200/60 shadow-sm">
+                    <div class="text-2xl font-bold text-black-800 mb-1">4.8</div>
+                    <div class="text-sm text-black-500">Rating</div>
+                </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mt-8 pt-6 border-t border-black-200/60">
+                <div class="flex space-x-3">
+                    <button class="flex-1 bg-blue-50 text-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-100 transition-colors">
+                    Upload Documents
+                    </button>
+                    <button class="flex-1 bg-black-100 text-black-600 py-2.5 rounded-xl text-sm font-medium hover:bg-black-200 transition-colors">
+                    View Reports
+                    </button>
+                </div>
+                </div>
+            </div>
+
+            <!-- Floating Badge -->
+            <div class="absolute -bottom-4 -right-4 bg-white/90 backdrop-blur-sm p-4 rounded-2xl shadow-xl border border-black-200/60">
+                <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-star text-white text-sm"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-semibold text-black-800">Premium</div>
+                    <div class="text-xs text-black-500">Partner</div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
+
+    <!-- Impact Section -->
+    <section id="impact" class="section-padding bg-white">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="display-text text-3xl md:text-4xl lg:text-5xl mb-12 animate-on-scroll">The Impact of Counterfeit Medicines</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <div class="glass-card p-8 text-center animate-on-scroll" data-delay="100">
+                        <div class="stat-number mb-4">500,000</div>
+                        <h3 class="text-xl font-bold mb-2">Annual Deaths</h3>
+                        <p class="text-black-600">deaths annually in sub-Saharan Africa from fake drugs¹</p>
+                    </div>
+                    
+                    <div class="glass-card p-8 text-center animate-on-scroll" data-delay="200">
+                        <div class="stat-number mb-4">1 in 5</div>
+                        <h3 class="text-xl font-bold mb-2">Fake Medicines</h3>
+                        <p class="text-black-600">medicines in Nigeria may be substandard²</p>
+                    </div>
+                </div>
+                
+                <div class="animate-on-scroll" data-delay="300">
+                    <p class="text-xl font-medium text-black-800 mb-8">
+                        Join the movement. Scan, verify, and report. Protect your loved ones.
+                    </p>
+                    <a href="mobile/signup.html" class="btn-primary text-white px-8 py-4 rounded-full font-semibold inline-flex items-center">
+                        <i class="fas fa-user-plus mr-3"></i> Join the Movement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    <!-- Final CTA Section -->
+    <section class="py-16 dark-gradient text-white">
+        <div class="container mx-auto px-6 text-center">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="display-text text-3xl sm:text-4xl mb-6">Ready to Protect Your Community?</h2>
+                <p class="text-xl text-black-300 mb-8">Join thousands of Nigerians fighting fake drugs</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="mobile/login.html" class="btn-primary text-white px-8 py-4 rounded-full font-semibold flex items-center justify-center">
+                        <i class="fas fa-barcode mr-2"></i> Verify Medicines
+                    </a>
+                    <a href="mobile/signup.html" class="btn-secondary bg-white text-dark px-8 py-4 rounded-full font-semibold flex items-center justify-center">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Find Trusted Pharmacies
+                    </a>
+                    <a 
+                        href="https://chat.whatsapp.com/BiVg1EYmtuKHL0yKyfvIkN" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="border-2 border-black-600 text-white hover:bg-black-800 px-8 py-4 rounded-full font-semibold flex items-center justify-center"
+                    >
+                        <i class="fab fa-whatsapp mr-2"></i> Join Community
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Elite Footer -->
+    <footer class="bg-elegant-dark text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold font-serif mb-4">Nexa<span class="text-primary">Health</span></h3>
+                    <p class="text-sm text-black-400">Reject fake drugs. Protect yourself and your community.</p>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#" class="text-black-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-black-400 hover:text-primary transition"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-black-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.linkedin.com/company/107964971/" class="text-black-400 hover:text-primary transition"><i class="fab fa-linkedin"></i></a>
                     </div>
                 </div>
                 <div>
-                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Quick Links</h4>
-                    <ul class="space-y-1 sm:space-y-2">
-                        <li><a href="index.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">Home</a></li>
-                        <li><a href="verify.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">Verify Drugs</a></li>
-                        <li><a href="report.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">Report Drugs</a></li>
-                        <li><a href="pil.html" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">View Drug Leaflet</a></li>
+                    <h4 class="font-bold text-lg mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">Home</a></li>
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">Verify Drugs</a></li>
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">Report Drugs</a></li>
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">Drug Information</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Resources</h4>
-                    <ul class="space-y-1 sm:space-y-2">
+                    <h4 class="font-bold text-lg mb-4">Resources</h4>
+                    <ul class="space-y-2">
                         <li>
                             <a 
                                 href="https://chat.whatsapp.com/BiVg1EYmtuKHL0yKyfvIkN" 
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible"
+                                class="text-sm text-black-400 hover:text-primary transition"
                             >
                                 Join Community
                             </a>
-
-                            </li>
-                        <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">Drug Safety Tips</a></li>
-                        <li><a href="#" class="text-xs sm:text-sm text-gray-400 hover:text-primary transition focus-visible">FAQ</a></li>
+                        </li>
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">Drug Safety Tips</a></li>
+                        <li><a href="mobile/login.html" class="text-sm text-black-400 hover:text-primary transition">FAQ</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="font-bold text-base sm:text-lg mb-2 sm:mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
+                    <h4 class="font-bold text-lg mb-4">Contact</h4>
+                    <ul class="space-y-2 text-black-400">
                         <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-xs sm:text-sm" aria-hidden="true"></i>
-                            <span class="text-xs sm:text-sm">NexaHealth</span>
+                            <i class="fas fa-phone-alt mt-1 mr-3 text-sm"></i>
+                            <span class="text-sm">+2349041385402</span>
                         </li>
                         <li class="flex items-start">
-                            <i class="fas fa-phone-alt mt-1 mr-3 text-xs sm:text-sm" aria-hidden="true"></i>
-                            <span class="text-xs sm:text-sm">+2349041385402</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-envelope mt-1 mr-3 text-xs sm:text-sm" aria-hidden="true"></i>
-                            <span class="text-xs sm:text-sm">contact@nexahealth.life</span>
+                            <i class="fas fa-envelope mt-1 mr-3 text-sm"></i>
+                            <span class="text-sm">contact@nexahealth.life</span>
                         </li>
                     </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-500">
-                <p class="text-xs sm:text-sm">&copy; 2025 NexaHealth. All rights reserved.</p>
+            <div class="border-t border-black-800 mt-12 pt-8 text-center text-black-500">
+                <p class="text-sm mb-2">&copy; 2025 NexaHealth Technologies Ltd. All rights reserved.</p>
+                <p class="text-xs text-black-600">
+                    References: ¹ UNODC & WHO estimates | ² The Guardian, 2024 study
+                </p>
             </div>
         </div>
     </footer>
     
-    <!-- JavaScript -->
-    <script type="module" src="index.js" defer></script>
-    <script src="main.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    
-    <!-- Schema Markup -->
+    <!-- JavaScript for enhanced user experience -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Scroll animations
+        function checkScroll() {
+            const elements = document.querySelectorAll('.animate-on-scroll');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+        
+        // Initial check
+        window.addEventListener('load', checkScroll);
+        // Check on scroll
+        window.addEventListener('scroll', checkScroll);
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Psychological engagement - subtle hover effects
+        document.querySelectorAll('.feature-card, .glass-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -730,5 +898,6 @@
       }
     }
     </script>
+    <script src="mobile/js/referral.js"></script>
 </body>
 </html>

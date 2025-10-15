@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Companion | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Base Styles */
+        .nav-link::after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Chat Bubbles */
+        .chat-bubble {
+            max-width: 85%;
+            transition: all 0.3s ease;
+        }
+        .user-bubble {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border-radius: 18px 18px 0 18px;
+            box-shadow: 0 2px 12px rgba(59, 130, 246, 0.3);
+        }
+        .ai-bubble {
+            background: white;
+            color: #1e293b;
+            border-radius: 18px 18px 18px 0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        /* Risk Indicators */
+        .risk-badge {
+            transition: all 0.3s ease;
+        }
+        .risk-low { 
+            background-color: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .risk-moderate { 
+            background-color: #f59e0b;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+        .risk-high { 
+            background-color: #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Quick Actions */
+        .quick-action {
+            transition: all 0.2s ease;
+        }
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Animations */
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-out {
+            animation: fadeOut 0.3s ease-out;
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Layout */
+        .chat-container {
+            height: calc(100vh - 180px);
+        }
+        @media (min-width: 768px) {
+            .chat-container {
+                height: calc(100vh - 160px);
+            }
+        }
+        
+        /* Floating Symptom Checker */
+        .floating-symptom-checker {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            z-index: 40;
+            transition: all 0.3s ease;
+            transform: translateY(0);
+            display: none;
+        }
+        @media (max-width: 640px) {
+            .floating-symptom-checker {
+                width: calc(100% - 40px);
+                right: 20px;
+                left: 20px;
+            }
+        }
+        
+        /* Action Cards */
+        .action-cards {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 8px 4px;
+            scrollbar-width: none;
+        }
+        .action-cards::-webkit-scrollbar {
+            display: none;
+        }
+        .action-card {
+            min-width: 200px;
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* AI Response Styling */
+        .ai-response {
+            line-height: 1.6;
+        }
+        .ai-response p {
+            margin-bottom: 0.8em;
+        }
+        .ai-response ul, .ai-response ol {
+            margin-left: 1.5em;
+            margin-bottom: 1em;
+        }
+        .ai-response li {
+            margin-bottom: 0.5em;
+        }
+        .ai-response strong {
+            color: #1e40af;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-30">
+        <div class="flex items-center justify-between">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <h1 class="text-lg font-bold font-serif">AI Health Companion</h1>
+            <button id="symptom-checker-toggle" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center">
+                <i class="fas fa-clipboard-list"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Floating Symptom Checker (hidden by default) -->
+    <div id="floating-symptom-checker" class="floating-symptom-checker bg-white rounded-xl shadow-xl overflow-hidden slide-up">
+        <div class="p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-medium text-blue-600"><i class="fas fa-clipboard-list mr-2"></i> Symptom Checker</h3>
+                <button id="close-symptom-checker" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Describe your symptoms</label>
+                <textarea id="symptom-description" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" placeholder="E.g. Headache, fever, fatigue..."></textarea>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                <select id="symptom-duration" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+                    <option value="">How long?</option>
+                    <option value="1">Less than 24 hours</option>
+                    <option value="2">1-3 days</option>
+                    <option value="3">4-7 days</option>
+                    <option value="4">More than 1 week</option>
+                </select>
+            </div>
+            
+            <button id="analyze-symptoms-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium text-sm transition-colors">
+                Analyze Symptoms
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Chat Interface -->
+    <main class="pb-20">
+        <!-- Chat Container -->
+        <div id="chat-container" class="chat-container overflow-y-auto p-4 space-y-4">
+            <!-- Welcome Message -->
+            <div id="welcome-message" class="flex">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                </div>
+                <div class="ai-bubble px-4 py-3">
+                    <p class="font-medium">Hello! I'm Nexa, your AI Health Companion 👋</p>
+                    <p class="mt-2">I'm here to help with:</p>
+                    <ul class="list-disc pl-5 mt-1 space-y-1">
+                        <li>Symptom checking & analysis</li>
+                        <li>Mental health support</li>
+                        <li>General health advice</li>
+                        <li>Medication information</li>
+                    </ul>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <span class="risk-badge text-white text-xs px-2 py-1 rounded-full risk-low">
+                            <i class="fas fa-lock mr-1"></i> Always confidential
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div id="action-cards" class="action-cards pb-2">
+                <div class="action-card">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3">
+                        <i class="fas fa-head-side-cough"></i>
+                    </div>
+                    <h3 class="font-medium mb-1">Check my symptoms</h3>
+                    <p class="text-xs text-gray-600">Get instant analysis of your symptoms</p>
+                </div>
+                <div class="action-card">
+                    <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-3">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="font-medium mb-1">I feel anxious</h3>
+                    <p class="text-xs text-gray-600">Get mental health support</p>
+                </div>
+                <div class="action-card">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-3">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <h3 class="font-medium mb-1">Medication questions</h3>
+                    <p class="text-xs text-gray-600">Information about drugs & prescriptions</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="fixed bottom-0 left-0 right-0 bg-white p-4 border-t border-gray-200 z-20">
+            <div class="flex items-center">
+                <div class="flex-grow relative">
+                    <input type="text" id="chat-input" 
+                           class="w-full p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-4 pr-12 text-sm"
+                           placeholder="Ask me anything about your health...">
+                </div>
+                <button id="send-btn" class="ml-2 w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors shadow-md">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Risk Assessment Card (shown after symptom analysis) -->
+    <div id="risk-assessment-card" class="hidden fixed bottom-20 right-4 bg-white rounded-xl shadow-xl z-30 w-72 slide-up">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h3 class="font-medium text-blue-600"><i class="fas fa-heartbeat mr-2"></i> Risk Assessment</h3>
+                <button id="close-risk-card" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="text-center mb-3">
+                <div id="risk-level-badge" class="inline-block text-white text-sm px-3 py-1 rounded-full mb-2 risk-moderate">
+                    Moderate Risk
+                </div>
+                <p class="text-xs text-gray-600">Based on your symptoms</p>
+            </div>
+            
+            <div class="mb-4">
+                <h4 class="text-sm font-medium mb-2">Recommended Actions:</h4>
+                <ul class="space-y-2 text-xs">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>Consult a doctor within 24-48 hours</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-pills text-blue-500 mt-1 mr-2"></i>
+                        <span>Take OTC pain relief if needed</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-bed text-purple-500 mt-1 mr-2"></i>
+                        <span>Get plenty of rest</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-xs font-medium transition-colors">
+                    <i class="fas fa-map-marker-alt mr-1"></i> Find Clinic
+                </button>
+                <button class="bg-white border border-blue-600 text-blue-600 py-2 rounded-lg text-xs font-medium hover:bg-blue-50 transition-colors">
+                    <i class="fas fa-comment-medical mr-1"></i> Chat More
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const chatContainer = document.getElementById('chat-container');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const actionCards = document.getElementById('action-cards');
+        const welcomeMessage = document.getElementById('welcome-message');
+        const floatingSymptomChecker = document.getElementById('floating-symptom-checker');
+        const symptomCheckerToggle = document.getElementById('symptom-checker-toggle');
+        const closeSymptomChecker = document.getElementById('close-symptom-checker');
+        const analyzeSymptomsBtn = document.getElementById('analyze-symptoms-btn');
+        const riskAssessmentCard = document.getElementById('risk-assessment-card');
+        const closeRiskCard = document.getElementById('close-risk-card');
+        const riskLevelBadge = document.getElementById('risk-level-badge');
+        
+        // State Management
+        let conversationHistory = [];
+        let currentContext = 'general';
+        
+        // Initialize the interface
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle symptom checker
+            symptomCheckerToggle.addEventListener('click', () => {
+                floatingSymptomChecker.style.display = 'block';
+                setTimeout(() => {
+                    floatingSymptomChecker.classList.add('slide-up');
+                }, 10);
+            });
+            
+            closeSymptomChecker.addEventListener('click', () => {
+                floatingSymptomChecker.classList.remove('slide-up');
+                setTimeout(() => {
+                    floatingSymptomChecker.style.display = 'none';
+                }, 300);
+            });
+            
+            // Action cards click handlers
+            document.querySelectorAll('.action-card').forEach((card, index) => {
+                card.addEventListener('click', () => {
+                    let message = '';
+                    switch(index) {
+                        case 0: 
+                            message = "I'd like to check my symptoms";
+                            floatingSymptomChecker.style.display = 'block';
+                            setTimeout(() => {
+                                floatingSymptomChecker.classList.add('slide-up');
+                            }, 10);
+                            break;
+                        case 1: message = "I'm feeling anxious and need support"; break;
+                        case 2: message = "I have questions about my medication"; break;
+                    }
+                    
+                    if (index !== 0) {
+                        sendMessage(message);
+                    }
+                });
+            });
+            
+            // Send message on button click
+            sendBtn.addEventListener('click', () => sendMessage(chatInput.value.trim()));
+            
+            // Send message on Enter key
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage(chatInput.value.trim());
+                }
+            });
+            
+            // Analyze symptoms
+            analyzeSymptomsBtn.addEventListener('click', analyzeSymptoms);
+            
+            // Close risk card
+            closeRiskCard.addEventListener('click', () => {
+                riskAssessmentCard.classList.add('hidden');
+            });
+            
+            // Load any previous conversation
+            loadConversationHistory();
+        });
+        
+        // Send message to AI
+        function sendMessage(message, isQuickAction = false) {
+            if (!message) return;
+            
+            // Hide welcome message and action cards on first message
+            if (welcomeMessage.style.display !== 'none') {
+                welcomeMessage.classList.add('fade-out');
+                actionCards.classList.add('fade-out');
+                setTimeout(() => {
+                    welcomeMessage.style.display = 'none';
+                    actionCards.style.display = 'none';
+                }, 300);
+            }
+            
+            // Add user message to chat
+            addMessageToChat('user', message);
+            
+            // Clear input if not a quick action
+            if (!isQuickAction) {
+                chatInput.value = '';
+            }
+            
+            // Determine context
+            updateContext(message);
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response (in production, this would be an API call)
+            setTimeout(() => {
+                removeTypingIndicator();
+                const aiResponse = generateAIResponse(message);
+                addMessageToChat('ai', aiResponse.message);
+                
+                // Show risk assessment if relevant
+                if (aiResponse.risk) {
+                    showRiskAssessment(aiResponse);
+                }
+                
+                // Update conversation history
+                conversationHistory.push({
+                    role: 'user',
+                    content: message
+                }, {
+                    role: 'ai',
+                    content: aiResponse.message,
+                    risk: aiResponse.risk
+                });
+                
+                // Save conversation
+                saveConversation();
+            }, 1500);
+        }
+        
+        // Analyze symptoms
+        function analyzeSymptoms() {
+            const description = document.getElementById('symptom-description').value.trim();
+            const duration = document.getElementById('symptom-duration').value;
+            
+            if (!description) {
+                alert("Please describe your symptoms");
+                return;
+            }
+            
+            // Close symptom checker
+            floatingSymptomChecker.classList.remove('slide-up');
+            setTimeout(() => {
+                floatingSymptomChecker.style.display = 'none';
+            }, 300);
+            
+            // Add user message to chat
+            addMessageToChat('user', `I have these symptoms: ${description} (${getDurationText(duration)})`);
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate analysis (in production, this would be an API call)
+            setTimeout(() => {
+                removeTypingIndicator();
+                
+                const analysis = analyzeSymptomsData(description, duration);
+                addMessageToChat('ai', analysis.message);
+                
+                // Show risk assessment
+                showRiskAssessment(analysis);
+                
+                // Update conversation history
+                conversationHistory.push({
+                    role: 'user',
+                    content: `Symptom check: ${description} (${getDurationText(duration)})`
+                }, {
+                    role: 'ai',
+                    content: analysis.message,
+                    risk: analysis.risk
+                });
+                
+                // Save conversation
+                saveConversation();
+                
+                // Clear symptom inputs
+                document.getElementById('symptom-description').value = '';
+                document.getElementById('symptom-duration').value = '';
+            }, 2000);
+        }
+        
+        // Show risk assessment
+        function showRiskAssessment(response) {
+            if (!response.risk) return;
+            
+            // Update risk card
+            riskLevelBadge.textContent = response.risk.charAt(0).toUpperCase() + response.risk.slice(1) + " Risk";
+            riskLevelBadge.className = `inline-block text-white text-sm px-3 py-1 rounded-full mb-2 risk-${response.risk}`;
+            
+            // Show card
+            riskAssessmentCard.classList.remove('hidden');
+        }
+        
+        // Add message to chat UI
+        function addMessageToChat(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${role === 'user' ? 'justify-end' : ''} fade-in`;
+            
+            if (role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="user-bubble px-4 py-3">
+                        <p>${content}</p>
+                    </div>
+                `;
+            } else {
+                // Format AI response with markdown-like formatting
+                const formattedContent = formatAIResponse(content);
+                
+                messageDiv.innerHTML = `
+                    <div class="flex-shrink-0 mr-3">
+                        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                            <i class="fas fa-robot text-white text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="ai-bubble px-4 py-3 ai-response">
+                        ${formattedContent}
+                    </div>
+                `;
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Format AI response with basic markdown
+        function formatAIResponse(text) {
+            // Convert **bold** to <strong>
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert *italics* to <em>
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert lists (lines starting with - )
+            text = text.replace(/^- (.*$)/gm, '<li>$1</li>');
+            text = text.replace(/(<li>.*<\/li>)+/g, '<ul>$&</ul>');
+            
+            // Convert line breaks to paragraphs
+            text = text.split('\n\n').map(para => {
+                if (!para.startsWith('<ul>') && !para.startsWith('<li>')) {
+                    return `<p>${para}</p>`;
+                }
+                return para;
+            }).join('');
+            
+            return text;
+        }
+        
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'flex';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                        <i class="fas fa-robot text-white text-sm"></i>
+                    </div>
+                </div>
+                <div class="ai-bubble px-4 py-3">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+        }
+        
+        // Remove typing indicator
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+        
+        // Update conversation context
+        function updateContext(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            if (lowerMsg.includes('symptom') || lowerMsg.includes('pain') || 
+                lowerMsg.includes('ache') || lowerMsg.includes('fever')) {
+                currentContext = 'symptoms';
+            } else if (lowerMsg.includes('anxious') || lowerMsg.includes('stress') || 
+                      lowerMsg.includes('depress') || lowerMsg.includes('mental')) {
+                currentContext = 'mental_health';
+            } else if (lowerMsg.includes('medic') || lowerMsg.includes('drug') || 
+                      lowerMsg.includes('pill') || lowerMsg.includes('prescription')) {
+                currentContext = 'medication';
+            } else {
+                currentContext = 'general';
+            }
+        }
+        
+        // Generate AI response based on context
+        function generateAIResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            // Sample responses - in production this would come from an API
+            if (currentContext === 'symptoms') {
+                if (lowerMsg.includes('headache')) {
+                    return {
+                        risk: 'moderate',
+                        message: `**Headache Analysis**\n\nYour symptoms suggest tension-type headaches. Here's what I recommend:\n\n- Take paracetamol or ibuprofen if needed\n- Apply a cool compress to your forehead\n- Practice relaxation techniques\n- Stay hydrated\n\nIf headaches persist or worsen, **consult a doctor** as it could indicate something more serious.`
+                    };
+                } else if (lowerMsg.includes('fever')) {
+                    return {
+                        risk: 'high',
+                        message: `**Fever Alert**\n\nA fever can indicate infection. Recommendations:\n\n- Rest and drink plenty of fluids\n- Take fever reducers like paracetamol\n- Monitor your temperature regularly\n\n**Seek immediate medical attention** if:\n- Fever is above 39°C\n- Lasts more than 3 days\n- Accompanied by severe symptoms`
+                    };
+                }
+                return {
+                    risk: 'low',
+                    message: `**Symptom Assessment**\n\nI understand you're experiencing symptoms. For a more accurate assessment:\n\n- Describe your symptoms in detail\n- Mention how long you've had them\n- Note any other relevant health information\n\nWould you like me to guide you through a symptom check?`
+                };
+            } else if (currentContext === 'mental_health') {
+                return {
+                    risk: 'low',
+                    message: `**Mental Health Support**\n\nI'm here to listen and help. Consider these strategies:\n\n- Practice deep breathing exercises\n- Go for a walk in nature\n- Talk to someone you trust\n- Maintain a regular sleep schedule\n\n*Remember:* It's okay to ask for professional help if you're struggling.`
+                };
+            } else if (currentContext === 'medication') {
+                return {
+                    risk: 'low',
+                    message: `**Medication Information**\n\nI can provide general information about medications. For your safety:\n\n- Always follow your doctor's instructions\n- Be aware of potential side effects\n- Don't mix medications without professional advice\n\nTell me more about the medication you're asking about.`
+                };
+            }
+            
+            // Default general response
+            return {
+                message: `**Health Companion**\n\nI'm here to help with your health questions. You can ask me about:\n\n- Symptoms you're experiencing\n- Mental health concerns\n- Medication information\n- General health advice\n\nWhat would you like to discuss today?`
+            };
+        }
+        
+        // Analyze symptoms data
+        function analyzeSymptomsData(description, duration) {
+            // In production, this would be an API call to a medical analysis service
+            const lowerDesc = description.toLowerCase();
+            
+            if (lowerDesc.includes('headache') && lowerDesc.includes('fever')) {
+                return {
+                    risk: 'high',
+                    message: `**Symptom Analysis**\n\nThe combination of headache and fever could indicate an infection like flu or in rare cases, something more serious like meningitis.\n\n**Immediate Recommendations:**\n\n- Take fever reducers like paracetamol\n- Rest in a quiet, dark room\n- Drink plenty of fluids\n\n**Seek urgent medical care** if you experience:\n- Stiff neck\n- Severe light sensitivity\n- Confusion or drowsiness\n\nBased on symptom duration (${getDurationText(duration)}), I recommend consulting a doctor within 24 hours.`
+                };
+            } else if (lowerDesc.includes('headache')) {
+                return {
+                    risk: 'moderate',
+                    message: `**Headache Analysis**\n\nYour headache symptoms may be tension-type or migraine. Recommendations:\n\n- Take OTC pain relief if needed\n- Apply cold compress to forehead\n- Practice relaxation techniques\n- Stay hydrated\n\nIf headaches persist beyond ${getDurationText(duration, true)} or worsen, consult a healthcare provider.`
+                };
+            } else if (lowerDesc.includes('fever')) {
+                return {
+                    risk: duration > 2 ? 'high' : 'moderate',
+                    message: `**Fever Analysis**\n\nA fever is often a sign of infection. For a fever lasting ${getDurationText(duration)}:\n\n- Rest and maintain fluid intake\n- Take fever reducers as directed\n- Monitor temperature regularly\n\nSeek medical attention if fever exceeds 39°C or persists beyond 3 days.`
+                };
+            }
+            
+            // Default response for other symptoms
+            return {
+                risk: 'low',
+                message: `**Symptom Review**\n\nBased on your description (${getDurationText(duration)}), I recommend:\n\n- Monitoring your symptoms\n- Getting adequate rest\n- Staying hydrated\n\nIf symptoms worsen or persist, consider consulting a healthcare professional. Would you like me to help you find a nearby clinic?`
+            };
+        }
+        
+        // Helper function to get duration text
+        function getDurationText(duration, forHeadache = false) {
+            switch(duration) {
+                case '1': return 'less than 24 hours';
+                case '2': return '1-3 days';
+                case '3': return '4-7 days';
+                case '4': return 'more than 1 week';
+                default: return forHeadache ? 'a few days' : 'an unspecified duration';
+            }
+        }
+        
+        // Scroll chat to bottom
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Save conversation to localStorage
+        function saveConversation() {
+            localStorage.setItem('nexaHealthConversation', JSON.stringify(conversationHistory));
+        }
+        
+        // Load conversation from localStorage
+        function loadConversationHistory() {
+            const savedConversation = localStorage.getItem('nexaHealthConversation');
+            if (savedConversation) {
+                conversationHistory = JSON.parse(savedConversation);
+                
+                // Hide welcome message and action cards
+                welcomeMessage.style.display = 'none';
+                actionCards.style.display = 'none';
+                
+                // Add messages to chat (with slight delay for animation)
+                conversationHistory.forEach((msg, index) => {
+                    setTimeout(() => {
+                        addMessageToChat(msg.role, msg.content);
+                        
+                        // Show risk assessment if this was an AI response with risk
+                        if (msg.role === 'ai' && msg.risk) {
+                            showRiskAssessment({ risk: msg.risk });
+                        }
+                    }, index * 100);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

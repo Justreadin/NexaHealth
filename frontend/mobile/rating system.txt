@@ -1,0 +1,83 @@
+💠 NexaHealth Pharmacy Rating System (Smart + MVP-Friendly)
+🎯 Goal
+
+Quantify trustworthiness based on pharmacy behavior, not consumer opinions.
+The system updates automatically as pharmacies engage with NexaHealth features.
+
+⚙️ Core Rating Principle
+
+Each pharmacy has a “Trust Score” (0–100).
+It’s calculated dynamically from verified activity signals, e.g.:
+
+Category	Metric	Example Impact
+Verification Activity	How often they verify drugs on the Nexa platform	+2 pts per verified item (max +20/month)
+ADR / Fake Drug Reporting	Reports filed & confirmed valid	+5 pts per valid report
+Responsiveness	How quickly they respond to reported issues / patient concerns	+1–3 pts per prompt resolution
+User Engagement	Number of patient verifications linked to their pharmacy	+1 pt per 10 verifications
+Compliance	Verified license, address, and regulatory docs (e.g., NAFDAC)	+20 pts
+Penalty	False reports or inactivity over time	−10 pts
+
+✅ No public ratings, just a transparent, evolving score backed by verifiable actions.
+
+💎 Trust Levels
+Score Range	Level	Badge
+80–100	Trusted Pharmacy	🟢 Gold Glow
+60–79	Verified Pharmacy	🔵 Blue Glow
+40–59	Registered Pharmacy	⚪ Gray Badge
+0–39	Pending Verification	⚫ No Glow
+
+These badges automatically update based on the Trust Score.
+
+🧠 Smart Extension (Later Stage AI Integration)
+
+Once you gather enough behavioral data, NexaHealth can introduce AI-driven trust predictions:
+
+Predict pharmacy risk level (likelihood of selling fake drugs)
+
+Flag anomalies in drug verification patterns
+
+Recommend top trusted pharmacies nearby using a TrustRank Algorithm
+
+🧩 MVP Implementation (Simple + Realistic)
+
+You don’t need AI now — start with:
+
+A Trust Score field in your pharmacies table
+
+An Activity Log that tracks:
+
+verified_drugs_count
+
+reports_made
+
+adr_reports
+
+documents_verified
+
+last_active_date
+
+Then a backend function (e.g., calculate_trust_score(pharmacy_id)) that runs weekly or in real-time.
+
+🌍 Visual Display (UI)
+
+Each pharmacy card shows:
+
+Pharmacy Name
+
+City
+
+Badge + Score (e.g. “Trust Score: 87”)
+
+Subtext: “Based on verified activity on NexaHealth”
+
+Glowing ring color = trust level
+
+🪄 Result
+
+You get:
+
+A self-regulating ecosystem (the more pharmacies act right, the more visible they become)
+
+A trust-based leaderboard instead of fake reviews
+
+And a data reputation moat — something copycats can’t fake easily

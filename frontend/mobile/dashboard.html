@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexaHealth | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexaHealth User Dashboard</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,10 +11,11 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/referral.css">
     
     <script>
         tailwind.config = {
@@ -33,13 +34,11 @@
                     },
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif'],
-                        serif: ['Playfair Display', 'serif'],
                     },
                     boxShadow: {
-                        card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                        float: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                        'glow': '0 0 15px rgba(59, 130, 246, 0.2)'
+                        'soft': '0 2px 12px rgba(0, 0, 0, 0.05)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
                     }
                 }
             }
@@ -47,17 +46,22 @@
     </script>
     
     <style>
-        :root {
-            --header-height: 64px;
-        }
-        
         body {
-            background-color: #f8fafc;
+            background-color: #F2F2F2;
             font-family: 'Poppins', sans-serif;
         }
         
-        .health-gradient {
-            background: linear-gradient(135deg, #0ea5e9 0%, #1e40af 100%);
+        .dashboard-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         
         .nav-link {
@@ -72,41 +76,12 @@
             left: 0;
             width: 0;
             height: 2px;
-            background-color: #0ea5e9;
+            background-color: #2563eb;
             transition: width 0.3s ease;
         }
         
         .nav-link:hover::after {
             width: 100%;
-        }
-        
-        .dashboard-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .dashboard-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-        
-        .activity-badge {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
         }
         
         .scan-pulse {
@@ -115,533 +90,431 @@
         
         @keyframes scanPulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
             }
             70% {
-                box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
+                box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
             }
             100% {
-                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+                box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
             }
         }
         
-        .health-tip-card {
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(30, 64, 175, 0.1) 100%);
-            border-left: 4px solid #0ea5e9;
-        }
-        
-        .alert-card {
-            border-left: 4px solid transparent;
-        }
-        
-        .alert-card.critical {
-            border-left-color: #ef4444;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
-        }
-        
-        .alert-card.warning {
-            border-left-color: #f59e0b;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
-        }
-        
-        .alert-card.info {
-            border-left-color: #0ea5e9;
-            background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(14, 165, 233, 0.02) 100%);
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        
-        .quick-action-card {
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .quick-action-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            border-color: #bae6fd;
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
         
         .main-content {
-            padding-top: calc(var(--header-height) + 1.5rem);
+            padding-top: 4rem;
+        }
+        
+        /* Improved touch targets for mobile */
+        @media (max-width: 640px) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition: all 0.2s ease-in-out;
         }
     </style>
 </head>
-<body data-page="dashboard" class="font-sans antialiased text-gray-800">
+<body class="font-sans antialiased text-gray-800">
     <!-- Premium Navigation -->
-    <nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50 border-b border-gray-200 transition-all duration-300" style="height: var(--header-height);">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="flex justify-between items-center h-full py-3">
-            <!-- Logo -->
-              <div class="flex items-center">
-                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+    <nav class="fixed top-0 left-0 w-full bg-white z-50 border-b-2 border-blue-500">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="#" class="text-lg sm:text-xl lg:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
                         Nexa<span class="text-secondary">Health</span>
                     </a>
                 </div>
 
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-4 lg:space-x-6">
+                    <div class="flex items-center space-x-2 lg:space-x-3">
+                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold">U</div>
+                        <a href="login.html" class="text-xs sm:text-sm font-medium text-gray-500 hover:text-gray-700">Logout</a>
+                    </div>
+                </div>
 
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex items-center space-x-6">
-                <!--<a href="settings.html" class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 hover:underline underline-offset-4 transition-all duration-300">Settings</a>
-                <a href="history.html" class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 hover:underline underline-offset-4 transition-all duration-300">User History</a>--->
-                <a href="/" class="nav-link text-sm font-medium text-red-600 hover:text-red-700 hover:underline underline-offset-4 transition-all duration-300">Logout</a>
-            </div>
-
-            <!-- Mobile Menu Button -->
-            <div class="md:hidden flex items-center">
-                <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300">
-                <span class="sr-only">Open menu</span>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-                </button>
-            </div>
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 touch-target">
+                        <span class="sr-only">Open menu</span>
+                        <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Mobile Dropdown Menu -->
-        <div id="mobile-menu" class="md:hidden absolute top-0 left-0 w-full bg-white shadow-md transform -translate-y-full transition-transform duration-300 ease-in-out z-40">
-            <div class="px-4 pt-20 pb-6 space-y-5 bg-white rounded-b-lg border-t border-gray-100 shadow-lg">
-            <!---<a href="settings.html" class="block text-base font-medium text-gray-700 hover:text-primary-600 transition-colors duration-300">Settings</a>
-            <a href="userhistory.html" class="block text-base font-medium text-gray-700 hover:text-primary-600 transition-colors duration-300">User History</a>--->
-            <a href="/" class="block text-base font-medium text-red-600 hover:text-red-700 transition-colors duration-300">Logout</a>
+        <div id="mobile-menu" class="md:hidden hidden absolute top-14 sm:top-16 left-0 w-full bg-white shadow-md z-40">
+            <div class="px-3 sm:px-4 pt-3 sm:pt-4 pb-4 sm:pb-6 space-y-3 sm:space-y-4 bg-white border-t border-gray-100">
+                <div class="pt-3 sm:pt-4 border-t border-gray-200">
+                    <a href="login.html" class="block text-sm font-medium text-red-600 hover:text-red-700 touch-target">Logout</a>
+                </div>
             </div>
         </div>
-        </nav>
+    </nav>
 
     <!-- Main Content -->
-    <main class="main-content pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <!-- Welcome Section -->
-        <section class="mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold font-serif text-gray-900">Loading...</h1>
-                    <p class="text-gray-600 mt-1">Your health safety overview</p>
-                </div>
-                <div class="mt-4 sm:mt-0">
-                    <div class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
-                        <i class="fas fa-calendar-day text-primary-600 mr-2"></i>
-                        <span id="current-date">Loading...</span>
-                    </div>
+    <main class="main-content pb-6 sm:pb-8 px-3 sm:px-4 lg:px-8 max-w-7xl mx-auto">
+        <!-- Welcome & Search Section -->
+        <div id="greetingSection" class="mb-4 sm:mb-6 px-1 sm:px-0">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-align animate-slide-up">
+                    <h2 id="greetingText" class="text-xlm sm:text-xl md:text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent font-serif"></h2>
                 </div>
             </div>
-        </section>
-        <section class="mb-6">
-        <div class="dashboard-card bg-gradient-to-r from-purple-600 to-indigo-600 text-white overflow-hidden relative">
-            <div class="p-6 relative">
+        </div>
 
-            <!-- Decorative elements -->
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full transform -translate-x-20 translate-y-20"></div>
+        <section class="mb-4 sm:mb-6">
+            <!-- Compact Referral Card -->
+            <div class="health-gradient rounded-lg sm:rounded-xl p-3 sm:p-4 text-white shadow-lg relative overflow-hidden max-w-md mx-auto">
+                <!-- Decorative blobs -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-0 left-8 sm:left-12 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white"></div>
+                    <div class="absolute bottom-0 right-8 sm:right-12 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-white"></div>
+                </div>
 
-            <!-- Content -->
-            <div class="relative z-10">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div class="mb-4 md:mb-0">
-                    <h2 class="text-2xl font-bold mb-2">🚀 Unlock Early Access!</h2>
-                    <p class="opacity-90 max-w-lg">
-                    Refer friends and climb levels! Each invite unlocks <span class="font-semibold">exclusive perks</span> like 
-                    <span class="font-semibold">AI Health Companion</span>, <span class="font-semibold">Drug Scanner</span>, and more.  
-                    <br><span class="italic opacity-80">Be among the first in Naija to try it 🔥</span>
+                <div class="relative z-10">
+                    <div class="flex items-center mb-2 sm:mb-3">
+                        <div class="bg-white bg-opacity-20 p-1.5 sm:p-2 rounded-full mr-2 sm:mr-3 animate-pulse">
+                            <i class="fas fa-gift text-base sm:text-lg"></i>
+                        </div>
+                        <h2 class="text-base sm:text-lg font-bold font-serif">Referral Rewards</h2>
+                    </div>
+
+                    <p class="text-xs opacity-90 mb-2 sm:mb-3">
+                        Invite users & pharmacies to NexaHealth. Earn points, unlock exclusive features, and help your favorite pharmacies grow!
                     </p>
-                </div>
 
-                <div class="flex-shrink-0">
-                    <button id="open-referral-modal"
-                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-md text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all transform hover:scale-105">
-                    <i class="fas fa-gift mr-2"></i> Invite Friends
-                    </button>
-                </div>
-                </div>
+                    <div class="bg-white bg-opacity-20 rounded-lg p-2 sm:p-3 mb-2 sm:mb-3 flex items-center justify-between text-xs sm:text-sm">
+                        <div>
+                            <p class="opacity-80">Points</p>
+                            <p class="font-bold text-base sm:text-lg points">0 pts</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="opacity-80">Reward</p>
+                            <p class="font-semibold">15 pts</p>
+                        </div>
+                    </div>
 
-                <!-- Progress Bar -->
-                <div class="mt-6">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm font-medium">Your Progress</span>
-                    <span id="referral-progress-text" class="text-sm font-bold">0/3 referrals</span>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <button class="invite-users scan-pulse inline-flex items-center justify-center bg-white text-blue-600 px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium shadow hover:shadow-xl transition-all touch-target">
+                            <i class="fas fa-user-plus mr-1"></i> Invite Users (+1)
+                        </button>
+                        <button class="invite-pharmacies inline-flex items-center justify-center border border-white text-white px-2 sm:px-3 py-1.5 rounded-full text-xs font-medium hover:bg-white hover:bg-opacity-20 transition-colors touch-target">
+                            <i class="fas fa-clinic-medical mr-1"></i> Invite Pharmacies (+10)
+                        </button>
+                    </div>
                 </div>
-                <div class="w-full bg-white/30 rounded-full h-2.5 overflow-hidden">
-                    <div id="referral-progress-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
-                </div>
-                </div>
-
-                <!-- Badges -->
-                <div id="referral-badges" class="mt-4 flex flex-wrap gap-2"></div>
             </div>
-            </div>
-        </div>
         </section>
 
-        <!-- Referral Modal -->
-        <div id="referral-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative">
-            <!-- Close -->
-            <button id="close-referral-modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-            <i class="fas fa-times"></i>
-            </button>
-
-            <h3 class="text-xl font-bold mb-4">🎉 Invite & Unlock Rewards</h3>
-
-            <!-- Referral Link -->
-            <div class="flex items-center mb-4">
-            <input id="referral-link" readonly
-                class="flex-1 border rounded-l-lg px-3 py-2 text-gray-700 text-sm" />
-            <button id="copy-referral-link"
-                class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
-                <i class="fas fa-copy mr-1"></i> Copy
-            </button>
-            </div>
-
-            <!-- Share Buttons -->
-            <div class="grid grid-cols-2 gap-2 mb-6">
-            <button id="share-whatsapp"
-                class="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-green-600">
-                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
-            </button>
-            <button id="share-email"
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-blue-600">
-                <i class="fas fa-envelope mr-2"></i> Email
-            </button>
-            <button id="share-twitter"
-                class="bg-sky-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-sky-600">
-                <i class="fab fa-twitter mr-2"></i> Twitter
-            </button>
-            <button id="share-telegram"
-                class="bg-indigo-400 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-indigo-500">
-                <i class="fab fa-telegram mr-2"></i> Telegram
-            </button>
-            </div>
-        </div>
-        </div>
-        
-        <section class="mb-6">
-            <!-- Period Filters -->
-            <div class="stats-filters mb-4 flex flex-wrap gap-2">
-                <button 
-                data-period="day" 
-                class="active px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
-                >
-                Today
-                </button>
-                <button 
-                data-period="week" 
-                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
-                >
-                This Week
-                </button>
-                <button 
-                data-period="month" 
-                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
-                >
-                This Month
-                </button>
-                <button 
-                data-period="year" 
-                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
-                >
-                This Year
-                </button>
-                <button 
-                id="refresh-stats" 
-                class="ml-auto px-3 py-1 rounded-md bg-gray-100 text-gray-800 text-xs font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
-                >
-                <i class="fas fa-sync-alt text-xs"></i> Refresh
-                </button>
-            </div>
-
-            <!-- Dashboard Cards -->
-            <div class="grid grid-cols-2 gap-3">
-                <!-- Verified Card -->
-                <div class="dashboard-card verified-stats bg-white p-3 flex items-center hover:shadow-glow transition-all">
-                <div class="card-icon bg-blue-50 text-blue-600 mr-3 p-2 rounded-lg">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="text-xs font-medium text-gray-500">Verified Drugs</p>
-                    <div class="flex items-center justify-between">
-                    <p class="text-lg font-bold text-gray-900">0</p>
-                    <p class="text-sm text-gray-500">0 today</p>
+        <!-- Stats & Quick Actions -->
+        <section class="mb-4 sm:mb-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <div class="dashboard-card flex items-center p-1.5 sm:p-2 bg-white border border-gray-200 rounded-lg shadow-sm verified-stats
+                            ring-1 ring-blue-200 hover:ring-2 hover:ring-blue-400 transition-all duration-300">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-1.5 sm:mr-2 flex-shrink-0">
+                        <i class="fas fa-check-circle text-xs sm:text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs sm:text-[14px] font-medium text-black-500 truncate">Verified Medications</p>
+                        <p class="text-xs font-bold text-gray-900 stat-count">0</p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 truncate stat-label">0 Today</p>
                     </div>
                 </div>
-                </div>
 
-                <!-- Reported Card -->
-                <div class="dashboard-card reported-stats bg-white p-3 flex items-center hover:shadow-glow transition-all">
-                <div class="card-icon bg-red-50 text-red-600 mr-3 p-2 rounded-lg">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="text-xs font-medium text-gray-500">Reported Issues</p>
-                    <div class="flex items-center justify-between">
-                    <p class="text-lg font-bold text-gray-900">0</p>
-                    <p class="text-sm text-gray-500">0 today</p>
+                <!-- ✅ Nearby Pharmacies -->
+                <div class="dashboard-card flex items-center p-1.5 sm:p-2 bg-white border border-gray-200 rounded-lg shadow-sm nearby-stats
+                            ring-1 ring-blue-200 hover:ring-2 hover:ring-blue-400 transition-all duration-300">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-1.5 sm:mr-2 flex-shrink-0">
+                        <i class="fas fa-map-marker-alt text-xs sm:text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs sm:text-[14px] font-medium text-black-500 truncate">Nearby Pharmacies</p>
+                        <p class="text-xs font-bold text-gray-900 stat-count">0</p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 truncate stat-label">0 Total</p>
                     </div>
                 </div>
+
+                <!-- ✅ Reports Filed -->
+                <div class="dashboard-card flex items-center p-1.5 sm:p-2 bg-white border border-gray-200 rounded-lg shadow-sm reported-stats
+                            ring-1 ring-blue-200 hover:ring-2 hover:ring-blue-400 transition-all duration-300">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-1.5 sm:mr-2 flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-xs sm:text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs sm:text-[14px] font-medium text-black-500 truncate">Reports Filed</p>
+                        <p class="text-xs font-bold text-gray-900 stat-count">0</p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 truncate stat-label">0 Today</p>
+                    </div>
+                </div>
+
+                <!-- ✅ Pharmacies Referred -->
+                <div class="dashboard-card flex items-center p-1.5 sm:p-2 bg-white border border-gray-200 rounded-lg shadow-sm referred-stats
+                            ring-1 ring-blue-200 hover:ring-2 hover:ring-blue-400 transition-all duration-300">
+                    <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mr-1.5 sm:mr-2 flex-shrink-0">
+                        <i class="fas fa-star text-xs sm:text-sm"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs sm:text-[14px] font-medium text-black-500 truncate">Pharmacies Referred</p>
+                        <p class="text-xs font-bold text-gray-900 stat-count">0</p>
+                        <p class="text-[10px] sm:text-[11px] text-gray-600 truncate stat-label">0 Today</p>
+                    </div>
                 </div>
             </div>
-            </section>
+
+            
+            <!-- Quick Actions -->
+            <div class="dashboard-card bg-white p-3 sm:p-4">
+                <h2 class="text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Quick Actions</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                    <a href="verify.html" class="flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-100 hover:border-primary hover:bg-blue-50 transition-all group touch-target">
+                        <div class="w-8 h-8 sm:w-10 sm:h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-1 sm:mb-2 group-hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-barcode text-sm sm:text-base"></i>
+                        </div>
+                        <span class="text-xs font-medium text-center text-gray-700 group-hover:text-primary">Scan Medication</span>
+                    </a>
+                    
+                    <a href="report.html" class="flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-100 hover:border-primary hover:bg-blue-50 transition-all group touch-target">
+                        <div class="w-8 h-8 sm:w-10 sm:h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-1 sm:mb-2 group-hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-flag text-sm sm:text-base"></i>
+                        </div>
+                        <span class="text-xs font-medium text-center text-gray-700 group-hover:text-primary">Report Issue</span>
+                    </a>
+                    
+                    <a href="pharmacy.html" class="flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-100 hover:border-primary hover:bg-blue-50 transition-all group touch-target">
+                        <div class="w-8 h-8 sm:w-10 sm:h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-1 sm:mb-2 group-hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-clipboard-list text-sm sm:text-base"></i>
+                        </div>
+                        <span class="text-xs font-medium text-center text-gray-700 group-hover:text-primary">Find Pharmacies</span>
+                    </a>
+                    
+                    <a href="feedback.html" class="flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-100 hover:border-primary hover:bg-blue-50 transition-all group touch-target">
+                        <div class="w-8 h-8 sm:w-10 sm:h-12 rounded-full bg-blue-100 text-primary flex items-center justify-center mb-1 sm:mb-2 group-hover:bg-blue-200 transition-colors">
+                            <i class="fas fa-lightbulb text-sm sm:text-base"></i>
+                        </div>
+                        <span class="text-xs font-medium text-center text-gray-700 group-hover:text-primary">Feedback</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
             <!-- Left Column -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Quick Actions -->
-                <section class="dashboard-card bg-white">
-                    <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
-                            <i class="fas fa-bolt text-primary-600 mr-2"></i>
-                            Quick Actions
-                        </h2>
+            <div class="lg:col-span-2 space-y-3 sm:space-y-4">
+                <!-- Nearby Pharmacies -->
+                <section class="dashboard-card bg-white premium-card">
+                    <div class="p-4 sm:p-6 border-b border-gray-100 flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-gray-900">Pharmacies Nearby</h2>
+                                <p class="text-xs text-gray-500 mt-1">Discover trusted pharmacies in your area</p>
+                            </div>
+                        </div>
+                        <a href="#" id="toggle-pharmacies" class="text-sm font-semibold text-primary hover:text-secondary flex items-center space-x-2 transition-all duration-200 hover:scale-105 touch-target">
+                            <span>View all</span>
+                            <i class="fas fa-chevron-right text-xs transform transition-transform duration-200 group-hover:translate-x-1"></i>
+                        </a>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 p-5">
-                        <a href="verify.html" class="quick-action-card flex flex-col items-center justify-center p-4">
-                            <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-                                <i class="fas fa-barcode text-xl"></i>
-                            </div>
-                            <span class="text-sm font-medium text-center">Scan Drug</span>
-                        </a>
-                        
-                        <a href="pils.html" class="quick-action-card flex flex-col items-center justify-center p-4">
-                            <div class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3">
-                                <i class="fas fa-file-prescription text-xl"></i>
-                            </div>
-                            <span class="text-sm font-medium text-center">View PILs</span>
-                        </a>
-
-                        <a href="report.html" class="quick-action-card flex flex-col items-center justify-center p-4">
-                            <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
-                                <i class="fas fa-history text-xl"></i>
+                    
+                    <div class="p-4 sm:p-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 nearby-pharmacies-container">
+                            <!-- Loading State -->
+                            <div class="col-span-full">
+                                <div class="flex items-center justify-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                    <span class="ml-3 text-gray-600">Finding nearby pharmacies...</span>
                                 </div>
-                            <span class="text-sm font-medium text-center">Report Drugs</span>
-                        </a>
-
-                        <a href="feedback.html" class="quick-action-card flex flex-col items-center justify-center p-4">
-                            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
-                                <i class="fas fa-comment-dots text-xl"></i>
                             </div>
-                            <span class="text-sm font-medium text-center">Give Feedback</span>
-                        </a>
+                        </div>
                         
+                        <!-- Manual Location Input (Hidden by default) -->
+                        <div id="manual-location-input" class="hidden mt-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <p class="text-sm text-gray-700 mb-3">Enable location for precise results or enter your address:</p>
+                            <div class="flex space-x-3">
+                                <input type="text" id="user-address" placeholder="e.g., Ikeja, Lagos" 
+                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm">
+                                <button id="submit-address" class="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-lg font-semibold hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 touch-target text-sm">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
-                
-                <!-- Recent Activity -->
+            <div id="invite-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-6 w-96 shadow-xl relative">
+                <button id="close-invite-modal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+                ✕
+                </button>
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">
+                Invite this pharmacy to claim their profile
+                </h3>
+                <p class="text-sm text-gray-700 mb-3">
+                Share the message below:
+                </p>
+                <div id="invite-text" class="bg-gray-100 p-3 rounded-lg text-sm break-words mb-4"></div>
+                <button id="copy-invite" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-2 rounded-lg font-medium hover:shadow-lg transition">
+                Copy Message
+                </button>
+            </div>
+            </div>
+
+
+                <!-- Recent Activity 
                 <section class="dashboard-card bg-white">
-                    <div class="p-5 border-b border-gray-100 flex justify-between items-center">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
-                            <i class="fas fa-clock text-primary-600 mr-2"></i>
-                            Recent Activity
-                        </h2>
-                        <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 flex items-center">
+                    <div class="p-3 sm:p-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-sm sm:text-base font-semibold text-gray-900">Your Recent Activity</h2>
+                        <a href="#" class="text-xs font-medium text-primary hover:text-secondary flex items-center">
                             View all <i class="fas fa-chevron-right ml-1 text-xs"></i>
                         </a>
                     </div>
-                    <div class="divide-y divide-gray-100 activity-container">
-                        <div class="p-4 text-center text-gray-500">
-                            <i class="fas fa-spinner fa-spin"></i> Loading activities...
+                    <div class="divide-y divide-gray-100">
+                        <!-- Activity 1 --
+                        <div class="p-2 sm:p-3 flex items-start">
+                            <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center mr-2 sm:mr-3 text-xs">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm text-gray-900 truncate">You verified <span class="font-medium">Paracetamol 500mg</span></p>
+                                <p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Today at 2:30 PM • From MedPlus Pharmacy</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity 2 --
+                        <div class="p-2 sm:p-3 flex items-start">
+                            <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center mr-2 sm:mr-3 text-xs">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm text-gray-900 truncate">You visited <span class="font-medium">HealthPlus Central</span></p>
+                                <p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Yesterday at 5:15 PM • Rated 5 stars</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Activity 3 --
+                        <div class="p-2 sm:p-3 flex items-start">
+                            <div class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-blue-100 text-primary flex items-center justify-center mr-2 sm:mr-3 text-xs">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs sm:text-sm text-gray-900 truncate">You reported an issue with <span class="font-medium">Amoxicillin</span></p>
+                                <p class="text-xs text-gray-500 mt-0.5 sm:mt-1">3 days ago • Under review</p>
+                            </div>
                         </div>
                     </div>
-                </section>
+                </section>-->
             </div>
-            
             <!-- Right Column -->
-            <div class="space-y-6">
-                <!-- Safety Alerts -->
+            <div class="space-y-3 sm:space-y-4">
+                <!-- Quick Scan -->
                 <section class="dashboard-card bg-white">
-                    <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
-                            <i class="fas fa-bell text-primary-600 mr-2"></i>
+                    <div class="p-3 sm:p-4 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-sm sm:text-base font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-bell text-primary mr-2 text-sm sm:text-base"></i>
                             Safety Alerts
                         </h2>
+                        <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full font-medium">2 New</span>
                     </div>
-                    <div class="p-5 space-y-4">
-               <!-- General Alert -->
-                        <div class="alert-card info p-4 rounded-lg">
-                            <div class="flex">
-                                <div class="flex-shrink-0 text-blue-500 mr-3">
-                                    <i class="fas fa-info-circle text-xl"></i>
+                    <div class="p-3 sm:p-4 space-y-3">
+                        <!-- Alert 1 -->
+                        <div class="p-3 sm:p-4 rounded-xl border-l-4 border-red-500 bg-red-50 hover:bg-red-100 transition-colors duration-200 cursor-pointer">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-white text-xs"></i>
                                 </div>
-                                <div>
-                                    <h3 class="text-sm font-medium text-gray-900">General Drug Safety Reminder</h3>
-                                    <div class="mt-1 text-sm text-gray-600">
-                                        <p>Only use medications as prescribed. Avoid mixing drugs and store them safely away from children.</p>
-                                    </div>
-                                    <!--<div class="mt-3">
-                                        <button type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                            More info
-                                        </button>-->
-                                    </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-sm font-semibold text-red-700 mb-1">⚠ Safety Alert: Protect Your Health</h3>
+                                    <p class="text-xs text-gray-700 leading-relaxed">
+                                        You can report pharmacies selling <strong class="font-semibold">fake, expired, or substandard</strong> medications directly on NexaHealth. Stay safe and help stop harmful medications in your community.
+                                    </p>
                                 </div>
                             </div>
                         </div>
-
-                        <!---Alert 2 
-                        <div class="alert-card warning p-4 rounded-lg">
-                            <div class="flex">
-                                <div class="flex-shrink-0 text-amber-500 mr-3">
-                                    <i class="fas fa-exclamation-circle text-xl"></i>
+                        
+                        <!-- Alert 2 -->
+                        <div class="p-3 sm:p-4 rounded-xl border-l-4 border-primary bg-blue-50 hover:bg-blue-100 transition-colors duration-200 cursor-pointer">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center mt-0.5">
+                                    <i class="fas fa-shield-alt text-white text-xs"></i>
                                 </div>
-                                <div>
-                                    <h3 class="text-sm font-medium text-gray-900">Expired Drugs Recall</h3>
-                                    <div class="mt-1 text-sm text-gray-600">
-                                        <p>Certain batches of Ampicillin recalled by NAFDAC.</p>
-                                    </div>
-                                    <div class="mt-3">
-                                        <button type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
-                                            Check batches
-                                        </button>
-                                    </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-sm font-semibold text-gray-900 mb-1">General Safety Reminder</h3>
+                                    <p class="text-xs text-gray-600 leading-relaxed">Always verify medications before use and report any suspicious packaging to protect your health.</p>
                                 </div>
                             </div>
-                        </div>----->
-                    </div>
-                </section>
-                
-                <!-- Quick Scan -->
-                <section class="dashboard-card health-gradient overflow-hidden">
-                    <div class="p-5 text-white">
-                        <div class="flex items-center mb-3">
-                            <div class="flex-shrink-0 bg-white bg-opacity-20 p-2 rounded-lg mr-3">
-                                <i class="fas fa-qrcode text-xl"></i>
-                            </div>
-                            <h2 class="text-lg font-bold">Verify Medications</h2>
-                        </div>
-                        <p class="text-sm opacity-90 mb-4">Scan barcode or enter details manually to check drug authenticity</p>
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <a href="verify.html" class="scan-pulse inline-flex items-center justify-center bg-white text-primary px-4 py-2.5 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all">
-                                <i class="fas fa-barcode mr-2"></i> Scan Now
-                            </a>
-                            <a href="verify.html" class="inline-flex items-center justify-center border border-white text-white px-4 py-2.5 rounded-full text-sm font-medium hover:bg-white hover:bg-opacity-10 transition-colors">
-                                <i class="fas fa-keyboard mr-2"></i> Enter Manually
-                            </a>
                         </div>
                     </div>
                 </section>
                 
                 <!-- Health Tips -->
                 <section class="dashboard-card bg-white">
-                    <div class="p-5 border-b border-gray-100">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
-                            <i class="fas fa-lightbulb text-primary-600 mr-2"></i>
+                    <div class="p-3 sm:p-4 border-b border-gray-100">
+                        <h2 class="text-sm sm:text-base font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-lightbulb text-primary mr-1.5 sm:mr-2 text-sm sm:text-base"></i>
                             Health Tips
                         </h2>
                     </div>
-                    <div class="p-5 space-y-4">
+                    <div class="p-3 sm:p-4 space-y-2 sm:space-y-3">
                         <!-- Tip 1 -->
-                        <div class="health-tip-card p-4 rounded-lg">
-                            <h3 class="text-sm font-medium text-gray-900">Proper Medication Storage</h3>
-                            <p class="text-xs text-gray-600 mt-1">Store medications in a cool, dry place away from direct sunlight to maintain effectiveness.</p>
-                            <div class="mt-2 flex items-center text-xs text-gray-500">
-                                <i class="fas fa-clock mr-1"></i>
-                                <span>2 days ago</span>
-                            </div>
+                        <div class="p-2 sm:p-3 rounded-lg bg-blue-50 border border-blue-100">
+                            <h3 class="text-xs sm:text-sm font-medium text-gray-900">Proper Medication Storage</h3>
+                            <p class="text-xs text-gray-600 mt-0.5 sm:mt-1">Store medications in a cool, dry place away from direct sunlight.</p>
                         </div>
                         
                         <!-- Tip 2 -->
-                        <div class="health-tip-card p-4 rounded-lg">
-                            <h3 class="text-sm font-medium text-gray-900">Antibiotic Usage</h3>
-                            <p class="text-xs text-gray-600 mt-1">Always complete the full course of antibiotics as prescribed, even if you feel better.</p>
-                            <div class="mt-2 flex items-center text-xs text-gray-500">
-                                <i class="fas fa-clock mr-1"></i>
-                                <span>1 week ago</span>
-                            </div>
+                        <div class="p-2 sm:p-3 rounded-lg bg-blue-50 border border-blue-100">
+                            <h3 class="text-xs sm:text-sm font-medium text-gray-900">Antibiotic Usage</h3>
+                            <p class="text-xs text-gray-600 mt-0.5 sm:mt-1">Always complete the full course of antibiotics as prescribed.</p>
                         </div>
                     </div>
                 </section>
             </div>
         </div>
-        <!-- Referral Modal -->
-        <div id="referral-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-            <div class="absolute inset-0 bg-gray-900 bg-opacity-75"></div>
-            </div>
-            
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div class="sm:flex sm:items-start">
-                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <i class="fas fa-share-alt text-indigo-600"></i>
-                </div>
-                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                    Invite Friends & Earn Rewards
-                    </h3>
-                    <div class="mt-2">
-                    <p class="text-sm text-gray-500">
-                        Share your unique referral link and get early access to our AI Health Companion when 3 friends sign up.
-                    </p>
-                    
-                    <!-- Referral Link Box -->
-                    <div class="mt-4">
-                        <label for="referral-link" class="block text-sm font-medium text-gray-700 mb-1">Your referral link</label>
-                        <div class="flex rounded-md shadow-sm">
-                        <input 
-                            type="text" 
-                            id="referral-link" 
-                            readonly 
-                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
-                            value="Loading..."
-                        >
-                        <button 
-                            id="copy-referral-link" 
-                            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                        >
-                            <i class="fas fa-copy mr-1"></i> Copy
-                        </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Share Buttons -->
-                    <div class="mt-4">
-                        <p class="text-sm font-medium text-gray-700 mb-2">Share via</p>
-                        <div class="flex space-x-2">
-                        <button 
-                            id="share-whatsapp" 
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        >
-                            <i class="fab fa-whatsapp mr-2"></i> WhatsApp
-                        </button>
-                        <button 
-                            id="share-email" 
-                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            <i class="fas fa-envelope mr-2"></i> Email
-                        </button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button 
-                type="button" 
-                id="close-referral-modal" 
-                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                Close
-                </button>
-            </div>
-            </div>
-        </div>
-        </div>
     </main>
-    <script src="js/mobile-nav.js"></script>
-    <script src="js/login.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () {
+  const userName = localStorage.getItem("nexahealth_user_name") || "there";
+  const greetingText = document.getElementById("greetingText");
+
+  const now = new Date();
+  const hour = now.getHours();
+  let message = "";
+
+  if (hour >= 5 && hour < 11) {
+    message = `Good morning, ${userName}! Hope you’re feeling well today.`;
+  } else if (hour >= 11 && hour < 16) {
+    message = `Good afternoon, ${userName}!`;
+  } else if (hour >= 16 && hour < 21) {
+    message = `Good evening, ${userName}! How was your day?`;
+  } else {
+    message = `Good night, ${userName}. Have a restful night.`;
+  }
+
+  greetingText.textContent = message;
+});
+</script>
     <script src="js/dashboard.js"></script>
-    <script src="js/count.js"></script>
-    <script src="js/date.js"></script>
     <script src="js/referral.js"></script>
-    <script type="module" src="../tracker.js"></script>
-    <!-- Confetti library -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    <script src="js/count.js"></script>
+    <!-- Link your JS -->
+<script src="js/nearbypharmacies.js"></script>
 </body>
 </html>

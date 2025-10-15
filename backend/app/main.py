@@ -20,6 +20,7 @@ app.add_middleware(
         "http://localhost:*",
         "http://127.0.0.1:*",
         "http://localhost:5501",
+        "http://127.0.0.1:5501",
         "http://127.0.0.1:5502",
         "https://nexahealth.vercel.app",
         "https://www.nexahealth.life",
@@ -38,7 +39,8 @@ app.middleware("http")(AuthMiddleware.authenticate)
 from app.routers import (
     auth, guest, verify, report, map, nearby, 
     ai_companion, feedback, pils, dashboard, test_verify, test_report, test_pil,
-    count, referral, whatsapp
+    count, referral, whatsapp, pharmacy_auth, pharmacy_email, pharmacy_profile, user_pharmacies,
+    nearby, pharmacy_report
 )
 
 app.include_router(auth.router)
@@ -57,6 +59,13 @@ app.include_router(test_pil.router)
 app.include_router(count.router) 
 app.include_router(referral.router)
 app.include_router(whatsapp.router)
+# app.include_router(pharmacy.router)
+app.include_router(pharmacy_auth.router, prefix="/pharmacy")
+app.include_router(pharmacy_profile.router, prefix="/pharmacy")
+app.include_router(pharmacy_email.router, prefix="/pharmacy")
+app.include_router(user_pharmacies.router)
+app.include_router(nearby.router)
+app.include_router(pharmacy_report.router)
 
 # Static files
 from fastapi.staticfiles import StaticFiles

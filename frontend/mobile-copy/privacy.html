@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>NexaHealth | Privacy Policy</title>
+    <!-- Preload resources -->
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" as="style">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="../tailwind.js"></script>
+    <style>
+        .health-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        }
+        
+        .prose {
+            max-width: 100%;
+        }
+        
+        .prose h2 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .prose h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            height: 1.5rem;
+            width: 0.5rem;
+            background: linear-gradient(to bottom, #2563eb, #1e40af);
+            border-radius: 0.25rem;
+        }
+        
+        .prose p {
+            margin-bottom: 1rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+        
+        .prose ul {
+            list-style-type: none;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .prose li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prose li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: #2563eb;
+        }
+        
+        .back-button {
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        
+        .data-flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        
+        .data-step {
+            width: 100%;
+            max-width: 500px;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .data-step::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            bottom: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #2563eb;
+            background: white;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 2px solid #2563eb;
+        }
+        
+        .data-step:last-child::after {
+            display: none;
+        }
+        
+        .privacy-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #e0f2fe;
+            color: #075985;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .privacy-badge i {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body data-page="privacy" class="font-sans bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="w-full bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 xs:px-6 py-3 flex justify-between items-center">
+            <a href="../index.html" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors">
+                Nexa<span class="text-secondary">Health</span>
+            </a>
+            <a href="signup.html" class="back-button flex items-center text-primary hover:text-secondary">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Sign Up
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 sm:py-12 max-w-4xl">
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <!-- Header with gradient -->
+            <div class="health-gradient text-white p-6 sm:p-8 text-center">
+                <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2">NexaHealth Privacy Policy</h1>
+                <p class="opacity-90">Last updated: 2025</p>
+            </div>
+            
+            <div class="p-6 sm:p-8 md:p-10">
+                <div class="prose">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex flex-wrap justify-center mb-4">
+                            <span class="privacy-badge"><i class="fas fa-lock"></i> Encrypted</span>
+                            <span class="privacy-badge"><i class="fas fa-shield-alt"></i> Secure</span>
+                            <span class="privacy-badge"><i class="fas fa-user-secret"></i> Private</span>
+                        </div>
+                        <p class="text-lg">We protect your health data with the same care we'd want for our own.</p>
+                    </div>
+                    
+                    <h2>1. Data We Collect</h2>
+                    <p>To provide our health trust services, we collect:</p>
+                    <ul>
+                        <li><strong>Account Information:</strong> Name, email for your profile</li>
+                        <li><strong>Health Reports:</strong> Drug verifications and reports</li>
+                        <li><strong>Technical Data:</strong> Device info for security</li>
+                        <li><strong>Usage Patterns:</strong> How you use our tools</li>
+                    </ul>
+                    
+                    <div class="data-flow">
+                        <div class="data-step">
+                            <h3 class="font-bold mb-2">1. You Share Data</h3>
+                            <p>When you verify drugs or report issues, we collect necessary details to process your request.</p>
+                        </div>
+                        <div class="data-step">
+                            <h3 class="font-bold mb-2">2. We Protect It</h3>
+                            <p>Your information is encrypted and stored securely in Nigeria.</p>
+                        </div>
+                        <div class="data-step">
+                            <h3 class="font-bold mb-2">3. We Use It Responsibly</h3>
+                            <p>Only to provide services and improve medication safety.</p>
+                        </div>
+                    </div>
+                    
+                    <h2>2. How We Use Your Data</h2>
+                    <p>Your information helps us:</p>
+                    <ul>
+                        <li>Verify medication authenticity</li>
+                        <li>Identify counterfeit drug patterns</li>
+                        <li>Improve our health safety tools</li>
+                        <li>Comply with NAFDAC reporting requirements</li>
+                    </ul>
+                    
+                    <h2>3. Data Sharing</h2>
+                    <p>We only share data when absolutely necessary:</p>
+                    <ul>
+                        <li><strong>With NAFDAC:</strong> Anonymized reports of suspicious drugs</li>
+                        <li><strong>With You:</strong> Your personal health records</li>
+                        <li><strong>With Service Providers:</strong> Under strict confidentiality</li>
+                    </ul>
+                    
+                    <h2>4. Your Rights</h2>
+                    <p>You control your data:</p>
+                    <ul>
+                        <li><strong>Access:</strong> See what we have about you</li>
+                        <li><strong>Correct:</strong> Fix any mistakes</li>
+                        <li><strong>Delete:</strong> Request removal of your data</li>
+                        <li><strong>Complain:</strong> To Nigerian Data Protection Bureau</li>
+                    </ul>
+                    
+                    <h2>5. Our Security Measures</h2>
+                    <p>We implement:</p>
+                    <ul>
+                        <li>End-to-end encryption</li>
+                        <li>Regular security audits</li>
+                        <li>Staff privacy training</li>
+                        <li>Secure data centers in Nigeria</li>
+                    </ul>
+                    
+                    <div class="bg-blue-50 p-6 rounded-lg mt-8">
+                        <h3 class="font-bold text-lg mb-2 text-center">Our Privacy Promise</h3>
+                        <p class="text-center">We treat your health data with the highest ethical standards, because trust is the foundation of everything we do at NexaHealth.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 mt-12">
+        <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 NexaHealth. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple animation for data steps
+        document.querySelectorAll('.data-step').forEach((step, index) => {
+            step.style.opacity = '0';
+            step.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                step.style.transition = 'all 0.5s ease';
+                step.style.opacity = '1';
+                step.style.transform = 'translateY(0)';
+            }, 300 * index);
+        });
+    </script>
+    <script type="module" src="../tracker.js"></script>
+</body>
+</html>

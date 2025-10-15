@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 import firebase_admin
 from firebase_admin import auth, exceptions as firebase_exceptions
 from jose import JWTError, jwt
@@ -17,32 +17,22 @@ import logging
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-
-# Password context configuration
-pwd_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto",
-    bcrypt__rounds=12,
-)
+# Password context
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-# JWT Configuration
+# SECRET_KEY (string)
 SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 if not SECRET_KEY:
     raise ValueError("JWT_SECRET_KEY environment variable not set")
-
-# Ensure secret key is in bytes format
-try:
-    SECRET_KEY = SECRET_KEY.encode('utf-8')
-except AttributeError:
-    pass  # Already in bytes format
+if isinstance(SECRET_KEY, bytes):
+    SECRET_KEY = SECRET_KEY.decode("utf-8")
 
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10080
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 10080))  # default 7 days
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 security_scheme = HTTPBearer()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -51,18 +41,36 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-def create_access_token(user_data: dict) -> dict:
-    """Centralized token creation function used by both login and refresh"""
+def _normalize_roles_from_doc(doc_dict: Dict[str, Any]) -> list:
+    """Return a roles list from doc, supporting older 'role' field."""
+    roles = doc_dict.get("roles") or []
+    if not roles and doc_dict.get("role"):
+        roles = [doc_dict["role"]]
+    # Ensure at least 'user'
+    if not roles:
+        roles = ["user"]
+    # Deduplicate and return
+    return list(dict.fromkeys(roles))
+
+def create_access_token(user_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Create both access and refresh tokens.
+    user_data must include at least: id, email (and optionally roles, first_name, last_name)
+    """
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    
+
+    roles = user_data.get("roles", ["user"])
+    if isinstance(roles, str):
+        roles = [roles]
+
     token_payload = {
-        "sub": user_data["email"],
-        "user_id": user_data["id"],
-        "email": user_data["email"],
+        "sub": user_data.get("email"),
+        "user_id": user_data.get("id"),
+        "email": user_data.get("email"),
         "first_name": user_data.get("first_name", ""),
         "last_name": user_data.get("last_name", ""),
-        "role": user_data.get("role", "user"),
+        "roles": roles,
         "iss": os.getenv("JWT_ISSUER", "nexa-health"),
         "aud": os.getenv("JWT_AUDIENCE", "nexa-health-app"),
         "iat": datetime.utcnow(),
@@ -84,11 +92,11 @@ def create_access_token(user_data: dict) -> dict:
         "scope": "refresh"
     }, SECRET_KEY, algorithm=ALGORITHM)
 
-    # Ensure tokens are strings
+    # Tokens are strings from jose.jwt.encode, but keep safety checks
     if isinstance(access_token, bytes):
-        access_token = access_token.decode('utf-8')
+        access_token = access_token.decode("utf-8")
     if isinstance(refresh_token, bytes):
-        refresh_token = refresh_token.decode('utf-8')
+        refresh_token = refresh_token.decode("utf-8")
 
     return {
         "access_token": access_token,
@@ -97,14 +105,12 @@ def create_access_token(user_data: dict) -> dict:
         "expires_in": int(access_token_expires.total_seconds())
     }
 
-async def verify_token(token: str) -> dict:
-    """Verify JWT token with comprehensive validation"""
+async def verify_token(token: str) -> Dict[str, Any]:
+    """Decode and validate JWT token claims."""
     try:
-        # First check token format
-        if not token or len(token.split('.')) != 3:            
-            raise JWTError("Invalid token format") 
+        if not token or len(token.split(".")) != 3:
+            raise JWTError("Invalid token format")
 
-        # Then decode and verify
         payload = jwt.decode(
             token,
             SECRET_KEY,
@@ -113,88 +119,82 @@ async def verify_token(token: str) -> dict:
             issuer=os.getenv("JWT_ISSUER", "nexa-health")
         )
 
-        # Validate required claims
-        required_claims = {
-            "sub", "user_id", "exp", "iat", 
-            "iss", "aud", "token_type"
-        }
-        if not all(claim in payload for claim in required_claims):
+        required_claims = {"sub", "user_id", "exp", "iat", "iss", "aud", "token_type"}
+        if not all(c in payload for c in required_claims):
             raise jwt.MissingRequiredClaimError("Missing required claims")
 
         if payload["token_type"] not in ["access", "refresh"]:
-            raise JWTError("Invalid token format")
+            raise JWTError("Invalid token type")
 
         return payload
 
     except jwt.ExpiredSignatureError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expired"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
     except JWTError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid token: {str(e)}"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {str(e)}")
     except Exception as e:
-        logger.error(f"Token verification error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials"
-        )
-    
+        logger.exception("Token verification error")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
+
 async def get_current_user(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
-) -> UserInDB:
-    """Get current user from JWT token in Authorization header or cookies."""
+) -> Dict[str, Any]:
+    """
+    Returns a dict representing the Firestore user document plus normalized fields:
+    { id, email, first_name, last_name, roles, disabled, email_verified, ... }
+    This makes router code consistent using indexing: current_user['id'] or current_user['roles'].
+    """
     token = None
 
-    # 1️⃣ Try Authorization header first
+    # Try Authorization header first
     if credentials and credentials.scheme.lower() == "bearer":
         token = credentials.credentials
 
-    # 2️⃣ Fallback: Try cookie named 'access_token'
-    if not token:
+    # Fallback to cookie named access_token
+    if not token and request:
         token = request.cookies.get("access_token")
 
-    # 3️⃣ No token found at all
     if not token:
-        logger.warning("No access token provided in header or cookie")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+    payload = await verify_token(token)
+    user_id = payload.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
 
     try:
-
-        payload = await verify_token(token)
-        user_id = payload.get("user_id")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
-
-        # Fetch user from Firestore
         user_doc = users_collection.document(user_id).get()
         if not user_doc.exists:
-            logger.warning(f"User ID {user_id} not found in Firestore")
-            raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication credentials")
 
-        return UserInDB(**user_doc.to_dict())
-
+        data = user_doc.to_dict() or {}
+        # Normalize roles to list
+        roles = _normalize_roles_from_doc(data)
+        # Build canonical dict
+        user_dict = {
+            "id": user_doc.id,
+            "email": data.get("email") or payload.get("email"),
+            "first_name": data.get("first_name", payload.get("first_name", "")),
+            "last_name": data.get("last_name", payload.get("last_name", "")),
+            "roles": roles,
+            "disabled": data.get("disabled", False),
+            "email_verified": data.get("email_verified", payload.get("email_verified", False)),
+            **data  # include remaining fields (badges, status, etc.)
+        }
+        return UserInDB(**user_dict)
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"User retrieval failed: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials"
-        )
+        logger.exception("Failed to load current user from Firestore")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credentials")
 
-
-async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)):
-    """Get the current active user"""
+async def get_current_active_user(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
     if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Inactive user"
+        )
     return current_user
 
 async def get_user_by_email(email: str) -> Optional[UserInDB]:
@@ -259,6 +259,13 @@ async def authenticate_user(email: str, password: str):
     logger.info(f"User authenticated successfully: {email}")
     return user
 
+async def verify_refresh_token(refresh_token: str) -> Dict[str, Any]:
+    payload = await verify_token(refresh_token)
+    if payload.get("token_type") != "refresh":
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token type. Expected refresh token.")
+    return payload
+
+
 async def verify_google_token(token: str):
     """Verify a Google authentication token"""
     try:
@@ -276,35 +283,3 @@ async def verify_google_token(token: str):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error verifying Google token"
         )
-
-
-async def get_current_active_user_optional(
-    request: Request,
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme)
-) -> Optional[UserInDB]:
-    """
-    Variant of get_current_active_user that returns None if no token is provided,
-    instead of raising an authentication error.
-    Useful for endpoints where anonymous users should be allowed (e.g. referral links).
-    """
-    token = None
-
-    # Try header
-    if credentials and credentials.scheme.lower() == "bearer":
-        token = credentials.credentials
-
-    # Try cookie
-    if not token:
-        token = request.cookies.get("access_token")
-
-    # No token found → anonymous
-    if not token:
-        return None
-
-    try:
-        current_user = await get_current_user(request, credentials)
-        if current_user.disabled:
-            return None
-        return current_user
-    except Exception:
-        return None

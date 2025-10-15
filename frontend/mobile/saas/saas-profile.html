@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexaHealth - Pharmacy Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-blue': '#003F88',
+                        'primary-blue': '#1E40AF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #1E40AF 0%, #003F88 100%) border-box;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2);
+        }
+        .active-tab {
+            color: #1E40AF;
+            border-bottom: 2px solid #1E40AF;
+        }
+        .profile-card {
+            transition: all 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .badge-partner {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+            color: white;
+            animation: badgeGlow 2s ease-in-out infinite alternate;
+        }
+        @keyframes badgeGlow {
+            from {
+                box-shadow: 0 0 5px rgba(30, 64, 175, 0.4);
+            }
+            to {
+                box-shadow: 0 0 15px rgba(30, 64, 175, 0.8);
+            }
+        }
+        .status-pending {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        .info-item {
+            transition: all 0.2s ease;
+            border-radius: 12px;
+        }
+        .info-item:hover {
+            background-color: rgba(30, 64, 175, 0.05);
+        }
+        .activity-stat {
+            transition: all 0.3s ease;
+        }
+        .activity-stat:hover {
+            transform: scale(1.02);
+        }
+        .editable-field {
+            border: 1px dashed #d1d5db;
+            border-radius: 6px;
+            padding: 4px 8px;
+            transition: all 0.2s ease;
+        }
+        .editable-field:focus {
+            border: 1px solid #1E40AF;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.2);
+        }
+        .save-indicator {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .save-indicator.show {
+            opacity: 1;
+        }
+        /* Improved touch targets for mobile */
+        @media (max-width: 640px) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Page Wrapper -->
+    <div class="min-h-screen bg-gray-50">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm p-3 sm:p-4 sticky top-0 z-20">
+            <div class="flex items-center justify-between max-w-6xl mx-auto">
+                <a href="saas-dashboard.html" class="text-blue-600 font-bold text-base sm:text-lg touch-target">
+                    <i class="fas fa-chevron-left mr-1 sm:mr-2"></i>
+                </a>
+                <div class="flex items-center">
+                    <h1 class="text-lg sm:text-xl font-bold font-serif text-gray-800">Profile</h1>
+                </div>
+                <div class="w-6"></div> <!-- Spacer -->
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+            <!-- Save Indicator -->
+            <div id="saveIndicator" class="save-indicator fixed top-16 sm:top-20 right-3 sm:right-4 bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm">
+                <i class="fas fa-check-circle mr-1 sm:mr-2"></i> Changes saved!
+            </div>
+
+            <!-- Profile Header Card -->
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 mb-4 sm:mb-6 gradient-border profile-card">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 md:space-x-6 mb-4 md:mb-0">
+                        <div class="relative self-center sm:self-auto">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 gradient-bg rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md">
+                                <span class="text-white text-xl sm:text-2xl md:text-3xl font-bold" id="pharmacyInitials">PH</span>
+                            </div>
+                            <button id="changeLogoBtn" class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 bg-white rounded-full p-1 sm:p-1 shadow-md border border-gray-200 touch-target">
+                                <i class="fas fa-camera text-primary-blue text-xs sm:text-sm"></i>
+                            </button>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 mb-2">
+                                <input type="text" id="pharmacyName" class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 bg-transparent border-none focus:outline-none text-center sm:text-left" value="Your Pharmacy Name" readonly>
+                                <span class="badge-partner px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold self-center">
+                                    <i class="fas fa-crown mr-1"></i> Partner
+                                </span>
+                            </div>
+                            <p class="text-gray-600 text-xs sm:text-sm">Partner since <input type="text" id="establishedYear" class="bg-transparent border-none focus:outline-none w-16 sm:w-20 text-center" value="Oct 2024" readonly></p>
+                            <div class="flex items-center mt-1 sm:mt-2 justify-center sm:justify-start">
+                                <span class="text-xs sm:text-sm text-gray-500" id="reviewCount">No reviews yet</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 md:space-x-3">
+                        <button id="editProfileBtn" class="gradient-border text-primary-blue hover:text-white gradient-hover px-3 py-2 sm:px-4 sm:py-2 md:px-5 md:py-3 rounded-lg sm:rounded-xl font-semibold transition-all duration-300 touch-target text-sm">
+                            <i class="fas fa-edit mr-1 sm:mr-2"></i> Edit Profile
+                        </button>
+                        <button id="publishProfileBtn" class="bg-green-600 text-white hover:bg-green-700 px-3 py-2 sm:px-4 sm:py-2 md:px-5 md:py-3 rounded-lg sm:rounded-xl font-semibold transition-all duration-300 touch-target text-sm">
+                            <i class="fas fa-globe mr-1 sm:mr-2"></i> Publish
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Left Column - Basic Info & License -->
+                <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+                    <!-- Basic Information Card -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 gradient-border profile-card">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
+                            <i class="fas fa-info-circle text-primary-blue mr-2 text-sm sm:text-base"></i>
+                            Basic Information
+                        </h2>
+                        
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-phone text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">Phone Number</p>
+                                        <input type="text" id="phoneNumber" class="font-medium bg-transparent border-none focus:outline-none w-full text-sm sm:text-base" placeholder="Enter phone number" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-envelope text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">Email Address</p>
+                                        <input type="email" id="emailAddress" class="font-medium bg-transparent border-none focus:outline-none w-full text-sm sm:text-base" placeholder="Enter email address" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-map-marker-alt text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">Address</p>
+                                        <textarea id="address" class="font-medium bg-transparent border-none focus:outline-none w-full resize-none text-sm sm:text-base" rows="2" placeholder="Enter pharmacy address" readonly></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-file-alt text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">About Pharmacy</p>
+                                        <textarea id="aboutPharmacy" class="font-medium text-gray-700 mt-1 text-xs sm:text-sm bg-transparent border-none focus:outline-none w-full resize-none" rows="3" placeholder="Describe your pharmacy services and values" readonly></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-clock text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">Opening Hours</p>
+                                        <textarea id="openingHours" class="font-medium text-gray-700 mt-1 text-xs sm:text-sm bg-transparent border-none focus:outline-none w-full resize-none" rows="2" placeholder="Enter your opening hours" readonly></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- License Status Card -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 gradient-border profile-card">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
+                            <i class="fas fa-file-certificate text-primary-blue mr-2 text-sm sm:text-base"></i>
+                            License & Verification
+                        </h2>
+                        
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="info-item p-3 sm:p-4 border border-gray-100 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-id-card text-amber-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-xs sm:text-sm text-gray-500">License Number</p>
+                                        <input type="text" id="licenseNumber" class="font-medium bg-transparent border-none focus:outline-none w-full text-sm sm:text-base" placeholder="Enter license number" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 sm:p-4 bg-blue-50 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-hourglass-half text-yellow-600 text-sm sm:text-base"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs sm:text-sm text-gray-500">Verification Status</p>
+                                        <p class="font-medium text-yellow-700 text-sm sm:text-base">Pending</p>
+                                    </div>
+                                </div>
+                                <span class="status-pending px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-clock mr-1"></i> Pending
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 sm:p-4 bg-blue-50 rounded-lg sm:rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                                        <i class="fas fa-calendar-check text-primary-blue text-sm sm:text-base"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs sm:text-sm text-gray-500">Last Verified</p>
+                                        <p class="font-medium text-gray-700 text-sm sm:text-base">Not yet verified</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Activity & Community -->
+                <div class="space-y-4 sm:space-y-6">
+                    <!-- Activity Snapshot -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 gradient-border profile-card">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
+                            <i class="fas fa-chart-bar text-primary-blue mr-2 text-sm sm:text-base"></i>
+                            Activity Snapshot
+                        </h2>
+                        
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="activity-stat p-3 sm:p-4 gradient-bg rounded-lg sm:rounded-xl text-white">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs sm:text-sm opacity-90">Total Verifications</p>
+                                        <p class="text-xl sm:text-2xl font-bold mt-1">0</p>
+                                    </div>
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-check-circle text-sm sm:text-base"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs opacity-80 mt-1 sm:mt-2">Medications verified for authenticity</p>
+                            </div>
+                        
+                            <div class="activity-stat p-3 sm:p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg sm:rounded-xl text-white">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs sm:text-sm opacity-90">Reports</p>
+                                        <p class="text-xl sm:text-2xl font-bold mt-1">0</p>
+                                    </div>
+                                    <div class="w-8 h-8 sm:w-10 sm:h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-flag text-sm sm:text-base"></i>
+                                    </div>
+                                </div>
+                                <p class="text-xs opacity-80 mt-1 sm:mt-2">Counterfeit medications reported</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Available Badges -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 gradient-border profile-card">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-award text-primary-blue mr-2 text-sm sm:text-base"></i>
+                            Your Badges
+                        </h2>
+                        
+                        <div class="space-y-2 sm:space-y-3">
+                            <div class="flex items-center p-2 sm:p-3 bg-blue-50 rounded-lg sm:rounded-xl">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 gradient-bg rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                    <i class="fas fa-crown text-white text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-800 text-sm sm:text-base">Partner Pharmacy</p>
+                                    <p class="text-xs text-gray-600">Active</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-2 sm:p-3 bg-gray-100 rounded-lg sm:rounded-xl opacity-75">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-400 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                    <i class="fas fa-shield-alt text-white text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600 text-sm sm:text-base">Verified Status</p>
+                                    <p class="text-xs text-gray-500">Complete verification process</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-2 sm:p-3 bg-gray-100 rounded-lg sm:rounded-xl opacity-75">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-400 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                    <i class="fas fa-star text-white text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600 text-sm sm:text-base">Trusted Partner</p>
+                                    <p class="text-xs text-gray-500">Maintain 95%+ trust score</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center p-2 sm:p-3 bg-gray-100 rounded-lg sm:rounded-xl opacity-75">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-400 rounded-lg flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                    <i class="fas fa-gem text-white text-sm sm:text-base"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-600 text-sm sm:text-base">Elite Provider</p>
+                                    <p class="text-xs text-gray-500">Complete 50 verifications</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Completeness -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6 gradient-border profile-card">
+                        <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-tasks text-primary-blue mr-2 text-sm sm:text-base"></i>
+                            Profile Completeness
+                        </h2>
+                        
+                        <div class="mb-3 sm:mb-4">
+                            <div class="flex justify-between text-xs sm:text-sm mb-1">
+                                <span class="text-gray-600">0% Complete</span>
+                                <span class="text-primary-blue font-medium">Begin</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                                <div class="gradient-bg h-1.5 sm:h-2 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-times text-red-500 mr-1 sm:mr-2 text-xs"></i>
+                                    Contact Information
+                                </span>
+                                <span class="text-red-500 text-xs sm:text-sm">Incomplete</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-times text-red-500 mr-1 sm:mr-2 text-xs"></i>
+                                    License Details
+                                </span>
+                                <span class="text-red-500 text-xs sm:text-sm">Incomplete</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-times text-red-500 mr-1 sm:mr-2 text-xs"></i>
+                                    Pharmacy Photos
+                                </span>
+                                <span class="text-red-500 text-xs sm:text-sm">Incomplete</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-600 flex items-center">
+                                    <i class="fas fa-times text-red-500 mr-1 sm:mr-2 text-xs"></i>
+                                    Business Hours
+                                </span>
+                                <span class="text-red-500 text-xs sm:text-sm">Incomplete</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full mt-3 sm:mt-4 gradient-border text-primary-blue hover:text-white gradient-hover py-2 rounded-lg font-medium transition-all duration-300 touch-target text-sm">
+                            Complete Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/saas-profile.js"></script>
+</body>
+</html>

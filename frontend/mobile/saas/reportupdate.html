@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexaHealth - Reports</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'royal-blue': '#003F88',
+                        'primary-blue': '#1E40AF',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #1E40AF 0%, #003F88 100%) border-box;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2);
+        }
+        .active-tab {
+            color: #1E40AF;
+            border-bottom: 2px solid #1E40AF;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Page Wrapper -->
+    <div class="min-h-screen bg-gray-50 px-4 py-6">
+        <!-- Top Navigation -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center">
+                <button class="p-2 rounded-lg hover:bg-gray-100 transition mr-2">
+                    <i class="fas fa-arrow-left text-gray-700"></i>
+                </button>
+                <h1 class="text-xl font-semibold text-gray-900">NexaHealth</h1>
+            </div>
+            <button class="p-2 rounded-lg hover:bg-gray-100 transition">
+                <i class="fas fa-bars text-gray-700"></i>
+            </button>
+        </div>
+
+        <!-- Page Title -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Reports</h2>
+            <p class="text-gray-500 text-sm mt-1">Manage your reports and complaints</p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="tab-my-reports" class="flex-1 py-3 text-center font-medium active-tab transition-all">
+                My Reports
+            </button>
+            <button id="tab-reports-against" class="flex-1 py-3 text-center font-medium text-gray-500 transition-all">
+                Reports Against Me
+            </button>
+        </div>
+
+        <!-- My Reports Content -->
+        <div id="content-my-reports">
+            <!-- Mini Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">12</p>
+                    <p class="text-xs text-gray-500">Total</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">3</p>
+                    <p class="text-xs text-gray-500">Pending</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">9</p>
+                    <p class="text-xs text-gray-500">Resolved</p>
+                </div>
+            </div>
+
+            <!-- New Report Button -->
+            <button class="gradient-bg text-white w-full py-3 rounded-xl font-medium mb-6 flex items-center justify-center shadow-md hover:shadow-lg transition">
+                <i class="fas fa-plus mr-2"></i> Create New Report
+            </button>
+
+            <!-- Reports List -->
+            <div class="space-y-4">
+                <!-- Report Card 1 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-pills text-red-500 mr-2"></i>
+                                Fake Drug Report
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Reported: Counterfeit Amoxicillin 500mg</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Oct 12, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-clock mr-1"></i> Pending Review
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Card 2 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-heartbeat text-orange-500 mr-2"></i>
+                                ADR Report
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Adverse reaction to Lisinopril 10mg</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Oct 5, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-blue-100 text-blue-600">
+                            <i class="fas fa-search mr-1"></i> Investigating
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Card 3 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-store-alt text-purple-500 mr-2"></i>
+                                Counterfeit Seller Report
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Unauthorized seller: QuickMeds Pharmacy</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Sep 28, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-green-100 text-green-600">
+                            <i class="fas fa-check mr-1"></i> Resolved
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Card 4 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-pills text-red-500 mr-2"></i>
+                                Fake Drug Report
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Reported: Counterfeit Ventolin Inhaler</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Sep 15, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-green-100 text-green-600">
+                            <i class="fas fa-check mr-1"></i> Resolved
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Against Me Content -->
+        <div id="content-reports-against" class="hidden">
+            <!-- Mini Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">5</p>
+                    <p class="text-xs text-gray-500">Total</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">2</p>
+                    <p class="text-xs text-gray-500">Pending</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 text-center gradient-border">
+                    <p class="text-lg font-semibold text-gray-800">3</p>
+                    <p class="text-xs text-gray-500">Resolved</p>
+                </div>
+            </div>
+
+            <!-- Reports List -->
+            <div class="space-y-4">
+                <!-- Report Card 1 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                Complaint: Fake Drug
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Filed by: Anonymous User</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Oct 4, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-red-100 text-red-600">
+                            <i class="fas fa-clock mr-1"></i> Under Review
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Card 2 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-heartbeat text-orange-500 mr-2"></i>
+                                ADR Report
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Filed by: HealthPlus Pharmacy</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Sep 22, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-blue-100 text-blue-600">
+                            <i class="fas fa-search mr-1"></i> Investigating
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Report Card 3 -->
+                <div class="bg-white rounded-xl p-4 gradient-border hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-semibold text-gray-800 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                                Service Issue
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">Filed by: Verified Customer</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Sep 10, 2023</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="inline-block text-xs px-2 py-1 rounded bg-green-100 text-green-600">
+                            <i class="fas fa-check mr-1"></i> Resolved
+                        </span>
+                        <button class="text-xs text-primary-blue font-medium">
+                            View Details <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State (Hidden by default) -->
+            <!--
+            <div id="empty-reports-against" class="text-center py-10">
+                <i class="fas fa-check-circle text-green-400 text-4xl mb-3"></i>
+                <h3 class="font-medium text-gray-700">No reports filed against you</h3>
+                <p class="text-gray-500 text-sm mt-1">Keep maintaining high standards.</p>
+            </div>
+            -->
+        </div>
+    </div>
+
+    <script>
+        // Tab Toggle Functionality
+        const tabMyReports = document.getElementById('tab-my-reports');
+        const tabReportsAgainst = document.getElementById('tab-reports-against');
+        const myReportsContent = document.getElementById('content-my-reports');
+        const reportsAgainstContent = document.getElementById('content-reports-against');
+
+        tabMyReports.addEventListener('click', () => {
+            myReportsContent.classList.remove('hidden');
+            reportsAgainstContent.classList.add('hidden');
+            tabMyReports.classList.add('text-blue-600', 'border-blue-600', 'border-b-2');
+            tabMyReports.classList.remove('text-gray-500');
+            tabReportsAgainst.classList.remove('text-blue-600', 'border-blue-600', 'border-b-2');
+            tabReportsAgainst.classList.add('text-gray-500');
+        });
+
+        tabReportsAgainst.addEventListener('click', () => {
+            myReportsContent.classList.add('hidden');
+            reportsAgainstContent.classList.remove('hidden');
+            tabReportsAgainst.classList.add('text-blue-600', 'border-blue-600', 'border-b-2');
+            tabReportsAgainst.classList.remove('text-gray-500');
+            tabMyReports.classList.remove('text-blue-600', 'border-blue-600', 'border-b-2');
+            tabMyReports.classList.add('text-gray-500');
+        });
+    </script>
+</body>
+</html>

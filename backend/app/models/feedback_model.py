@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 
@@ -20,3 +20,8 @@ class Feedback(FeedbackBase):
 
     class Config:
         from_attributes = True
+
+class PharmacyFeedbackCreate(BaseModel):
+    pharmacy_email: str
+    rating: int = Field(..., ge=1, le=5)
+    review: str = Field(..., min_length=5)

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NexaHealth - Pharmacy Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'secondary': '#1e40af',
+                        'primary': '#2563eb',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+        }
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #1E40AF 0%, #003F88 100%) border-box;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 64, 175, 0.2);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        /* Improved touch targets for mobile */
+        @media (max-width: 640px) {
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Page Wrapper -->
+    <div class="min-h-screen bg-gray-50 px-3 sm:px-4 py-4 sm:py-6">
+        <!-- Top Navigation -->
+        <div class="flex items-center justify-between mb-4 sm:mb-6 pb-3 border-b border-gray-200">
+            <div class="flex items-center">
+                <a href="#" class="text-lg sm:text-xl md:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+                    Nexa<span class="text-secondary">Health</span>
+                </a>
+            </div>
+            <button class="p-2 rounded-lg hover:bg-gray-100 transition touch-target" aria-label="Menu">
+                <i class="fas fa-bars text-gray-700 text-base sm:text-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Pharmacy Welcome -->
+        <div class="mb-4 sm:mb-6">
+            <h1 id="welcome-message" class="text-lg sm:text-xl md:text-2xl font-bold font-serif">Welcome</h1>
+        </div>
+
+        <!-- Dashboard Summary Card -->
+        <div class="gradient-bg text-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg mb-4 sm:mb-6">
+            <div class="flex justify-between items-center mb-3 sm:mb-4">
+                <h2 class="text-xs sm:text-sm font-medium">Your Dashboard</h2>
+                <span id="account-status" class="text-xs bg-white/20 px-2 py-1 rounded-lg uppercase"></span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 sm:gap-4">
+                <div class="text-center sm:text-left">
+                    <p id="verifications-count" class="text-base sm:text-lg font-semibold">-</p>
+                    <p class="text-xs opacity-80">Verifications</p>
+                </div>
+                <div class="text-center sm:text-left">
+                    <p id="reports-count" class="text-base sm:text-lg font-semibold">-</p>
+                    <p class="text-xs opacity-80">Users Report</p>
+                </div>
+                <div class="text-center sm:text-left">
+                    <p id="pharmacy-status" class="text-base sm:text-lg font-semibold">-</p>
+                    <p class="text-xs opacity-80">Status</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Section -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <a href="saas-verify.html" class="block">
+                <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
+                    <i class="fas fa-capsules text-primary text-base sm:text-lg mb-2"></i>
+                    <p class="text-xs sm:text-sm font-medium text-gray-800">Verify Drug</p>
+                </div>
+            </a>
+            <a href="saas-report.html" class="block">
+                <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
+                    <i class="fas fa-flag text-primary text-base sm:text-lg mb-2"></i>
+                    <p class="text-xs sm:text-sm font-medium text-gray-800">Report/Reports</p>
+                </div>
+            </a>
+            <a href="pils.html" class="block">
+                <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
+                    <i class="fas fa-file-medical text-primary text-base sm:text-lg mb-2"></i>
+                    <p class="text-xs sm:text-sm font-medium text-gray-800">Patient Information Leaflets</p>
+                </div>
+            </a>
+            <a href="saas-profile.html" class="block">
+                <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
+                    <i class="fas fa-user-md text-primary text-base sm:text-lg mb-2"></i>
+                    <p class="text-xs sm:text-sm font-medium text-gray-800">Profile</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Current Badge & Progress Section -->
+        <div class="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-5 mb-4 sm:mb-6 gradient-border">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Your Badge Status</h2>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+                <div class="flex items-center">
+                    <div id="current-badge-icon" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full gradient-bg flex items-center justify-center mr-3 sm:mr-4">
+                        <i class="fas fa-shield-alt text-white text-base sm:text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 id="current-badge-name" class="font-medium text-gray-800 text-sm sm:text-base">-</h3>
+                        <p class="text-xs text-gray-500">Current Level</p>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right">
+                    <p id="next-badge-name" class="text-xs sm:text-sm font-medium text-gray-700">-</p>
+                    <div class="w-full sm:w-32 h-2 bg-gray-200 rounded-full mt-1">
+                        <div id="badge-progress-bar" class="h-2 rounded-full gradient-bg" style="width: 0%"></div>
+                    </div>
+                    <p id="badge-progress-text" class="text-xs text-gray-500 mt-1">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Verification Action -->
+        <div class="p-3 sm:p-5 mb-4 sm:mb-6">
+            <a href="saas-verify.html" class="block">
+                <button class="w-full gradient-bg hover:shadow-lg text-white py-3 sm:py-3 rounded-lg sm:rounded-xl font-semibold transition-all flex items-center justify-center touch-target text-sm sm:text-base">
+                    <i class="fas fa-plus mr-2"></i> Verify New Drug
+                </button>
+            </a>
+        </div>
+
+        <!-- Pharmacy Profile Completeness Section -->
+        <div id="pharmacy-preview-card" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group">
+    <!-- Header -->
+    <div class="p-4 pb-3 border-b border-gray-50 flex items-start justify-between">
+        <div class="flex items-center space-x-3 flex-1 min-w-0">
+            <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-clinic-medical text-white text-lg"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <h3 id="preview-pharmacy-name" class="text-lg font-bold text-gray-900 leading-tight line-clamp-1">
+                    Loading...
+                </h3>
+                <div class="flex items-center space-x-2 mt-1">
+                    <span id="preview-status-badge" class="inline-flex items-center px-2.5 py-1 bg-gray-200 text-gray-700 rounded-full text-xs font-semibold">
+                        Loading...
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body -->
+    <div class="p-4 space-y-3">
+        <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <i class="fas fa-map-marker-alt text-primary-blue text-sm"></i>
+            </div>
+            <p id="preview-location" class="text-sm text-gray-600 leading-relaxed">Loading...</p>
+        </div>
+
+        <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                <i class="fas fa-phone text-green-600 text-sm"></i>
+            </div>
+            <p id="preview-phone" class="text-sm font-medium text-gray-800">Loading...</p>
+        </div>
+
+        <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                <i class="fas fa-id-card text-purple-600 text-sm"></i>
+            </div>
+            <p id="preview-license" class="text-sm text-gray-600">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+        <div class="flex items-center text-gray-500 text-xs">
+            <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+            <span id="preview-joined">Joined Recently</span>
+        </div>
+
+        <a href="saas-profile.html">
+            <button class="px-4 py-2 gradient-bg text-white rounded-xl text-sm font-semibold transition-all">
+                Complete Profile
+            </button>
+        </a>
+    </div>
+</div>
+
+
+        <!-- Account Plan Information -->
+        <div class="text-center">
+            <p id="account-plan-info" class="text-xs sm:text-sm text-gray-600">
+                Loading account information...
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript will be loaded here -->
+    <script src="js/saas-dashboard.js"></script>
+</body>
+</html>

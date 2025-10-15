@@ -1,280 +1,229 @@
-// referral.js
-if (!window.ReferralSystem) {
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.ReferralSystem) return; // prevent multiple instances
+
   class ReferralSystem {
     constructor() {
       this.referralLink = '';
-      this.referralCount = 0;
-      this.referralGoal = 3;
+      this.points = 0;
+      this.referralGoal = 50;
       this.reachedGoal = false;
-      this.badges = []; // optional: compute locally
 
       this.initElements();
+      this.persistReferralCode();
       this.initEventListeners();
-      this.loadReferralData();
-      this.checkReferralInURL();
+
+      this.loadReferralData(); 
+      this.waitForLoginAndApplyReferral(); // apply referral when token is available
     }
 
-    // ---------- CORE ----------
+    // ---------- INIT ELEMENTS ----------
     initElements() {
-      const byId = (id) => document.getElementById(id);
       this.elements = {
-        modal: byId('referral-modal'),
-        openModalBtn: byId('open-referral-modal'),
-        closeModalBtn: byId('close-referral-modal'),
-        referralLinkInput: byId('referral-link'),
-        copyBtn: byId('copy-referral-link'),
-        whatsappBtn: byId('share-whatsapp'),
-        emailBtn: byId('share-email'),
-        twitterBtn: byId('share-twitter'),
-        telegramBtn: byId('share-telegram'),
-        progressText: byId('referral-progress-text'),
-        progressBar: byId('referral-progress-bar'),
-        leaderboard: byId('referral-leaderboard'),
-        badgeContainer: byId('referral-badges')
+        modal: document.getElementById('referral-modal'),
+        referralLinkInput: document.getElementById('referral-link'),
+        copyBtn: document.getElementById('copy-referral-link'),
+        whatsappBtn: document.getElementById('share-whatsapp'),
+        emailBtn: document.getElementById('share-email'),
+        twitterBtn: document.getElementById('share-twitter'),
+        telegramBtn: document.getElementById('share-telegram'),
+        pointsDisplay: document.querySelector('.points'),
+        progressText: document.querySelector('.bg-white.bg-opacity-20 .font-semibold')
       };
+
+      this.inviteUserBtn = document.querySelector('.invite-users');
+      this.invitePharmacyBtn = document.querySelector('.invite-pharmacies');
     }
 
+    // ---------- EVENT LISTENERS ----------
     initEventListeners() {
-      if (!this.elements.openModalBtn || !this.elements.modal) return;
-
-      this.elements.openModalBtn.addEventListener('click', () => this.openModal());
-      this.elements.closeModalBtn?.addEventListener('click', () => this.closeModal());
-      this.elements.copyBtn?.addEventListener('click', () => this.copyReferralLink());
-
-      this.elements.whatsappBtn?.addEventListener('click', () => this.shareViaWhatsApp());
-      this.elements.emailBtn?.addEventListener('click', () => this.shareViaEmail());
-      this.elements.twitterBtn?.addEventListener('click', () => this.shareViaTwitter());
-      this.elements.telegramBtn?.addEventListener('click', () => this.shareViaTelegram());
-
-      // Close when clicking backdrop
-      this.elements.modal.addEventListener('click', (e) => {
-        if (e.target === this.elements.modal) this.closeModal();
+      if (this.inviteUserBtn) this.inviteUserBtn.addEventListener('click', e => {
+        e.preventDefault();
+        this.openSharePopup('user');
       });
-    }
 
-    async loadReferralData() {
-      try {
-        const res = await fetch(`${window.App.Auth.API_BASE_URL}/referrals`, {
-          headers: { Authorization: `Bearer ${window.App.Auth.getAccessToken()}` }
+      if (this.invitePharmacyBtn) this.invitePharmacyBtn.addEventListener('click', e => {
+        e.preventDefault();
+        this.openSharePopup('pharmacy');
+      });
+
+      if (this.elements.copyBtn) this.elements.copyBtn.addEventListener('click', () => this.copyReferralLink());
+      if (this.elements.whatsappBtn) this.elements.whatsappBtn.addEventListener('click', () => this.shareViaWhatsApp());
+      if (this.elements.emailBtn) this.elements.emailBtn.addEventListener('click', () => this.shareViaEmail());
+      if (this.elements.twitterBtn) this.elements.twitterBtn.addEventListener('click', () => this.shareViaTwitter());
+      if (this.elements.telegramBtn) this.elements.telegramBtn.addEventListener('click', () => this.shareViaTelegram());
+
+      if (this.elements.modal) {
+        this.elements.modal.addEventListener('click', e => {
+          if (e.target === this.elements.modal) this.closeModal();
         });
-
-        if (res.status === 401) {
-          this.showToast('Please log in to get your referral link.');
-          return;
-        }
-        if (!res.ok) throw new Error(`Failed: ${res.status}`);
-
-        const data = await res.json();
-
-        // Map exactly to your backend shape
-        this.referralLink = data.referralLink || `${window.location.origin}?ref=${data.referralCode}`;
-        this.referralCount = Number(data.referralCount || 0);
-        this.referralGoal = Number(data.referralGoal || 3);
-        this.reachedGoal = Boolean(data.reachedGoal);
-
-        // Optional local badge logic (can be replaced by API-provided badges later)
-        this.badges = this.computeBadges(this.referralCount);
-
-        this.updateUI();
-        this.loadLeaderboard();
-      } catch (err) {
-        console.error('Referral load failed:', err);
-        // Hard fallback: still provide a link so user can share
-        const fallbackCode = this.generateRandomCode();
-        this.referralLink = `${window.location.origin}?ref=${fallbackCode}`;
-        this.updateUI();
       }
     }
+
+    // ---------- REFERRAL CODE HANDLING ----------
+    persistReferralCode() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('ref');
+      if (code) localStorage.setItem('referral_code', code);
+
+      if (!localStorage.getItem('referral_type')) {
+        localStorage.setItem('referral_type', 'user');
+      }
+    }
+
+    getReferralCode() {
+      return localStorage.getItem('referral_code');
+    }
+
+    getReferralType() {
+      return localStorage.getItem('referral_type') || 'user';
+    }
+
+    // ---------- LOAD DATA FROM BACKEND ----------
+    async loadReferralData() {
+      const token = localStorage.getItem('nexahealth_access_token') 
+           || sessionStorage.getItem('nexahealth_access_token');
+
+      if (!token) return;
+
+      try {
+        const res = await fetch('https://lyre-4m8l.onrender.com/referrals/', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) return;
+
+        const data = await res.json();
+        this.referralLink = data.referralLink || `${window.location.origin}?ref=${data.referralCode}`;
+        this.points = Number(data.points || 0);
+        this.reachedGoal = this.points >= this.referralGoal;
+
+        this.updateUI();
+      } catch (err) {
+        console.error('Referral load failed:', err);
+      }
+    }
+
+    // ---------- APPLY REFERRAL ----------
+    async applyPendingReferral() {
+      const token = localStorage.getItem('nexahealth_access_token') 
+           || sessionStorage.getItem('nexahealth_access_token');
+      const code = this.getReferralCode();
+      if (!token || !code) return;
+
+      try {
+        const type = this.getReferralType();
+        const res = await fetch(`https://lyre-4m8l.onrender.com/referrals/use/${encodeURIComponent(code)}`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type })
+        });
+
+        if (res.ok) {
+          localStorage.removeItem('referral_code');
+          localStorage.removeItem('referral_type');
+          this.showToast('🔥 Referral applied successfully!');
+          this.playSound('success.mp3');
+          this.showConfetti();
+          await this.loadReferralData();
+        }
+      } catch (err) {
+        console.error('Failed to apply referral', err);
+      }
+    }
+
+    // ---------- POLLING FOR LOGIN ----------
+    waitForLoginAndApplyReferral() {
+      const interval = setInterval(async () => {
+        const token = localStorage.getItem('nexahealth_access_token') 
+           || sessionStorage.getItem('nexahealth_access_token');
+        const code = this.getReferralCode();
+        if (token && code) {
+          clearInterval(interval);
+          await this.applyPendingReferral();
+        }
+      }, 1000);
+    }
+
+    // ---------- SHARE MODAL ----------
+    openSharePopup(type) {
+      if (!this.elements.modal) this.createShareModal();
+      localStorage.setItem('referral_type', type);
+
+      if (this.elements.referralLinkInput) {
+        this.elements.referralLinkInput.value = this.referralLink || 'Loading...';
+      }
+
+      this.elements.modal.classList.remove('hidden');
+      this.showToast(type === 'pharmacy' ? 'Invite your favorite pharmacies!' : 'Invite friends to join!');
+    }
+
+    createShareModal() {
+      const modalHTML = `
+        <div id="referral-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+          <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-bold text-gray-900">Share Referral Link</h3>
+              <button onclick="window.ReferralSystem.closeModal()" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Your Referral Link</label>
+              <div class="flex">
+                <input id="referral-link" type="text" readonly class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 text-sm">
+                <button id="copy-referral-link" class="bg-blue-600 text-white px-4 py-2 rounded-r-lg hover:bg-blue-700 transition-colors">Copy</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="share-whatsapp" class="flex items-center justify-center gap-2 bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-colors"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+              <button id="share-email" class="flex items-center justify-center gap-2 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors"><i class="fas fa-envelope"></i> Email</button>
+              <button id="share-twitter" class="flex items-center justify-center gap-2 bg-blue-400 text-white p-3 rounded-lg hover:bg-blue-500 transition-colors"><i class="fab fa-twitter"></i> Twitter</button>
+              <button id="share-telegram" class="flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"><i class="fab fa-telegram"></i> Telegram</button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      this.initElements();
+      this.initEventListeners();
+    }
+
+    closeModal() { this.elements.modal?.classList.add('hidden'); }
 
     // ---------- UI ----------
     updateUI() {
-      const percent = this.referralGoal > 0
-        ? Math.min((this.referralCount / this.referralGoal) * 100, 100)
-        : 0;
-
-      if (this.elements.progressText) {
-        this.elements.progressText.textContent = `${this.referralCount}/${this.referralGoal} referrals`;
-      }
-      if (this.elements.progressBar) {
-        this.elements.progressBar.style.width = `${percent}%`;
-        this.elements.progressBar.classList.add('transition-all', 'duration-700', 'ease-out');
-      }
-      if (this.elements.referralLinkInput) {
-        this.elements.referralLinkInput.value = this.referralLink;
-      }
-
-      if (this.reachedGoal || this.referralCount >= this.referralGoal) {
-        this.unlockReward();
-      }
-
-      this.renderBadges();
+      if (this.elements.pointsDisplay) this.elements.pointsDisplay.textContent = `${this.points} pts`;
+      if (this.elements.progressText) this.elements.progressText.textContent = `Super Access at ${this.referralGoal} pts`;
+      if (this.reachedGoal) this.unlockReward();
     }
 
     unlockReward() {
       this.showConfetti();
       this.playSound('success.mp3');
-      this.showToast("🔥 Odogwu! You’ve unlocked early access!");
-
-      // Keep your original gradient card colors
-      const referralSection = document.querySelector('.dashboard-card.bg-gradient-to-r.from-purple-600.to-indigo-600');
-      if (referralSection) {
-        referralSection.innerHTML = `
-          <div class="p-6 relative">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-16 -translate-y-16"></div>
-            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full -translate-x-20 translate-y-20"></div>
-            <div class="relative z-10 text-center text-white">
-              <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
-                <i class="fas fa-trophy text-green-600 text-2xl"></i>
-              </div>
-              <h3 class="text-lg font-bold mb-1">Access Unlocked 🎉</h3>
-              <p class="opacity-90">You’re first in line for: AI Health Companion, AI Drug Scanner & more.</p>
-            </div>
-          </div>
-        `;
-      }
+      this.showToast("🎉 Super Access Unlocked! Be first to try new features.");
     }
 
-    renderBadges() {
-      const el = this.elements.badgeContainer;
-      if (!el) return;
-      el.innerHTML = '';
-      this.badges.forEach((b) => {
-        const div = document.createElement('div');
-        div.className = 'inline-flex items-center bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold mr-2 mb-2';
-        div.innerHTML = `<i class="fas fa-medal mr-1"></i> ${b}`;
-        el.appendChild(div);
-      });
-    }
-
-    computeBadges(count) {
-      const badges = [];
-      if (count >= 1) badges.push('Plug 🔌');
-      if (count >= 2) badges.push('Hype Squad 💫');
-      if (count >= 3) badges.push('Odogwu 🏆');
-      return badges;
-    }
-
-    async loadLeaderboard() {
-      if (!this.elements.leaderboard) return;
-      try {
-        const res = await fetch(`${window.App.Auth.API_BASE_URL}/referrals/leaderboard`, {
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        this.elements.leaderboard.innerHTML = data.map((u, i) => `
-          <div class="flex justify-between py-2 border-b border-gray-200">
-            <span class="font-medium">${i + 1}. ${this.escape(String(u.username || 'Anonymous'))}</span>
-            <span class="text-green-600 font-bold">${Number(u.count || 0)} ⚡</span>
-          </div>
-        `).join('');
-      } catch (e) {
-        console.warn('Leaderboard failed', e);
-      }
-    }
-
-    // ---------- SHARING ----------
+    // ---------- SHARE ----------
     async copyReferralLink() {
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(this.referralLink);
-        } else {
-          // Fallback for older browsers
-          this.elements.referralLinkInput?.select();
-          document.execCommand('copy');
-        }
-        this.showToast('📋 Copied referral link!');
-      } catch {
-        this.showToast('Could not copy. Long-press to copy.');
-      }
+      try { await navigator.clipboard.writeText(this.referralLink); this.showToast('📋 Referral link copied!'); }
+      catch { this.showToast('Could not copy. Long-press to copy.'); }
     }
+    shareViaWhatsApp() { window.open(`https://wa.me/?text=${encodeURIComponent('🔥 Join me on NexaHealth! ' + this.referralLink)}`, '_blank'); }
+    shareViaEmail() { window.location.href = `mailto:?subject=${encodeURIComponent('Join NexaHealth!')}&body=${encodeURIComponent('Check out NexaHealth! ' + this.referralLink)}`; }
+    shareViaTwitter() { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent("🚀 Join NexaHealth via: " + this.referralLink)}`, '_blank'); }
+    shareViaTelegram() { window.open(`https://t.me/share/url?url=${encodeURIComponent(this.referralLink)}&text=${encodeURIComponent('🔥 Join NexaHealth!')}`, '_blank'); }
 
-    shareViaWhatsApp() {
-      const msg = `🔥 Join me on NexaHealth! Verify drugs, manage prescriptions, unlock AI health features. Use my link: ${this.referralLink}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
-    }
-
-    shareViaEmail() {
-      const subject = 'Join NexaHealth with me!';
-      const body = `Hey! 🚀 Check out NexaHealth. It's 🔥 for managing health. Use my link: ${this.referralLink}`;
-      window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }
-
-    shareViaTwitter() {
-      const text = `🚀 I'm using NexaHealth! Verify drugs, track prescriptions & unlock AI health. Join via my link: ${this.referralLink}`;
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-    }
-
-    shareViaTelegram() {
-      const text = `🔥 NexaHealth is the future of healthcare in Naija! Join now: ${this.referralLink}`;
-      window.open(`https://t.me/share/url?url=${encodeURIComponent(this.referralLink)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener');
-    }
-
-    // ---------- REFERRAL APPLICATION ----------
-    // Backend does NOT expose /referrals/use/{code} in your snippet.
-    // Add an endpoint for applying a code, or remove this method.
-    async checkReferralInURL() {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get('ref');
-      if (!code) return;
-
-      try {
-        const headers = { "Content-Type": "application/json" };
-        const token = window.App.Auth.getAccessToken?.();
-        if (token) headers["Authorization"] = `Bearer ${token}`;
-
-        const response = await fetch(
-          `${window.App.Auth.API_BASE_URL}/referrals/use/${encodeURIComponent(code)}`,
-          { method: 'POST', headers }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          this.showToast(`✅ Referral applied! (${data.newCount} total)`);
-          this.playSound('referral.mp3');
-        } else {
-          console.warn("Referral not applied:", await response.text());
-        }
-      } catch (e) {
-        console.error('Referral apply failed', e);
-      }
-    }
-
-
-    // ---------- UTILS ----------
-    generateRandomCode() {
-      return Math.random().toString(36).substring(2, 8).toUpperCase();
-    }
-
-    escape(str) {
-      const div = document.createElement('div');
-      div.innerText = str;
-      return div.innerHTML;
-    }
-
-    showConfetti() {
-      if (typeof confetti === 'function') {
-        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-      }
-    }
-
-    playSound(file) {
-      const audio = new Audio(`/sounds/${file}`);
-      audio.play().catch(() => {});
-    }
-
+    // ---------- UTIL ----------
     showToast(msg) {
       const toast = document.createElement('div');
-      toast.className = 'fixed bottom-5 right-5 bg-black text-white px-4 py-2 rounded-lg shadow-lg';
+      toast.className = 'fixed bottom-5 right-5 bg-black text-white px-4 py-2 rounded-lg shadow-lg z-50';
       toast.textContent = msg;
       document.body.appendChild(toast);
       setTimeout(() => toast.remove(), 2600);
     }
-
-    openModal() { this.elements.modal?.classList.remove('hidden'); }
-    closeModal() { this.elements.modal?.classList.add('hidden'); }
+    showConfetti() { if (typeof confetti === 'function') confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } }); }
+    playSound(file) { console.log('Playing sound:', file); }
   }
 
-  window.ReferralSystem = ReferralSystem;
-  document.addEventListener('DOMContentLoaded', () => new ReferralSystem());
-}
+  window.ReferralSystem = new ReferralSystem();
+});

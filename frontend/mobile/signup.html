@@ -44,7 +44,7 @@
         }
     </script>
 </head>
-<body data-page="signup" class="font-sans bg-gray-50 min-h-screen flex flex-col">
+<body class="font-sans bg-gray-50 min-h-screen flex flex-col">
     <!-- Navigation -->
     <nav class="w-full bg-white shadow-sm z-50">
         <div class="container mx-auto px-4 xs:px-6 py-3">
@@ -71,7 +71,7 @@
                     <div class="absolute top-0 left-0 w-32 h-32 bg-blue-100 rounded-full opacity-20 -z-10"></div>
                     <div class="absolute bottom-0 right-0 w-40 h-40 bg-blue-100 rounded-full opacity-20 -z-10"></div>
                     <div class="relative animation-float">
-                        <img src="/frontend/images/nexahealthhero.jpeg"
+                        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
                              alt="Health illustration"
                              class="rounded-2xl shadow-xl w-full max-w-lg mx-auto">
                         <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-xl shadow-lg">
@@ -81,6 +81,7 @@
                                 </div>
                                 <div>
                                     <div class="font-bold text-sm">Secure Health Data</div>
+                                    <div class="text-xs text-gray-500">HIPAA Compliant</div>
                                 </div>
                             </div>
                         </div>
@@ -108,16 +109,17 @@
                         <p class="text-gray-600">Join NexaHealth to access all health features</p>
                     </div>
 
+
                     <!-- Google Signup Button 
                     <button id="googleSignup" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 ripple">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5">
                         <span>Sign up with Google</span>
                     </button>
 
-                    -- Divider 
-                    <div class="divider text-sm mb-6">OR</div>
+                    -- Divider --
+                    <div class="divider text-sm mb-6">OR</div>-->
 
-                     Signup Form -->
+                    <!-- Signup Form -->
                     <form id="signupForm" class="space-y-5">
                         <!-- Name Field -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -126,7 +128,7 @@
                                 <div class="relative">
                                     <input type="text" id="firstName" name="firstName" required
                                            class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
-                                           placeholder="John">
+                                           placeholder="Nexa">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-user text-sm"></i>
                                     </div>
@@ -137,7 +139,7 @@
                                 <div class="relative">
                                     <input type="text" id="lastName" name="lastName" required
                                            class="w-full form-input py-2 px-4 rounded-lg focus:outline-none input-focus"
-                                           placeholder="Doe">
+                                           placeholder="Health">
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                                         <i class="fas fa-user text-sm"></i>
                                     </div>
@@ -204,7 +206,7 @@
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all ripple">
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-3 px-4 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg ripple">
                             Create Account
                         </button>
                     </form>
@@ -228,6 +230,6 @@
 
     <!-- JavaScript -->
     <script src="js/signup.js"></script>
-    <script type="module" src="../tracker.js"></script>
+    <script src="js/referral.js"></script>
 </body>
 </html>

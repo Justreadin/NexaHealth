@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexaHealth | Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#10b981',
+                        dark: '#0f172a',
+                        light: '#f8fafc',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        info: '#3b82f6'
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    boxShadow: {
+                        card: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+                        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                        float: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'glow': '0 0 15px rgba(59, 130, 246, 0.2)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --header-height: 64px;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .health-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #1e40af 100%);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #0ea5e9;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .dashboard-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+        
+        .activity-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .scan-pulse {
+            animation: scanPulse 2s infinite;
+        }
+        
+        @keyframes scanPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(14, 165, 233, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+            }
+        }
+        
+        .health-tip-card {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(30, 64, 175, 0.1) 100%);
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .alert-card {
+            border-left: 4px solid transparent;
+        }
+        
+        .alert-card.critical {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(239, 68, 68, 0.02) 100%);
+        }
+        
+        .alert-card.warning {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+        }
+        
+        .alert-card.info {
+            border-left-color: #0ea5e9;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.05) 0%, rgba(14, 165, 233, 0.02) 100%);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .quick-action-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .quick-action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #bae6fd;
+        }
+        
+        .main-content {
+            padding-top: calc(var(--header-height) + 1.5rem);
+        }
+    </style>
+</head>
+<body data-page="dashboard" class="font-sans antialiased text-gray-800">
+    <!-- Premium Navigation -->
+    <nav class="fixed top-0 left-0 w-full bg-white shadow-md z-50 border-b border-gray-200 transition-all duration-300" style="height: var(--header-height);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full py-3">
+            <!-- Logo -->
+              <div class="flex items-center">
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-primary font-serif hover:text-secondary transition-colors" aria-label="NexaHealth Home">
+                        Nexa<span class="text-secondary">Health</span>
+                    </a>
+                </div>
+
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center space-x-6">
+                <!--<a href="settings.html" class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 hover:underline underline-offset-4 transition-all duration-300">Settings</a>
+                <a href="history.html" class="nav-link text-sm font-medium text-gray-700 hover:text-primary-600 hover:underline underline-offset-4 transition-all duration-300">User History</a>--->
+                <a href="/" class="nav-link text-sm font-medium text-red-600 hover:text-red-700 hover:underline underline-offset-4 transition-all duration-300">Logout</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all duration-300">
+                <span class="sr-only">Open menu</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                </button>
+            </div>
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="md:hidden absolute top-0 left-0 w-full bg-white shadow-md transform -translate-y-full transition-transform duration-300 ease-in-out z-40">
+            <div class="px-4 pt-20 pb-6 space-y-5 bg-white rounded-b-lg border-t border-gray-100 shadow-lg">
+            <!---<a href="settings.html" class="block text-base font-medium text-gray-700 hover:text-primary-600 transition-colors duration-300">Settings</a>
+            <a href="userhistory.html" class="block text-base font-medium text-gray-700 hover:text-primary-600 transition-colors duration-300">User History</a>--->
+            <a href="/" class="block text-base font-medium text-red-600 hover:text-red-700 transition-colors duration-300">Logout</a>
+            </div>
+        </div>
+        </nav>
+
+    <!-- Main Content -->
+    <main class="main-content pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <!-- Welcome Section -->
+        <section class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold font-serif text-gray-900">Loading...</h1>
+                    <p class="text-gray-600 mt-1">Your health safety overview</p>
+                </div>
+                <div class="mt-4 sm:mt-0">
+                    <div class="inline-flex items-center px-4 py-2 border border-gray-200 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fas fa-calendar-day text-primary-600 mr-2"></i>
+                        <span id="current-date">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="mb-6">
+        <div class="dashboard-card bg-gradient-to-r from-purple-600 to-indigo-600 text-white overflow-hidden relative">
+            <div class="p-6 relative">
+
+            <!-- Decorative elements -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
+            <div class="absolute bottom-0 left-0 w-40 h-40 bg-white/5 rounded-full transform -translate-x-20 translate-y-20"></div>
+
+            <!-- Content -->
+            <div class="relative z-10">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div class="mb-4 md:mb-0">
+                    <h2 class="text-2xl font-bold mb-2">🚀 Unlock Early Access!</h2>
+                    <p class="opacity-90 max-w-lg">
+                    Refer friends and climb levels! Each invite unlocks <span class="font-semibold">exclusive perks</span> like 
+                    <span class="font-semibold">AI Health Companion</span>, <span class="font-semibold">Drug Scanner</span>, and more.  
+                    <br><span class="italic opacity-80">Be among the first in Naija to try it 🔥</span>
+                    </p>
+                </div>
+
+                <div class="flex-shrink-0">
+                    <button id="open-referral-modal"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-md text-indigo-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all transform hover:scale-105">
+                    <i class="fas fa-gift mr-2"></i> Invite Friends
+                    </button>
+                </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium">Your Progress</span>
+                    <span id="referral-progress-text" class="text-sm font-bold">0/3 referrals</span>
+                </div>
+                <div class="w-full bg-white/30 rounded-full h-2.5 overflow-hidden">
+                    <div id="referral-progress-bar" class="bg-yellow-400 h-2.5 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                </div>
+                </div>
+
+                <!-- Badges -->
+                <div id="referral-badges" class="mt-4 flex flex-wrap gap-2"></div>
+            </div>
+            </div>
+        </div>
+        </section>
+
+        <!-- Referral Modal -->
+        <div id="referral-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-2xl shadow-lg w-full max-w-lg p-6 relative">
+            <!-- Close -->
+            <button id="close-referral-modal" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-xl font-bold mb-4">🎉 Invite & Unlock Rewards</h3>
+
+            <!-- Referral Link -->
+            <div class="flex items-center mb-4">
+            <input id="referral-link" readonly
+                class="flex-1 border rounded-l-lg px-3 py-2 text-gray-700 text-sm" />
+            <button id="copy-referral-link"
+                class="bg-indigo-600 text-white px-4 py-2 rounded-r-lg hover:bg-indigo-700">
+                <i class="fas fa-copy mr-1"></i> Copy
+            </button>
+            </div>
+
+            <!-- Share Buttons -->
+            <div class="grid grid-cols-2 gap-2 mb-6">
+            <button id="share-whatsapp"
+                class="bg-green-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-green-600">
+                <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+            </button>
+            <button id="share-email"
+                class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-blue-600">
+                <i class="fas fa-envelope mr-2"></i> Email
+            </button>
+            <button id="share-twitter"
+                class="bg-sky-500 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-sky-600">
+                <i class="fab fa-twitter mr-2"></i> Twitter
+            </button>
+            <button id="share-telegram"
+                class="bg-indigo-400 text-white px-4 py-2 rounded-lg flex items-center justify-center hover:bg-indigo-500">
+                <i class="fab fa-telegram mr-2"></i> Telegram
+            </button>
+            </div>
+        </div>
+        </div>
+        
+        <section class="mb-6">
+            <!-- Period Filters -->
+            <div class="stats-filters mb-4 flex flex-wrap gap-2">
+                <button 
+                data-period="day" 
+                class="active px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
+                >
+                Today
+                </button>
+                <button 
+                data-period="week" 
+                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
+                >
+                This Week
+                </button>
+                <button 
+                data-period="month" 
+                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
+                >
+                This Month
+                </button>
+                <button 
+                data-period="year" 
+                class="px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium hover:bg-blue-200 transition-colors"
+                >
+                This Year
+                </button>
+                <button 
+                id="refresh-stats" 
+                class="ml-auto px-3 py-1 rounded-md bg-gray-100 text-gray-800 text-xs font-medium hover:bg-gray-200 transition-colors flex items-center gap-1"
+                >
+                <i class="fas fa-sync-alt text-xs"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Dashboard Cards -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- Verified Card -->
+                <div class="dashboard-card verified-stats bg-white p-3 flex items-center hover:shadow-glow transition-all">
+                <div class="card-icon bg-blue-50 text-blue-600 mr-3 p-2 rounded-lg">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-medium text-gray-500">Verified Drugs</p>
+                    <div class="flex items-center justify-between">
+                    <p class="text-lg font-bold text-gray-900">0</p>
+                    <p class="text-sm text-gray-500">0 today</p>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Reported Card -->
+                <div class="dashboard-card reported-stats bg-white p-3 flex items-center hover:shadow-glow transition-all">
+                <div class="card-icon bg-red-50 text-red-600 mr-3 p-2 rounded-lg">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-medium text-gray-500">Reported Issues</p>
+                    <div class="flex items-center justify-between">
+                    <p class="text-lg font-bold text-gray-900">0</p>
+                    <p class="text-sm text-gray-500">0 today</p>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </section>
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Quick Actions -->
+                <section class="dashboard-card bg-white">
+                    <div class="p-5 border-b border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-bolt text-primary-600 mr-2"></i>
+                            Quick Actions
+                        </h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 p-5">
+                        <a href="verify.html" class="quick-action-card flex flex-col items-center justify-center p-4">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                                <i class="fas fa-barcode text-xl"></i>
+                            </div>
+                            <span class="text-sm font-medium text-center">Scan Drug</span>
+                        </a>
+                        
+                        <a href="pils.html" class="quick-action-card flex flex-col items-center justify-center p-4">
+                            <div class="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-3">
+                                <i class="fas fa-file-prescription text-xl"></i>
+                            </div>
+                            <span class="text-sm font-medium text-center">View PILs</span>
+                        </a>
+
+                        <a href="report.html" class="quick-action-card flex flex-col items-center justify-center p-4">
+                            <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                                <i class="fas fa-history text-xl"></i>
+                                </div>
+                            <span class="text-sm font-medium text-center">Report Drugs</span>
+                        </a>
+
+                        <a href="feedback.html" class="quick-action-card flex flex-col items-center justify-center p-4">
+                            <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+                                <i class="fas fa-comment-dots text-xl"></i>
+                            </div>
+                            <span class="text-sm font-medium text-center">Give Feedback</span>
+                        </a>
+                        
+                    </div>
+                </section>
+                
+                <!-- Recent Activity -->
+                <section class="dashboard-card bg-white">
+                    <div class="p-5 border-b border-gray-100 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-clock text-primary-600 mr-2"></i>
+                            Recent Activity
+                        </h2>
+                        <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800 flex items-center">
+                            View all <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="divide-y divide-gray-100 activity-container">
+                        <div class="p-4 text-center text-gray-500">
+                            <i class="fas fa-spinner fa-spin"></i> Loading activities...
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="space-y-6">
+                <!-- Safety Alerts -->
+                <section class="dashboard-card bg-white">
+                    <div class="p-5 border-b border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-bell text-primary-600 mr-2"></i>
+                            Safety Alerts
+                        </h2>
+                    </div>
+                    <div class="p-5 space-y-4">
+               <!-- General Alert -->
+                        <div class="alert-card info p-4 rounded-lg">
+                            <div class="flex">
+                                <div class="flex-shrink-0 text-blue-500 mr-3">
+                                    <i class="fas fa-info-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">General Drug Safety Reminder</h3>
+                                    <div class="mt-1 text-sm text-gray-600">
+                                        <p>Only use medications as prescribed. Avoid mixing drugs and store them safely away from children.</p>
+                                    </div>
+                                    <!--<div class="mt-3">
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                            More info
+                                        </button>-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!---Alert 2 
+                        <div class="alert-card warning p-4 rounded-lg">
+                            <div class="flex">
+                                <div class="flex-shrink-0 text-amber-500 mr-3">
+                                    <i class="fas fa-exclamation-circle text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">Expired Drugs Recall</h3>
+                                    <div class="mt-1 text-sm text-gray-600">
+                                        <p>Certain batches of Ampicillin recalled by NAFDAC.</p>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="button" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors">
+                                            Check batches
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>----->
+                    </div>
+                </section>
+                
+                <!-- Quick Scan -->
+                <section class="dashboard-card health-gradient overflow-hidden">
+                    <div class="p-5 text-white">
+                        <div class="flex items-center mb-3">
+                            <div class="flex-shrink-0 bg-white bg-opacity-20 p-2 rounded-lg mr-3">
+                                <i class="fas fa-qrcode text-xl"></i>
+                            </div>
+                            <h2 class="text-lg font-bold">Verify Medications</h2>
+                        </div>
+                        <p class="text-sm opacity-90 mb-4">Scan barcode or enter details manually to check drug authenticity</p>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <a href="verify.html" class="scan-pulse inline-flex items-center justify-center bg-white text-primary px-4 py-2.5 rounded-full text-sm font-medium shadow-lg hover:shadow-xl transition-all">
+                                <i class="fas fa-barcode mr-2"></i> Scan Now
+                            </a>
+                            <a href="verify.html" class="inline-flex items-center justify-center border border-white text-white px-4 py-2.5 rounded-full text-sm font-medium hover:bg-white hover:bg-opacity-10 transition-colors">
+                                <i class="fas fa-keyboard mr-2"></i> Enter Manually
+                            </a>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Health Tips -->
+                <section class="dashboard-card bg-white">
+                    <div class="p-5 border-b border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-lightbulb text-primary-600 mr-2"></i>
+                            Health Tips
+                        </h2>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <!-- Tip 1 -->
+                        <div class="health-tip-card p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-gray-900">Proper Medication Storage</h3>
+                            <p class="text-xs text-gray-600 mt-1">Store medications in a cool, dry place away from direct sunlight to maintain effectiveness.</p>
+                            <div class="mt-2 flex items-center text-xs text-gray-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span>2 days ago</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Tip 2 -->
+                        <div class="health-tip-card p-4 rounded-lg">
+                            <h3 class="text-sm font-medium text-gray-900">Antibiotic Usage</h3>
+                            <p class="text-xs text-gray-600 mt-1">Always complete the full course of antibiotics as prescribed, even if you feel better.</p>
+                            <div class="mt-2 flex items-center text-xs text-gray-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span>1 week ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <!-- Referral Modal -->
+        <div id="referral-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+            <div class="absolute inset-0 bg-gray-900 bg-opacity-75"></div>
+            </div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <i class="fas fa-share-alt text-indigo-600"></i>
+                </div>
+                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                    Invite Friends & Earn Rewards
+                    </h3>
+                    <div class="mt-2">
+                    <p class="text-sm text-gray-500">
+                        Share your unique referral link and get early access to our AI Health Companion when 3 friends sign up.
+                    </p>
+                    
+                    <!-- Referral Link Box -->
+                    <div class="mt-4">
+                        <label for="referral-link" class="block text-sm font-medium text-gray-700 mb-1">Your referral link</label>
+                        <div class="flex rounded-md shadow-sm">
+                        <input 
+                            type="text" 
+                            id="referral-link" 
+                            readonly 
+                            class="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-l-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                            value="Loading..."
+                        >
+                        <button 
+                            id="copy-referral-link" 
+                            class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                            <i class="fas fa-copy mr-1"></i> Copy
+                        </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Share Buttons -->
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Share via</p>
+                        <div class="flex space-x-2">
+                        <button 
+                            id="share-whatsapp" 
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                        >
+                            <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                        </button>
+                        <button 
+                            id="share-email" 
+                            class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <i class="fas fa-envelope mr-2"></i> Email
+                        </button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button 
+                type="button" 
+                id="close-referral-modal" 
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                Close
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
+    </main>
+    <script src="js/mobile-nav.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/count.js"></script>
+    <script src="js/date.js"></script>
+    <script src="js/referral.js"></script>
+    <script type="module" src="../tracker.js"></script>
+    <!-- Confetti library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+</body>
+</html>

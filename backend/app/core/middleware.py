@@ -115,19 +115,25 @@ class AuthMiddleware:
 
             user_data = user_doc.to_dict()
 
-            # Ensure all required fields exist
-            user_data.setdefault("created_at", None)
-            user_data.setdefault("last_login", None)
-            user_data.setdefault("role", "user")
-            user_data.setdefault("disabled", False)
-            user_data.setdefault("email_verified", False)
+            # Build a clean dict for UserInDB
+            clean_data = {
+                "id": user_id,
+                "email": payload.get("sub"),
+                "created_at": user_data.get("created_at"),
+                "last_login": user_data.get("last_login"),
+                "email_verified": user_data.get("email_verified", False),
+                "disabled": user_data.get("disabled", False),
+            }
 
-            # Add the Firestore document ID to the user_data before unpacking
-            user_data["id"] = user_id
-            user_data["email"] = payload.get("sub")
+            # Handle role(s)
+            if "role" in user_data:
+                clean_data["role"] = user_data["role"]
+            elif "roles" in user_data and isinstance(user_data["roles"], list) and user_data["roles"]:
+                clean_data["role"] = user_data["roles"][0]
+            else:
+                clean_data["role"] = "user"
 
-            return UserInDB(**user_data)
-
+            return UserInDB(**clean_data)
 
         except Exception as e:
             logger.error(f"User retrieval error: {str(e)}")

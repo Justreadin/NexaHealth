@@ -1,0 +1,110 @@
+NexaHealth Pharmacy MVP — Core Backend Features
+1. Pharmacy Registration & Verification
+
+Register pharmacy account: store name, address, operating hours, CAC number, licence upload
+
+Manual approval workflow: admin endpoint to approve/reject pharmacies
+
+Status tracking: pending, verified, rejected
+
+Backend Requirements:
+
+Database: pharmacies table
+
+Fields: id, name, address, cac_number, licence_url, status, created_at, updated_at
+
+API endpoints:
+
+POST /pharmacy/register → register pharmacy
+
+GET /pharmacy/{id} → fetch pharmacy details
+
+PATCH /pharmacy/{id}/status → admin approves/rejects
+
+2. Drug Verification (Core Feature)
+
+Pharmacy verifies a drug: scan barcode / enter code → marks drug as verified
+
+Consumer can also verify drugs using the same endpoint
+
+Track verification history: pharmacy ID, drug ID, timestamp
+
+Backend Requirements:
+
+Database: drugs table
+
+Fields: id, name, code, verified_by_pharmacy, verified_by_consumer, verified_at
+
+API endpoints:
+
+POST /drug/verify → mark drug as verified (pharmacy or consumer)
+
+GET /drug/{code} → check verification status
+
+3. Consumer Reports & Ratings
+
+Consumers report issues: fake/expired drugs, adverse reactions, unsafe pharmacy
+
+Pharmacies see reports related to them
+
+Track report status: pending, reviewed, resolved
+
+Backend Requirements:
+
+Database: reports table
+
+Fields: id, pharmacy_id, consumer_id, drug_id, type, description, status, created_at
+
+API endpoints:
+
+POST /report → submit consumer report
+
+GET /pharmacy/{id}/reports → fetch reports for pharmacy
+
+PATCH /report/{id}/status → update report status
+
+4. Badges & Trust Metrics
+
+Badges assigned to pharmacies: Partner, Verified, Trusted
+
+Backend tracks badge assignment rules (e.g., verified pharmacy automatically gets Verified badge, Trusted badge based on high rating)
+
+Database: badges table
+
+Fields: id, pharmacy_id, badge_type, assigned_at
+
+API endpoints:
+
+GET /pharmacy/{id}/badges → fetch pharmacy badges
+
+POST /pharmacy/{id}/badge → assign badge (admin)
+
+5. Dashboard Metrics (Backend)
+
+Provide API endpoints for frontend dashboard:
+
+Verified drugs count
+
+Active reports count
+
+Average consumer rating
+
+Recent verifications
+
+API examples:
+
+GET /pharmacy/{id}/metrics → returns all metrics for dashboard
+
+✅ Summary — Core MVP Features (Backend)
+
+Pharmacy registration & manual verification
+
+Drug verification (pharmacy + consumer)
+
+Consumer reports & rating system
+
+Badge assignment & tracking
+
+Dashboard metrics API
+
+Optional / non-core for MVP: Notifications, analytics trends, comments on reports, profile editing, gamification metrics (leave for later).

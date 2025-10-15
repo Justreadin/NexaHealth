@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NexaHealth | Find Trusted Pharmacies</title>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                primary: '#2563eb',
+                secondary: '#1e40af',
+                success: '#10b981',
+                danger: '#ef4444',
+            },
+            fontFamily: { sans: ['Poppins', 'sans-serif'] },
+        }
+    }
+}
+</script>
+
+<style>
+body { 
+    font-family: 'Poppins', sans-serif; 
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 100vh;
+}
+
+.premium-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 1.5px;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 50%, #3b82f6 100%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+.premium-card:hover::before {
+    opacity: 1;
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.3);
+}
+
+.premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.partner-glow {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    position: relative;
+}
+
+.partner-glow::before {
+    content: '👑';
+    margin-right: 4px;
+    font-size: 0.6rem;
+}
+
+.status-pill {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.search-glow {
+    background: white;
+    border-radius: 16px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.search-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    padding: 2px;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+    opacity: 0.6;
+}
+
+.hero-gradient {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.contact-info {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.pharmacy-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+/* Improved touch targets for mobile */
+@media (max-width: 640px) {
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .pharmacy-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+        margin-right: 12px;
+    }
+    
+    .premium-card {
+        border-radius: 12px;
+    }
+}
+</style>
+</head>
+<body class="text-gray-800">
+
+<header class="bg-white shadow-lg p-3 sm:p-4 sticky top-0 z-20 border-b border-gray-100">
+    <div class="flex items-center max-w-6xl mx-auto">
+        <a href="dashboard.html" class="text-blue-600 font-bold text-base sm:text-lg mr-3 sm:mr-4 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200 touch-target">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <h1 class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Find Pharmacies</h1>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+    <!-- Hero Section -->
+    <section class="text-center mb-4 sm:mb-8">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4">Find <span class="hero-gradient">trusted pharmacies</span> nearby</h2>
+        <p class="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">Every pharmacy you see here is verified and trusted on the NexaHealth platform.</p>
+    </section>
+
+    <!-- Search Bar -->
+    <section class="mb-4 sm:mb-8 sticky top-14 sm:top-16 z-10 bg-gray-50 py-2">
+        <div class="search-glow max-w-2xl mx-auto mb-3 sm:mb-4">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-blue-500 text-sm sm:text-base"></i>
+                </div>
+                <input type="text" id="search-input" class="block w-full pl-10 sm:pl-12 pr-4 sm:pr-6 py-3 sm:py-4 bg-transparent border-0 rounded-2xl focus:outline-none focus:ring-0 text-gray-700 placeholder-gray-400 z-10 relative text-sm sm:text-base touch-target" placeholder="Search pharmacy name or city...">
+            </div>
+        </div>
+        
+        <!-- Filters (Above Pharmacy Cards) -->
+        <div class="flex flex-wrap gap-2 sm:gap-3 justify-center">
+            <select id="filter-badge" class="px-3 sm:px-4 py-2 rounded-xl border border-gray-300 text-sm sm:text-base touch-target bg-white">
+                <option value="">All Badges</option>
+                <option value="Partner">Partner</option>
+                <option value="Verified">Verified</option>
+            </select>
+
+            <select id="filter-status" class="px-3 sm:px-4 py-2 rounded-xl border border-gray-300 text-sm sm:text-base touch-target bg-white">
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Pharmacy Cards Grid -->
+    <section id="pharmacy-results">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
+    </section>
+
+    <!-- Empty State -->
+    <section id="empty-state" class="hidden text-center py-8 sm:py-16">
+        <div class="max-w-md mx-auto px-4">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 text-blue-500">
+                <i class="fas fa-map-marker-alt text-xl sm:text-2xl"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3">No verified pharmacies found nearby</h3>
+            <p class="text-gray-500 text-sm sm:text-base mb-4 sm:mb-6">We're expanding fast — check back soon for new pharmacy partners in your area.</p>
+            <button class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 touch-target text-sm sm:text-base">
+                Notify Me When Available
+            </button>
+        </div>
+    </section>
+    <!-- Pharmacy Details Modal -->
+<div id="pharmacy-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl w-full max-w-lg p-6 relative shadow-lg">
+    <button id="close-pharmacy-modal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-lg">
+      ✕
+    </button>
+
+    <h2 id="modal-name" class="text-xl font-semibold text-gray-900 mb-2"></h2>
+    <p id="modal-location" class="text-sm text-gray-600 mb-1"></p>
+    <p id="modal-phone" class="text-sm text-gray-600 mb-4"></p>
+
+    <!-- Rating -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-2">Rate this pharmacy</label>
+      <div id="rating-stars" class="flex space-x-2"></div>
+    </div>
+
+    <!-- Review Input -->
+    <textarea id="review-text" class="w-full border rounded-lg p-3 text-sm mb-4" rows="3"
+      placeholder="Write a review..."></textarea>
+    <!-- Stats -->
+    <div class="text-sm text-gray-700 mb-4 space-y-1">
+      <p><strong>Reports:</strong> <span id="modal-reports">0</span></p>
+      <p><strong>Medication Complaints:</strong> <span id="modal-complaints">0</span></p>
+      <p><strong>Last Active:</strong> <span id="modal-last-active">Unknown</span></p>
+    </div>
+
+    <button id="submit-feedback" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-2 rounded-lg text-sm font-medium hover:shadow-lg transition">
+      Submit
+    </button>
+  </div>
+  
+</div>
+
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Elements
+  const searchInput = document.getElementById('search-input');
+  const pharmacyResults = document.getElementById('pharmacy-results');
+  const emptyState = document.getElementById('empty-state');
+  const badgeFilter = document.getElementById('filter-badge');
+  const statusFilter = document.getElementById('filter-status');
+
+  // Modal elements
+  const modal = document.getElementById('pharmacy-modal');
+  const closeModalBtn = document.getElementById('close-pharmacy-modal');
+  const modalName = document.getElementById('modal-name');
+  const modalLocation = document.getElementById('modal-location');
+  const modalPhone = document.getElementById('modal-phone');
+  const modalReports = document.getElementById('modal-reports');
+  const modalComplaints = document.getElementById('modal-complaints');
+  const modalLastActive = document.getElementById('modal-last-active');
+  const ratingStarsContainer = document.getElementById('rating-stars');
+  const reviewTextarea = document.getElementById('review-text');
+  const submitFeedbackBtn = document.getElementById('submit-feedback');
+
+  // Data
+  let pharmaciesData = []; // full dataset
+  let activePharmacy = null; // currently viewed pharmacy in modal
+
+  // --- Helpers ---
+  function getAuthToken() {
+    return localStorage.getItem('nexahealth_access_token') || sessionStorage.getItem('nexahealth_access_token') || null;
+  }
+
+  function showToast(message, type = 'info') {
+    const t = document.createElement('div');
+    t.textContent = message;
+    t.style.position = 'fixed';
+    t.style.right = '16px';
+    t.style.bottom = '16px';
+    t.style.padding = '10px 14px';
+    t.style.background = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#2563eb';
+    t.style.color = '#fff';
+    t.style.borderRadius = '8px';
+    t.style.boxShadow = '0 6px 18px rgba(0,0,0,0.12)';
+    t.style.zIndex = 99999;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+function createPharmacyCard(ph) {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer';
+
+    let partnerBadge = '';
+    if (ph.current_badge) {
+      const badgeText = ph.current_badge.toLowerCase();
+
+      if (badgeText === 'partner' || badgeText === 'verified' || badgeText === 'premium') {
+        partnerBadge = `
+          <span class="inline-flex items-center px-3 py-1.5 gradient-bg text-white rounded-full text-xs font-semibold shadow-sm">
+            <i class="fas fa-handshake mr-1.5 text-xs"></i>${ph.current_badge}
+          </span>
+        `;
+      }
+    }
+
+
+    const openBadgeClass = ph.is_open ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200';
+    const openBadgeText = ph.is_open ? 'Open Now' : 'Closed';
+
+    // Rating stars
+    let ratingHtml = '';
+    if (ph.average_rating != null && ph.average_rating > 0) {
+        const rounded = Math.round(ph.average_rating);
+        ratingHtml = `
+            <div class="flex items-center">
+                <div class="flex items-center space-x-0.5 mr-2">
+                    ${Array.from({length: 5}).map((_, i) =>
+                        i < rounded
+                        ? '<i class="fas fa-star text-amber-400 text-sm"></i>'
+                        : '<i class="fas fa-star text-gray-300 text-sm"></i>'
+                    ).join('')}
+                </div>
+                <span class="text-sm text-gray-600 font-medium">${ph.average_rating.toFixed(1)}</span>
+                <span class="text-xs text-gray-500 ml-1">(${ph.ratings_count || 0})</span>
+            </div>
+        `;
+    } else {
+        ratingHtml = `
+            <div class="flex items-center text-gray-500 text-sm">
+                <i class="fas fa-star text-gray-300 mr-1"></i>
+                <span>No trust ratings yet</span>
+            </div>
+        `;
+    }
+
+    card.innerHTML = `
+        <!-- Header Section -->
+        <div class="p-3 pb-2 border-b border-gray-50">
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center space-x-3 flex-1 min-w-0">
+                    <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center flex-shrink-0 shadow-md group-hover:shadow-lg transition-shadow duration-300">
+                        <i class="fas fa-clinic-medical text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-1 leading-tight">${escapeHtml(ph.name || "Unnamed Pharmacy")}</h3>
+                        <div class="flex items-center space-x-2 flex-wrap gap-y-1.5">
+                            ${partnerBadge}
+                            <span class="inline-flex items-center px-2.5 py-1 ${openBadgeClass} rounded-full text-xs font-semibold">
+                                <i class="fas fa-clock mr-1.5 text-xs"></i>${openBadgeText}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Ratings -->
+            ${ratingHtml}
+        </div>
+
+        <!-- Details Section -->
+        <div class="p-3 space-y-1">
+            <!-- Location -->
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-map-marker-alt text-primary-blue text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600 leading-relaxed line-clamp-2">${escapeHtml(ph.location || "Location not available")}</p>
+                </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-phone text-green-600 text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-800">${escapeHtml(ph.phone_number || "Phone not available")}</p>
+                </div>
+            </div>
+
+            <!-- License -->
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-id-card text-purple-600 text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm text-gray-600">${escapeHtml(ph.pcn_license || "License: Not specified")}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Section -->
+        <div class="px-3 py-2 bg-gray-50 border-t border-gray-100">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <div class="flex items-center text-gray-500 text-xs">
+                    <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+                    <span class="font-medium">Joined ${escapeHtml(ph.joined_month_year || "Recently")}</span>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button class="view-details-btn px-4 py-2.5 gradient-bg text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 touch-target min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                        <i class="fas fa-eye mr-2 text-sm"></i>
+                        Details
+                    </button>
+                    <a href="report.html"> <button class="report-pharmacy-btn px-4 py-2.5 bg-red-600 border border-red-700 text-white rounded-xl text-sm font-semibold hover:bg-red-700 hover:border-red-800 transition-all duration-200 active:scale-95 touch-target min-h-[44px] flex items-center justify-center flex-1 sm:flex-none">
+                        <i class="fas fa-flag mr-2 text-sm text-white"></i>
+                        Report
+                    </button></a>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Attach pharmacy data to view button
+    const viewBtn = card.querySelector('.view-details-btn');
+    viewBtn.__pharmacy = ph;
+
+    // Add click event to view button
+    viewBtn.addEventListener('click', openPharmacyModal);
+
+    return card;
+}
+
+// Add CSS for line clamping and responsive design
+const style = document.createElement('style');
+style.textContent = `
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    .gradient-bg {
+        background: linear-gradient(135deg, #1E40AF 0%, #003F88 100%);
+    }
+    
+    /* Smooth hover effects */
+    .group:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Mobile-first responsive adjustments */
+    @media (max-width: 640px) {
+        .premium-card {
+            margin-bottom: 1rem;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+  function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Render a list of pharmacy objects
+  function renderPharmacies(list) {
+    const grid = pharmacyResults.querySelector('.grid');
+    grid.innerHTML = '';
+
+    if (!Array.isArray(list) || list.length === 0) {
+      emptyState.classList.remove('hidden');
+      return;
+    }
+    emptyState.classList.add('hidden');
+
+    list.forEach(ph => {
+      grid.appendChild(createPharmacyCard(ph));
+    });
+  }
+
+  // Fetch pharmacies from backend
+  async function fetchPharmacies() {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/consumer/pharmacies");
+      if (!res.ok) {
+        throw new Error('Failed to fetch pharmacies');
+      }
+      const data = await res.json();
+      pharmaciesData = Array.isArray(data.pharmacies) ? data.pharmacies : (data.pharmacies || data || []);
+      renderPharmacies(pharmaciesData);
+      console.log("Fetched pharmacies:", pharmaciesData);
+    } catch (err) {
+      console.error('Error fetching pharmacies:', err);
+      pharmaciesData = [];
+      renderPharmacies(pharmaciesData);
+    }
+  }
+
+  // Client-side filters
+  function filterPharmacies() {
+    const nameTerm = (searchInput.value || '').toLowerCase().trim();
+    const badgeTerm = (badgeFilter.value || '').toLowerCase();
+    const statusTerm = (statusFilter.value || '').toLowerCase();
+
+    const filtered = pharmaciesData.filter(ph => {
+      let matches = true;
+      if (nameTerm) {
+        matches = (ph.name || '').toLowerCase().includes(nameTerm) ||
+                  (ph.location || '').toLowerCase().includes(nameTerm);
+      }
+      if (matches && badgeTerm) {
+        matches = ((ph.current_badge || '').toLowerCase() === badgeTerm);
+      }
+      if (matches && statusTerm) {
+        matches = (statusTerm === 'open' && ph.is_open) || (statusTerm === 'closed' && !ph.is_open);
+      }
+      return matches;
+    });
+
+    renderPharmacies(filtered);
+  }
+
+  // -------------------
+  // Modal behavior
+  // -------------------
+  function openPharmacyModal(evt) {
+    // support being called from click handler on button (evt target)
+    const btn = evt.currentTarget || evt.target;
+    const ph = btn.__pharmacy || (btn.dataset && btn.dataset.pharmacy && JSON.parse(btn.dataset.pharmacy));
+    if (!ph) {
+      console.error('No pharmacy data available to show in modal.');
+      return;
+    }
+    activePharmacy = ph;
+
+    // Fill modal
+    modalName.textContent = ph.name || 'Unnamed Pharmacy';
+    modalLocation.textContent = ph.location || 'Location not available';
+    modalPhone.textContent = ph.phone_number || 'Phone not available';
+    modalReports.textContent = ph.reports_count != null ? ph.reports_count : '0';
+    modalComplaints.textContent = ph.complaints_count != null ? ph.complaints_count : '0';
+    modalLastActive.textContent = ph.last_active || 'Unknown';
+
+    // Reset review/rating/report selections
+    reviewTextarea.value = '';
+    ratingStarsContainer.dataset.selected = '0';
+    ratingStarsContainer.innerHTML = '';
+    createRatingStars(ratingStarsContainer);
+
+    // Uncheck radio buttons (if they exist)
+    const radioInputs = modal.querySelectorAll("input[type=radio][name=report]");
+    radioInputs.forEach(r => r.checked = false);
+
+    // Show modal (flex)
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    modal.scrollTop = 0;
+  }
+
+  function closeModal() {
+    activePharmacy = null;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  // Click backdrop to close
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  closeModalBtn.addEventListener('click', closeModal);
+
+  // Rating stars in modal
+  function createRatingStars(container) {
+    // create 5 star icons
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('i');
+      star.className = 'fas fa-star text-gray-300 cursor-pointer text-lg';
+      star.style.marginRight = '6px';
+      star.dataset.value = String(i);
+      star.addEventListener('click', () => {
+        selectRatingStars(container, i);
+      });
+      container.appendChild(star);
+    }
+  }
+
+  function selectRatingStars(container, value) {
+    const children = Array.from(container.children);
+    children.forEach((ch, idx) => {
+      if (idx < value) {
+        ch.classList.add('text-yellow-400');
+        ch.classList.remove('text-gray-300');
+      } else {
+        ch.classList.remove('text-yellow-400');
+        ch.classList.add('text-gray-300');
+      }
+    });
+    container.dataset.selected = String(value);
+  }
+
+  // Submit feedback to backend
+  submitFeedbackBtn.addEventListener('click', async () => {
+    if (!activePharmacy || !activePharmacy.pharmacy_id && !activePharmacy.id) {
+      alert('No pharmacy selected.');
+      return;
+    }
+
+    const rating = Number(ratingStarsContainer.dataset.selected || 0) || null;
+    const review = (reviewTextarea.value || '').trim();
+    const report = modal.querySelector("input[name='report']:checked")?.value || null;
+    const pharmacyId = activePharmacy.pharmacy_id || activePharmacy.id;
+
+    // Basic validation
+    if (!rating && !review && !report) {
+      alert('Please provide a rating, a review, or select a report option before submitting.');
+      return;
+    }
+
+    const payload = {
+      rating,
+      review,
+      report
+    };
+
+    const token = getAuthToken();
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/consumer/pharmacies/${pharmacyId}/feedback`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => null);
+        console.error('Feedback API error', res.status, errText);
+        showToast('Failed to submit feedback. Try again.', 'error');
+        return;
+      }
+
+      // Optionally, you could update the modal counts using server response
+      const respJson = await res.json().catch(() => ({}));
+      // update counts if provided
+      if (respJson.reports_count != null) modalReports.textContent = respJson.reports_count;
+      if (respJson.complaints_count != null) modalComplaints.textContent = respJson.complaints_count;
+
+      showToast('Thank you — feedback submitted!', 'success');
+      closeModal();
+    } catch (err) {
+      console.error('Error submitting feedback', err);
+      showToast('Network error: unable to submit feedback', 'error');
+    }
+  });
+
+  // Utility: attach delegation for dynamic view buttons (if any)
+  // (we already attach per-button when generating cards; this keeps fallback)
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.view-details-btn');
+    if (btn && btn.__pharmacy) {
+      openPharmacyModal({ currentTarget: btn });
+    }
+  });
+
+  // Initialize rating stars container empty when DOM loads
+  createRatingStars(ratingStarsContainer);
+
+  // Event listeners for filters/search
+  searchInput.addEventListener('input', filterPharmacies);
+  badgeFilter.addEventListener('change', filterPharmacies);
+  statusFilter.addEventListener('change', filterPharmacies);
+
+  // Kick off initial fetch
+  fetchPharmacies();
+});
+</script>
+
+</body>
+</html>

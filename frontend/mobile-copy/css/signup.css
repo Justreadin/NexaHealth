@@ -1,0 +1,139 @@
+/* Animation styles */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+}
+
+/* Custom styles */
+.gradient-bg {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.95) 0%, rgba(30, 64, 175, 0.95) 100%);
+}
+
+.card-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+}
+
+.input-focus:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.btn-hover {
+    transition: all 0.3s ease;
+    background-size: 200% auto;
+    background-image: linear-gradient(to right, #2563eb 0%, #1e40af 51%, #2563eb 100%);
+}
+
+.btn-hover:hover {
+    background-position: right center;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+}
+
+.google-btn {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px 0 rgba(66, 133, 244, 0.2);
+}
+
+.google-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px 0 rgba(66, 133, 244, 0.3);
+}
+
+.form-input {
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.form-input:hover {
+    border-color: #93c5fd;
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+}
+
+.password-toggle {
+    transition: all 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #3b82f6;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #64748b;
+}
+
+.divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider::before {
+    margin-right: 1rem;
+}
+
+.divider::after {
+    margin-left: 1rem;
+}
+
+.checkbox:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
+}
+
+.checkbox:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+.animation-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: no-preference) {
+    .animation-fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .animation-slide-up {
+        animation: slideUp 0.8s ease-out;
+    }
+}

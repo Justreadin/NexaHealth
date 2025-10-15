@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
-from app.core.db import db, users_collection, reports_collection
+from app.core.db import db, users_collection, reports_collection, stats_collection
 from app.core.auth import get_current_active_user
 from app.models.auth_model import UserInDB
 from firebase_admin import firestore
@@ -26,8 +26,8 @@ class UserProfile(BaseModel):
 class DashboardStats(BaseModel):
     verified_drugs: int
     reported_issues: int
-    health_checks: int
-    saved_facilities: int
+    referred_pharmacies: int
+    nearby_pharmacies: int
 
 class ActivityItem(BaseModel):
     type: str
@@ -75,39 +75,56 @@ async def get_user_profile(current_user: UserInDB = Depends(get_current_active_u
 async def get_dashboard_stats(current_user: UserInDB = Depends(get_current_active_user)):
     """Get dashboard statistics for the authenticated user"""
     try:
-        # Get actual counts from Firestore
-        verified_drugs = len([doc for doc in 
-            reports_collection.where("user_id", "==", current_user.id)
-                            .where(filter=("status", "==", "verified")).stream()])
+        # ✅ Verified drugs
+        verified_drugs = len([
+            doc for doc in reports_collection
+                .where("user_id", "==", current_user.id)
+                .where("status", "==", "verified")
+                .stream()
+        ])
 
-        
-        reported_issues = len([doc for doc in 
-            reports_collection.where("user_id", "==", current_user.id)
-                            .where(filter=("status", "==", "reported")).stream()])
+        # ✅ Reported issues
+        reported_issues = len([
+            doc for doc in reports_collection
+                .where("user_id", "==", current_user.id)
+                .where("status", "==", "reported")
+                .stream()
+        ])
 
-        
-        # These would be replaced with actual health check queries
-        health_checks = len([doc for doc in 
-                           users_collection.document(current_user.id)
-                           .collection("health_checks").stream()])
-        
-        saved_facilities = len([doc for doc in 
-                              users_collection.document(current_user.id)
-                              .collection("saved_facilities").stream()])
-        
+        # ✅ Referred pharmacies
+        referred_pharmacies = len([
+            doc for doc in stats_collection
+                .where("user_id", "==", current_user.id)
+                .where("stat_name", "==", "referred_pharmacies")
+                .stream()
+        ])
+
+        # ✅ Nearby pharmacies count (default lat/lng until frontend supplies it)
+        nearby_pharmacies = 0
+        try:
+            docs = users_collection.where("roles", "array_contains", "pharmacy").stream()
+            for doc in docs:
+                data = doc.to_dict()
+                if data.get("location"):
+                    nearby_pharmacies += 1
+        except Exception:
+            pass
+
+
         return DashboardStats(
             verified_drugs=verified_drugs,
             reported_issues=reported_issues,
-            health_checks=health_checks,
-            saved_facilities=saved_facilities
+            referred_pharmacies=referred_pharmacies,
+            nearby_pharmacies=nearby_pharmacies
         )
-        
+
     except Exception as e:
         logger.error(f"Error fetching dashboard stats: {str(e)}")
         raise HTTPException(
             status_code=500,
             detail="Error fetching dashboard statistics"
         )
+
 
 @router.get("/dashboard/activity", response_model=List[ActivityItem])
 async def get_recent_activity(current_user: UserInDB = Depends(get_current_active_user)):

@@ -1,0 +1,24 @@
+Key Screens for Your MVP
+Pharmacy Profile Page (like Airbnb listing):
+
+Licence verification badge prominently displayed
+
+Operating hours, contact info, services offered
+
+Consumer ratings and reports response rate
+
+"Report This Pharmacy" button
+
+Drug Verification Feature:
+
+Simple scan/upload for medication packaging
+
+Quick checklist: "Expiry date visible," "NAFDAC number present," "Packaging intact"
+
+One-tap reporting for suspicious medications
+
+Reporting System:
+
+Categorized reports: "Fake medication," "Expired drug," "Poor service"
+
+Anonymous option with evidence upload capability

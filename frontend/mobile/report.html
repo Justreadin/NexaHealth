@@ -19,7 +19,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/report.css">
 </head>
-<body data-page="report" class="font-sans bg-gray-50 text-gray-800">
+<body class="font-sans bg-gray-50 text-gray-800">
     <!-- Header -->
     <header class="bg-white shadow-sm p-4 sticky top-0 z-10">
         <div class="flex items-center justify-between">
@@ -47,7 +47,7 @@
             <div id="scanned-drug-info" class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 hidden">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-bold text-blue-800">Reported Drug</h3>
+                        <h3 class="font-bold text-blue-800">Reported Medication</h3>
                         <p id="scanned-drug-name" class="text-sm font-medium"></p>
                         <p id="scanned-drug-manufacturer" class="text-xs text-gray-600"></p>
                         <p id="scanned-drug-nafdac" class="text-xs text-gray-600 mt-1"></p>
@@ -63,11 +63,11 @@
         <form id="pqc-form" class="px-4 space-y-4" enctype="multipart/form-data">
             <!-- Drug Information -->
             <div class="bg-white rounded-xl shadow-sm p-4">
-                <h3 class="font-bold font-serif mb-3 border-b pb-2">Drug Information</h3>
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Medication Information</h3>
                 
                 <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Drug Name *</label>
-                    <input type="text" id="pqc-drug-name" name="drug_name" required
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Medication Name *</label>
+                    <input type="text" id="pqc-drug-name" name="Medication_name" required
                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
@@ -203,10 +203,10 @@
         <form id="ae-form" class="px-4 space-y-4 hidden">
             <!-- Drug Information -->
             <div class="bg-white rounded-xl shadow-sm p-4">
-                <h3 class="font-bold font-serif mb-3 border-b pb-2">Drug Information</h3>
+                <h3 class="font-bold font-serif mb-3 border-b pb-2">Medication Information</h3>
                 
                 <div class="mb-3">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Drug Name *</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Medication Name *</label>
                     <input type="text" id="ae-drug-name" name="drug_name" required
                            class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
@@ -369,7 +369,7 @@
                     <i class="fas fa-check text-green-600 text-2xl"></i>
                 </div>
                 <h3 class="text-xl font-bold font-serif mb-2">Report Submitted!</h3>
-                <p class="text-gray-600 mb-4">Thank you for helping improve drug safety in Nigeria.</p>
+                <p class="text-gray-600 mb-4">Thank you for helping improve Medication safety in Nigeria.</p>
                 <button id="modal-close" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium">
                     Done
                 </button>
@@ -380,6 +380,5 @@
     <!-- Custom JavaScript -->
      <script src="js/login.js"></script>
     <script src="js/report.js"></script>
-    <script type="module" src="../tracker.js"></script>
 </body>
 </html>

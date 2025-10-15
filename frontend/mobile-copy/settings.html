@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --accent: #3b82f6;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light);
+        }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: var(--accent);
+            background-color: var(--accent);
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+        
+        .setting-card {
+            transition: all 0.2s ease;
+        }
+        
+        .setting-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold text-gray-800">Settings</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto pb-24 px-4">
+        <!-- Profile Section -->
+        <section class="mt-6 mb-8 slide-in">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-user-circle mr-2 text-blue-600"></i>
+                My Profile
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex items-center mb-4">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-user text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Adebayo Oluwaseun</h3>
+                        <p class="text-sm text-gray-500">Patient</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-medium">adebayo@example.com</p>
+                        </div>
+                        <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded">Verified</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center py-2">
+                        <div>
+                            <p class="text-sm text-gray-500">Account Type</p>
+                            <p class="font-medium">Standard Patient</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="w-full mt-4 border border-blue-600 text-blue-600 py-2.5 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+                    Edit Profile
+                </button>
+            </div>
+        </section>
+
+        <!-- Health Info Section -->
+        <section class="mb-8 slide-in" style="animation-delay: 0.1s">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-heartbeat mr-2 text-blue-600"></i>
+                Health Info
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <div class="flex items-start">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 mb-1">Medical Profile</h3>
+                        <p class="text-sm text-gray-600 mb-3">Add allergies, conditions, and other health details for personalized recommendations</p>
+                        <span class="inline-block bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs font-medium">
+                            Coming Soon
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Appearance Section -->
+        <section class="mb-8 slide-in" style="animation-delay: 0.2s">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-paint-brush mr-2 text-blue-600"></i>
+                Appearance
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <!-- Language -->
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-language text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-medium">Language</p>
+                            <p class="text-sm text-gray-500">English (default)</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </div>
+                
+                <!-- Dark Mode -->
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-moon text-gray-500 mr-3"></i>
+                        <p class="font-medium">Dark Mode</p>
+                    </div>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                        <input type="checkbox" id="dark-mode-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                        <label for="dark-mode-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                </div>
+                
+                <!-- Font Size -->
+                <div class="flex justify-between items-center py-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-text-height text-gray-500 mr-3"></i>
+                        <p class="font-medium">Font Size</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="px-2 py-1 text-xs bg-blue-100 text-blue-600 rounded">Normal</button>
+                        <button class="px-2 py-1 text-xs bg-white border border-gray-200 text-gray-500 rounded">Large</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section class="mb-8 slide-in" style="animation-delay: 0.3s">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-bell mr-2 text-blue-600"></i>
+                Notifications
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+                <!-- Drug Recalls -->
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-exclamation-triangle text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-medium">Drug Recall Alerts</p>
+                            <p class="text-sm text-gray-500">Get notified about medication recalls</p>
+                        </div>
+                    </div>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                        <input type="checkbox" id="recall-toggle" checked class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                        <label for="recall-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-blue-100 cursor-pointer"></label>
+                    </div>
+                </div>
+                
+                <!-- Health Reminders -->
+                <div class="flex justify-between items-center py-3">
+                    <div class="flex items-center">
+                        <i class="fas fa-clock text-gray-500 mr-3"></i>
+                        <div>
+                            <p class="font-medium">Health Reminders</p>
+                            <p class="text-sm text-gray-500">Medication and checkup reminders</p>
+                        </div>
+                    </div>
+                    <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                        <input type="checkbox" id="reminders-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                        <label for="reminders-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-sm text-gray-500 flex items-center">
+                <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+                Notifications are currently sent via email only
+            </div>
+        </section>
+
+        <!-- Privacy & Data Section -->
+        <section class="mb-8 slide-in" style="animation-delay: 0.4s">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-lock mr-2 text-blue-600"></i>
+                Privacy & Data
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100 space-y-4">
+                <button class="w-full flex items-center justify-between py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div class="flex items-center">
+                        <i class="fas fa-download text-gray-500 mr-3"></i>
+                        <span class="font-medium">Download My Data</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </button>
+                
+                <button id="delete-account-btn" class="w-full flex items-center justify-between py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors text-red-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-trash-alt mr-3"></i>
+                        <span class="font-medium">Delete My Account</span>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section class="mb-8 slide-in" style="animation-delay: 0.5s">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800 flex items-center">
+                <i class="fas fa-shield-alt mr-2 text-blue-600"></i>
+                Security
+            </h2>
+            
+            <div class="setting-card bg-white rounded-xl shadow-sm p-5 border border-gray-100 space-y-4">
+                <button class="w-full flex items-center justify-between py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div class="flex items-center">
+                        <i class="fas fa-key text-gray-500 mr-3"></i>
+                        <span class="font-medium">Change Password</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </button>
+                
+                <button class="w-full flex items-center justify-between py-2.5 px-3 hover:bg-gray-50 rounded-lg transition-colors text-blue-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        <span class="font-medium">Logout</span>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Delete Account Confirmation Modal -->
+        <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl p-6 max-w-sm w-full slide-in">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-red-100 p-3 rounded-full">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                </div>
+                <h3 class="text-lg font-bold text-center mb-2">Delete Your Account?</h3>
+                <p class="text-sm text-gray-600 text-center mb-6">This will permanently erase all your health history and personal data. This action cannot be undone.</p>
+                
+                <div class="flex space-x-3">
+                    <button id="cancel-delete" class="flex-1 border border-gray-300 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-lg font-medium">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Save Changes Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 border-t border-gray-200">
+        <button class="w-full health-gradient hover:opacity-90 text-white py-3 rounded-lg font-medium">
+            Save Changes
+        </button>
+    </div>
+
+    <script>
+        // Toggle functionality
+        document.querySelectorAll('.toggle-checkbox').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const label = this.nextElementSibling;
+                if (this.checked) {
+                    label.classList.remove('bg-gray-300');
+                    label.classList.add('bg-blue-100');
+                } else {
+                    label.classList.remove('bg-blue-100');
+                    label.classList.add('bg-gray-300');
+                }
+            });
+        });
+
+        // Delete account modal
+        document.getElementById('delete-account-btn').addEventListener('click', function() {
+            document.getElementById('delete-modal').classList.remove('hidden');
+        });
+        
+        document.getElementById('cancel-delete').addEventListener('click', function() {
+            document.getElementById('delete-modal').classList.add('hidden');
+        });
+
+        // Font size toggle
+        document.querySelectorAll('[class*="text-xs"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelector('.bg-blue-100').classList.remove('bg-blue-100', 'text-blue-600');
+                document.querySelector('.bg-blue-100').classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-500');
+                
+                this.classList.remove('bg-white', 'border', 'border-gray-200', 'text-gray-500');
+                this.classList.add('bg-blue-100', 'text-blue-600');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -27,7 +27,18 @@
                 },
                 extend: {
                     colors: {
-                        primary: '#2563eb',
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
                         secondary: '#1e40af',
                         accent: '#3b82f6',
                         dark: '#1e293b',
@@ -209,9 +220,343 @@
                 padding-bottom: 2rem;
             }
         }
+
+        /* Enhanced Mobile-First Responsive Styles */
+@media (max-width: 480px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .mobile-px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .mobile-py-8 {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .grid-cols-1 {
+        grid-template-columns: 1fr;
+    }
+    
+    .text-3xl {
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+    }
+    
+    .p-6 {
+        padding: 1.5rem;
+    }
+    
+    .space-y-5 > * + * {
+        margin-top: 1.25rem;
+    }
+    
+    .gap-8 {
+        gap: 2rem;
+    }
+    
+    .mb-8 {
+        margin-bottom: 2rem;
+    }
+}
+
+/* Enhanced Mobile Typography */
+@media (max-width: 480px) {
+    .text-xl {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+    }
+    
+    .text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+}
+
+/* Improved Mobile Form Elements */
+@media (max-width: 480px) {
+    .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.75rem 1rem;
+    }
+    
+    .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .rounded-lg {
+        border-radius: 0.5rem;
+    }
+}
+
+/* Enhanced Mobile Button Sizes */
+@media (max-width: 480px) {
+    .btn-hover {
+        min-height: 44px; /* Better touch targets */
+        padding: 0.75rem 1rem;
+    }
+    
+    .google-btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* Improved Mobile Navigation */
+@media (max-width: 768px) {
+    nav .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-3 {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+}
+
+/* Enhanced Mobile Footer */
+@media (max-width: 480px) {
+    footer .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-6 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Improved Mobile Animations */
+@media (max-width: 768px) {
+    .animate-slide-up {
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+}
+
+/* Enhanced Mobile Focus States */
+@media (max-width: 480px) {
+    .input-focus:focus {
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        border-width: 2px;
+    }
+}
+
+/* Improved Mobile Spacing */
+@media (max-width: 480px) {
+    .gap-3 {
+        gap: 0.75rem;
+    }
+    
+    .mb-6 {
+        margin-bottom: 1.5rem;
+    }
+    
+    .mt-6 {
+        margin-top: 1.5rem;
+    }
+}
+
+/* Enhanced Mobile Grid Layout */
+@media (max-width: 768px) {
+    .grid {
+        gap: 1.5rem;
+    }
+    
+    .max-w-lg {
+        max-width: 100%;
+    }
+}
+
+/* Improved Mobile Card Layout */
+@media (max-width: 480px) {
+    .rounded-2xl {
+        border-radius: 1rem;
+    }
+    
+    .shadow-lg {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Enhanced Mobile Text Readability */
+@media (max-width: 480px) {
+    body {
+        font-size: 16px;
+        line-height: 1.5;
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+}
+
+/* Improved Mobile Form Labels */
+@media (max-width: 480px) {
+    .floating-label {
+        font-size: 0.75rem;
+        left: 0.75rem;
+    }
+    
+    .form-input:focus + .floating-label,
+    .form-input:not(:placeholder-shown) + .floating-label {
+        transform: translateY(-60%) scale(0.8);
+    }
+}
+
+/* Enhanced Mobile Icon Sizes */
+@media (max-width: 480px) {
+    .text-xl {
+        font-size: 1.25rem;
+    }
+    
+    .text-lg {
+        font-size: 1.125rem;
+    }
+    
+    .text-sm {
+        font-size: 0.875rem;
+    }
+}
+
+/* Improved Mobile Container Padding */
+@media (max-width: 480px) {
+    .px-4 {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-8 {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+}
+
+/* Enhanced Mobile Button Groups */
+@media (max-width: 480px) {
+    .flex-col {
+        flex-direction: column;
+    }
+    
+    .space-y-2 > * + * {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Improved Mobile Form Validation */
+@media (max-width: 480px) {
+    input:invalid {
+        border-color: #ef4444;
+    }
+    
+    input:valid {
+        border-color: #10b981;
+    }
+}
+
+/* Enhanced Mobile Performance */
+@media (max-width: 768px) {
+    .animate-pulse-slow {
+        animation: pulse 3s infinite;
+    }
+    
+    .animate-float {
+        animation: float 4s ease-in-out infinite;
+    }
+}
+
+/* Improved Mobile Accessibility */
+    @media (max-width: 480px) {
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    }
+
+    /* Enhanced Mobile Touch Interactions */
+    @media (max-width: 768px) {
+        .btn-hover:active {
+            transform: translateY(0px);
+            transition: transform 0.1s ease;
+        }
+        
+        .card-hover:active {
+            transform: translateY(-2px);
+            transition: transform 0.1s ease;
+        }
+    }
+
+    /* Improved Mobile Loading States */
+    @media (max-width: 480px) {
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    }
+
+    /* Enhanced Mobile Error States */
+    @media (max-width: 480px) {
+        .error {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        
+        .error-text {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+    }
+
+    /* Improved Mobile Success States */
+    @media (max-width: 480px) {
+        .success {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        
+        .success-text {
+            color: #10b981;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+    }
     </style>
 </head>
-<body data-page="login" class="font-sans bg-gray-50 min-h-screen flex flex-col">
+<body class="font-sans bg-gray-50 min-h-screen flex flex-col">
     <!-- Navigation -->
     <nav class="w-full bg-white shadow-sm z-50 fixed top-0">
         <div class="container mx-auto px-4 xs:px-6 py-3">
@@ -245,7 +590,7 @@
                     <div class="absolute bottom-0 right-0 w-40 h-40 bg-blue-100 rounded-full opacity-20 -z-10 animate-pulse-slow animate-delay-200"></div>
                     <div class="relative animate-float">
                         <div class="overflow-hidden rounded-2xl shadow-xl">
-                            <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
+                            <img src="/frontend/images/Nexahealth_image.jpg"
                                  alt="Health illustration"
                                  class="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
                                  loading="lazy">
@@ -279,75 +624,82 @@
                 </div>
 
                 <!-- Right Column - Form -->
-                <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-8 md:p-10 max-w-lg mx-auto w-full card-hover animate-slide-up">
-                    <div class="text-center mb-8">
-                        <h1 class="text-2xl sm:text-3xl font-bold font-serif mb-2 text-gray-800">Welcome</h1>
-                        <p class="text-gray-600">Log in to access your health dashboard</p>
+                <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8 md:p-10 max-w-lg mx-auto w-full border-2 border-gradient-to-r from-blue-400 via-purple-400 to-pink-400 card-hover transform transition duration-300 hover:scale-105 animate-slide-up">
+
+                    
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold font-serif mb-2 text-gray-800">Welcome</h1>
+                    <p class="text-gray-600">Log in to access your health dashboard</p>
+                </div>
+
+                <!-- Google Login Button -->
+                <!---<button id="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-300 hover:border-gray-500 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 transition-all shadow-sm hover:shadow-md">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5">
+                    <span>Continue with Google</span>
+                </button>--->
+                    <a href="saas/saas-entry.html"><button id="pharmacySignup" class="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg mb-6 ripple">
+                        <i class="fas fa-clinic-medical text-lg"></i>
+                        <span>Login as a Pharmacy</span>
+                    </button></a>
+
+                <div class="divider text-sm text-gray-400 mb-6 text-center">OR</div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-5">
+
+                    <!-- Email Field -->
+                    <div class="relative">
+                    <input type="email" id="loginEmail" name="email" required
+                            class="w-full py-3 px-4 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all peer"
+                            placeholder=" " autocomplete="email">
+                    <label for="loginEmail" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base transition-all">
+                        Email Address
+                    </label>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                        <i class="fas fa-envelope text-sm"></i>
+                    </div>
                     </div>
 
-                    <!-- Google Login Button 
-                    <button id="googleLogin" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-medium google-btn mb-6 ripple relative overflow-hidden">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" class="w-5 h-5" loading="lazy">
-                        <span>Continue with Google</span>
+                    <!-- Password Field -->
+                    <div class="relative">
+                    <input type="password" id="loginPassword" name="password" required
+                            class="w-full py-3 px-4 rounded-lg border border-gray-300 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all peer pr-10"
+                            placeholder=" " autocomplete="current-password">
+                    <label for="loginPassword" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base transition-all">
+                        Password
+                    </label>
+                    <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle" onclick="togglePassword('loginPassword', this)">
+                        <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
                     </button>
+                    </div>
 
-                    <div class="divider text-sm text-gray-400 mb-6">OR</div>
-
-                    Login Form -->
-                    <form id="loginForm" class="space-y-5">
-                        <!-- Email Field -->
-                        <div class="relative">
-                            <input type="email" id="loginEmail" name="email" required
-                                   class="w-full form-input py-3 px-4 rounded-lg focus:outline-none input-focus"
-                                   placeholder=" " autocomplete="email">
-                            <label for="loginEmail" class="floating-label">Email Address</label>
-                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-                                <i class="fas fa-envelope text-sm"></i>
-                            </div>
-                        </div>
-
-                        <!-- Password Field -->
-                        <div class="relative">
-                            <input type="password" id="loginPassword" name="password" required
-                                   class="w-full form-input py-3 px-4 rounded-lg focus:outline-none input-focus pr-10"
-                                   placeholder=" " autocomplete="current-password">
-                            <label for="loginPassword" class="floating-label">Password</label>
-                            <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 password-toggle"
-                                    onclick="togglePassword('loginPassword', this)">
-                                <i class="fas fa-eye text-gray-400 hover:text-blue-500"></i>
-                            </button>
-                        </div>
-
-                        <!-- Remember Me & Forgot Password -->
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <input id="rememberMe" name="rememberMe" type="checkbox"
-                                       class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded remember-checkbox">
-                                <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
-                            </div>
-                            <div>
-                                <a href="forgot-password.html" class="text-sm text-primary-600 hover:text-primary-800 forgot-link">
-                                    Forgot password?
-                                </a>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" class="w-full btn-hover text-white py-3 px-4 rounded-lg font-semibold transition-all ripple relative overflow-hidden shadow-md hover:shadow-lg">
-                            Log In
-                        </button>
-                    </form>
-
-                    <!-- Signup Link -->
-                    <div class="mt-6 text-center text-sm text-gray-600">
-                        <span>Don't have an account?</span>
-                        <a href="signup.html" class="font-medium text-primary-600 hover:text-primary-800 ml-1 transition-colors">
-                            Sign up now
-                        </a> <span> OR </span>
-                        <a href="/index.html" class="font-medium text-primary-600 hover:text-primary-800 ml-1 transition-colors">
-                            Return to Guestmode
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input id="rememberMe" name="rememberMe" type="checkbox"
+                            class="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded">
+                        <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <div>
+                        <a href="forgot-password.html" class="text-sm text-blue-500 hover:text-blue-700">
+                        Forgot password?
                         </a>
                     </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-blue-500 to-pink-500 text-white py-3 px-4 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Log In
+                    </button>
+                </form>
+
+                <!-- Signup Link -->
+                <div class="mt-6 text-center text-sm text-gray-600">
+                    <span>Don't have an account?</span>
+                    <a href="signup.html" class="font-medium text-blue-500 hover:text-blue-700 ml-1 transition-colors">Sign up now</a>
+                    <span> OR </span>
+                    <a href="/index.html" class="font-medium text-blue-500 hover:text-blue-700 ml-1 transition-colors">Return to Guestmode</a>
+                </div>
                 </div>
             </div>
         </div>
@@ -388,6 +740,6 @@
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
-<script type="module" src="../tracker.js"></script>
+<script src="js/referral.js"></script>
 </body>
 </html>

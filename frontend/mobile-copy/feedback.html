@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback | NexaHealth</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/feedback.css">
+</head>
+<body data-page="feedback" class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm p-4 sticky top-0 z-20">
+        <div class="flex items-center justify-between max-w-6xl mx-auto">
+            <a href="dashboard.html" class="text-blue-600 font-bold text-lg">
+                <i class="fas fa-chevron-left mr-2"></i>
+            </a>
+            <div class="flex items-center">
+                <h1 class="text-xl font-bold font-serif text-gray-800">Feedback</h1>
+            </div>
+            <div class="w-6"></div> <!-- Spacer -->
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto pb-20 px-4">
+        <!-- Feedback Hero -->
+        <div class="feedback-gradient rounded-2xl p-6 text-white mb-8 mt-6 shadow-lg overflow-hidden relative">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute top-0 left-10 w-20 h-20 rounded-full bg-white"></div>
+                <div class="absolute bottom-0 right-10 w-32 h-32 rounded-full bg-white"></div>
+            </div>
+            <div class="relative z-10">
+                <div class="flex items-center mb-4">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full mr-4">
+                        <i class="fas fa-comment-alt text-xl"></i>
+                    </div>
+                    <h2 class="text-xl font-bold font-serif">Share Your Experience</h2>
+                </div>
+                <p class="text-sm opacity-90 mb-6">Help us improve NexaHealth with your valuable feedback</p>
+            </div>
+        </div>
+
+        <!-- Feedback Form -->
+        <section class="mb-8 slide-in">
+            <div class="feedback-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <form id="feedback-form">
+                    <!-- Feedback Type -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">What type of feedback are you sharing?</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="feedback-type-option">
+                                <input type="radio" name="feedback_type" value="suggestion" class="sr-only peer" checked>
+                                <div class="p-3 border border-gray-200 rounded-lg peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all">
+                                    <div class="flex items-center">
+                                        <div class="bg-blue-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-lightbulb text-blue-600"></i>
+                                        </div>
+                                        <span>Suggestion</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="feedback-type-option">
+                                <input type="radio" name="feedback_type" value="bug" class="sr-only peer">
+                                <div class="p-3 border border-gray-200 rounded-lg peer-checked:border-red-500 peer-checked:bg-red-50 transition-all">
+                                    <div class="flex items-center">
+                                        <div class="bg-red-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-bug text-red-600"></i>
+                                        </div>
+                                        <span>Bug Report</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="feedback-type-option">
+                                <input type="radio" name="feedback_type" value="compliment" class="sr-only peer">
+                                <div class="p-3 border border-gray-200 rounded-lg peer-checked:border-green-500 peer-checked:bg-green-50 transition-all">
+                                    <div class="flex items-center">
+                                        <div class="bg-green-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-heart text-green-600"></i>
+                                        </div>
+                                        <span>Compliment</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="feedback-type-option">
+                                <input type="radio" name="feedback_type" value="question" class="sr-only peer">
+                                <div class="p-3 border border-gray-200 rounded-lg peer-checked:border-purple-500 peer-checked:bg-purple-50 transition-all">
+                                    <div class="flex items-center">
+                                        <div class="bg-purple-100 p-2 rounded-full mr-3">
+                                            <i class="fas fa-question text-purple-600"></i>
+                                        </div>
+                                        <span>Question</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Feedback Message -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Feedback</label>
+                        <textarea id="feedback-message" rows="5" 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                            placeholder="Tell us about your experience..." required></textarea>
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email (Optional)</label>
+                        <input type="email" id="contact-email" 
+                            class="w-full p-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            placeholder="Your email if you'd like a response">
+                    </div>
+                    
+                    <!-- Screenshot Upload -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Screenshot (Optional)</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="screenshot-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                        <span>Upload a file</span>
+                                        <input id="screenshot-upload" name="screenshot-upload" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                            </div>
+                        </div>
+                        <div id="preview-container" class="mt-2 hidden">
+                            <img id="preview-image" class="max-w-full h-auto rounded-lg border border-gray-200">
+                            <button id="remove-image" class="mt-2 text-sm text-red-600 flex items-center">
+                                <i class="fas fa-trash mr-1"></i> Remove image
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full feedback-gradient hover:opacity-90 text-white py-3 rounded-lg font-medium transition-all flex items-center justify-center">
+                        <i class="fas fa-paper-plane mr-2"></i> Submit Feedback
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Thank You Modal -->
+        <div id="thank-you-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-xl max-w-sm w-full p-6 text-center slide-up">
+                <div class="flex justify-center mb-4">
+                    <div class="bg-green-100 p-4 rounded-full">
+                        <i class="fas fa-check-circle text-green-600 text-3xl"></i>
+                    </div>
+                </div>
+                <h3 class="font-bold text-xl mb-2">Thank You!</h3>
+                <p class="text-gray-600 mb-6">Your feedback has been submitted successfully.</p>
+                <button id="close-thank-you" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium">
+                    Back to App
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="js/feedback.js"></script>
+    <script type="module" src="../tracker.js"></script>
+</body>
+</html>
