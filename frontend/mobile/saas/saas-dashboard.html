@@ -100,11 +100,21 @@
 
         <!-- Quick Actions Section -->
         <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <a href="saas-verify.html" class="block">
-                <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
-                    <i class="fas fa-capsules text-primary text-base sm:text-lg mb-2"></i>
-                    <p class="text-xs sm:text-sm font-medium text-gray-800">Verify Drug</p>
+            <a class="flex flex-col items-center p-2 sm:p-3 rounded-lg border border-gray-100 transition-all group touch-target relative opacity-70 cursor-not-allowed" style="pointer-events: none;">
+                <!-- Coming Soon Badge -->
+                <div class="absolute -top-2 -right-2 z-10">
+                    <span class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md animate-pulse">
+                        Coming Soon
+                    </span>
                 </div>
+                
+                <!-- Icon Container -->
+                <div class="w-8 h-8 sm:w-10 sm:h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mb-1 sm:mb-2 transition-colors">
+                    <i class="fas fa-barcode text-sm sm:text-base"></i>
+                </div>
+                
+                <!-- Text -->
+                <span class="text-xs font-medium text-center text-gray-500">Scan Medication</span>
             </a>
             <a href="saas-report.html" class="block">
                 <div class="gradient-border bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start text-center sm:text-left transition-all duration-300 gradient-hover cursor-pointer h-full">
