@@ -1,6 +1,6 @@
 class AuthService {
   constructor() {
-    this.API_BASE_URL = 'https://lyre-4m8l.onrender.com';
+    this.API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app';
     this.TOKEN_KEY = 'nexahealth_access_token';
     this.REFRESH_TOKEN_KEY = 'nexahealth_refresh_token';
     this.REDIRECT_KEY = 'nexahealth_redirect_url';

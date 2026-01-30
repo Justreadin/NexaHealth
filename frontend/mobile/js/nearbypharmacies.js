@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const res = await fetch(
-                `https://lyre-4m8l.onrender.com/api/pharmacies/nearby?lat=${lat}&lng=${lng}&radius_km=${radius_km}`,
+                `https://nexahealth-backend-production.up.railway.app/api/pharmacies/nearby?lat=${lat}&lng=${lng}&radius_km=${radius_km}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             const data = await res.json();
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const token = getStoredAccessToken();
             const res = await fetch(
-                `https://lyre-4m8l.onrender.com/api/geocode?address=${encodeURIComponent(address)}`,
+                `https://nexahealth-backend-production.up.railway.app/api/geocode?address=${encodeURIComponent(address)}`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             const data = await res.json();

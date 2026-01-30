@@ -1,7 +1,7 @@
 // saas-entry.js - Pharmacy SaaS Application Entry Point
 class PharmacyAuthService {
     constructor() {
-        this.API_BASE_URL = 'https://lyre-4m8l.onrender.com/pharmacy';
+        this.API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app/pharmacy';
         this.TOKEN_KEY = 'nexahealth_pharmacy_token';
         this.REFRESH_TOKEN_KEY = 'nexahealth_pharmacy_refresh_token';
         this.PHARMACY_DATA_KEY = 'nexahealth_pharmacy_data';

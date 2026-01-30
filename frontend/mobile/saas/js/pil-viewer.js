@@ -66,7 +66,7 @@ const PILViewer = {
             throw new Error('No access token');
         }
 
-        const response = await fetch(`https://lyre-4m8l.onrender.com/api/pils/${pilId}`, {
+        const response = await fetch(`https://nexahealth-backend-production.up.railway.app/api/pils/${pilId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -84,7 +84,7 @@ const PILViewer = {
         if (!token) return;
 
         try {
-            await fetch(`https://lyre-4m8l.onrender.com/api/pils/${pilId}/view`, {
+            await fetch(`https://nexahealth-backend-production.up.railway.app/api/pils/${pilId}/view`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -104,7 +104,7 @@ const PILViewer = {
                 throw new Error('Not authenticated');
             }
 
-            const response = await fetch(`https://lyre-4m8l.onrender.com/api/pils/${this.currentPilId}/save`, {
+            const response = await fetch(`https://nexahealth-backend-production.up.railway.app/api/pils/${this.currentPilId}/save`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -128,7 +128,7 @@ const PILViewer = {
 
     download: function() {
         if (!this.currentPilId) return;
-        window.open(`https://lyre-4m8l.onrender.com/api/pils/${this.currentPilId}/download`, '_blank');
+        window.open(`https://nexahealth-backend-production.up.railway.app/api/pils/${this.currentPilId}/download`, '_blank');
     },
 
     checkIfSaved: async function(pilId) {
@@ -136,7 +136,7 @@ const PILViewer = {
             const token = localStorage.getItem('nexahealth_access_token');
             if (!token) return false;
 
-            const response = await fetch('https://lyre-4m8l.onrender.com/api/pils/saved', {
+            const response = await fetch('https://nexahealth-backend-production.up.railway.app/api/pils/saved', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

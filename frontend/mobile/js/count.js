@@ -109,7 +109,7 @@ class DashboardStats {
     try {
       const token = this.getAuthToken();
       const response = await fetch(
-        `https://lyre-4m8l.onrender.com/api/stats/${endpoint}${params}`,
+        `https://nexahealth-backend-production.up.railway.app/api/stats/${endpoint}${params}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -130,7 +130,7 @@ class DashboardStats {
     try {
       const token = this.getAuthToken();
       const response = await fetch(
-        `https://lyre-4m8l.onrender.com/api/stats/nearby-pharmacies?lat=${this.userLocation.lat}&lng=${this.userLocation.lng}&radius_km=5`,
+        `https://nexahealth-backend-production.up.railway.app/api/stats/nearby-pharmacies?lat=${this.userLocation.lat}&lng=${this.userLocation.lng}&radius_km=5`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }

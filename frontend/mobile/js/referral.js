@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!token) return;
 
       try {
-        const res = await fetch('https://lyre-4m8l.onrender.com/referrals/', {
+        const res = await fetch('https://nexahealth-backend-production.up.railway.app/referrals/', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         const type = this.getReferralType();
-        const res = await fetch(`https://lyre-4m8l.onrender.com/referrals/use/${encodeURIComponent(code)}`, {
+        const res = await fetch(`https://nexahealth-backend-production.up.railway.app/referrals/use/${encodeURIComponent(code)}`, {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ type })

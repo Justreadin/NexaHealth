@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     // API Configuration
-    const API_BASE_URL = 'https://lyre-4m8l.onrender.com/pharmacy';
+    const API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app/pharmacy';
     const REQUEST_TIMEOUT = 30000; // 30 seconds for file uploads
 
     // Initialize

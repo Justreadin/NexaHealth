@@ -1,6 +1,6 @@
 // js/saas-dashboard.js
 (() => {
-  const API_BASE = 'https://lyre-4m8l.onrender.com';
+  const API_BASE = 'https://nexahealth-backend-production.up.railway.app';
   const PHARMACY_PREFIX = '/pharmacy';
   const STATS_PREFIX = '/api/stats';
   const TIMEOUT = 12000;

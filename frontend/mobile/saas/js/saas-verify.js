@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     // API Configuration
-    const API_BASE_URL = 'https://lyre-4m8l.onrender.com';
+    const API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app';
     const REQUEST_TIMEOUT = 15000;
 
     // Initialize

@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           window.App = window.App || {};
           window.App.Auth = {
             getAccessToken: () => token,
-            API_BASE_URL: 'https://lyre-4m8l.onrender.com'
+            API_BASE_URL: 'https://nexahealth-backend-production.up.railway.app'
           };
           return true;
         }
@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ✅ Load dashboard stats (fixed selectors)
     const loadDashboardStats = async () => {
       try {
-        const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/stats', {
+        const response = await fetch('https://nexahealth-backend-production.up.railway.app/dashboard/stats', {
           headers: {
             'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
           }
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ✅ Load recent activity
     const loadRecentActivity = async () => {
       try {
-        const response = await fetch('https://lyre-4m8l.onrender.com/dashboard/activity', {
+        const response = await fetch('https://nexahealth-backend-production.up.railway.app/dashboard/activity', {
           headers: {
             'Authorization': `Bearer ${window.App.Auth.getAccessToken()}`
           }

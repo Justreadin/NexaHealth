@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            const response = await fetch('https://lyre-4m8l.onrender.com/api/verify/drug', {
+            const response = await fetch('https://nexahealth-backend-production.up.railway.app/api/verify/drug', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showLoadingState('Verifying barcode...');
         
         try {
-            const response = await fetch('https://lyre-4m8l.onrender.com/api/verify/barcode', {
+            const response = await fetch('https://nexahealth-backend-production.up.railway.app/api/verify/barcode', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

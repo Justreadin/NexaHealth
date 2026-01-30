@@ -1,6 +1,6 @@
 // Configuration
 
-const API_BASE_URL = 'https://lyre-4m8l.onrender.com/api/pils';
+const API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app/api/pils';
 // DOM Elements
 // Add these right after your other DOM element declarations
 const manufacturerSearch = document.getElementById('manufacturer-search');

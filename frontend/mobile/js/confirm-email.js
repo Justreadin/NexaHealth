@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'https://lyre-4m8l.onrender.com';
+const API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app';
 const RESEND_DELAY = 30000; // 30 seconds delay between resend attempts
 const TOAST_DURATION = 5000; // 5 seconds for toast messages
 const MAX_RESEND_ATTEMPTS = 5; // Maximum number of resend attempts

@@ -1,7 +1,7 @@
 // saas-profile.js - Pharmacy Profile Management
 class PharmacyProfileService {
     constructor() {
-        this.API_BASE_URL = 'https://lyre-4m8l.onrender.com/pharmacy';
+        this.API_BASE_URL = 'https://nexahealth-backend-production.up.railway.app/pharmacy';
         this.PROFILE_DATA_KEY = 'nexahealth_pharmacy_profile';
         this.hasUnsavedChanges = false;
         this.saveTimeout = null;
