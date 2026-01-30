@@ -26,11 +26,16 @@ router = APIRouter(
 
 logger = logging.getLogger(__name__)
 
-# Load drug database
-DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_v3.json"
+# Load drug database with error handling
+DRUG_DB_FILE = Path(__file__).parent.parent / "data" / "unified_drugs_with_pils_v.json"
 
-with open(DRUG_DB_FILE, encoding="utf-8") as f:
-    drug_db = json.load(f)
+try:
+    with open(DRUG_DB_FILE, encoding="utf-8") as f:
+        content = f.read().strip()
+        drug_db = json.loads(content) if content else []
+except (json.JSONDecodeError, FileNotFoundError) as e:
+    logger.error(f"Failed to load drug database: {e}")
+    drug_db = []
 
 # Enhanced common name mappings with Nigerian-specific variations
 COMMON_NAME_MAPPINGS = {
